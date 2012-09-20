@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="die-tk" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\libdie-tk" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj\Debug\" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\die-tk" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++0x" />
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="die-tk.h" />
+		<Unit filename="src\Application.h" />
+		<Unit filename="src\Callbacks.h" />
+		<Unit filename="src\Canvas.h" />
+		<Unit filename="src\Color.h" />
+		<Unit filename="src\ControlParams.h" />
+		<Unit filename="src\Dimension.h" />
+		<Unit filename="src\Dimension_impl.h" />
+		<Unit filename="src\Event.h" />
+		<Unit filename="src\Window.h" />
+		<Unit filename="src\WindowObjects.h" />
+		<Unit filename="src\WindowParams.h" />
+		<Unit filename="src\controls\Button.h" />
+		<Unit filename="src\controls\ComboBox.h" />
+		<Unit filename="src\controls\Control.h" />
+		<Unit filename="src\controls\Image.h" />
+		<Unit filename="src\controls\Memo.h" />
+		<Unit filename="src\trace.h" />
+		<Unit filename="src\win32\Application.cpp" />
+		<Unit filename="src\win32\ApplicationWin32.cpp" />
+		<Unit filename="src\win32\ApplicationWin32.h" />
+		<Unit filename="src\win32\CanvasImplWin32.cpp" />
+		<Unit filename="src\win32\CanvasImplWin32.h" />
+		<Unit filename="src\win32\ConvertersWin32.cpp" />
+		<Unit filename="src\win32\ConvertersWin32.h" />
+		<Unit filename="src\win32\ScopedObjects.h" />
+		<Unit filename="src\win32\WindowImplWin32.cpp" />
+		<Unit filename="src\win32\WindowImplWin32.h" />
+		<Unit filename="src\win32\controls\ButtonWin32.cpp" />
+		<Unit filename="src\win32\controls\ButtonWin32.h" />
+		<Unit filename="src\win32\controls\ComboBoxWin32.cpp" />
+		<Unit filename="src\win32\controls\ComboBoxWin32.h" />
+		<Unit filename="src\win32\controls\ImageWin32.cpp" />
+		<Unit filename="src\win32\controls\ImageWin32.h" />
+		<Unit filename="src\win32\controls\MemoWin32 .cpp" />
+		<Unit filename="src\win32\controls\MemoWin32.h" />
+		<Unit filename="src\win32\controls\NativeControlWin32.cpp" />
+		<Unit filename="src\win32\controls\NativeControlWin32.h" />
+		<Unit filename="src\win32\controls\PaintBoxWin32.cpp" />
+		<Unit filename="src\win32\controls\PaintBoxWin32.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
