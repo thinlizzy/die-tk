@@ -27,7 +27,7 @@ void ButtonImpl::setText(std::string const & text)
 WDims ButtonImpl::getDimsByText(WDims dims)
 {
 	// TODO: get values from current font
-	int const width_padding = 6;
+	int const width_padding = 8;
 	int const height_padding = 6;
 
     auto size = getTextDims();

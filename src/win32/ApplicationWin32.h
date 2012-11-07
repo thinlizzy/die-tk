@@ -18,6 +18,8 @@
 #include "controls/EditWin32.h"
 #include "controls/MemoWin32.h"
 #include "controls/CheckBoxWin32.h"
+#include "controls/LabelWin32.h"
+#include "controls/TreeViewWin32.h"
 
 /*
 namespace std {

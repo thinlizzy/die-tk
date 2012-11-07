@@ -14,6 +14,8 @@
 #include "controls/Edit.h"
 #include "controls/Memo.h"
 #include "controls/CheckBox.h"
+#include "controls/Label.h"
+#include "controls/TreeView.h"
 
 namespace tk {
 
@@ -38,6 +40,8 @@ public:
 	std::shared_ptr<Edit> createEdit(WindowPtr parent, ControlParams const & params = ControlParams());
 	std::shared_ptr<Memo> createMemo(WindowPtr parent, ControlParams const & params = ControlParams());
 	std::shared_ptr<CheckBox> createCheckBox(WindowPtr parent, ControlParams const & params = ControlParams());
+	std::shared_ptr<Label> createLabel(WindowPtr parent, ControlParams const & params = ControlParams());
+    std::shared_ptr<TreeView> createTreeView(WindowPtr parent, ControlParams const & params = ControlParams());
 
 	void removeControl(std::shared_ptr<Control> control);
 

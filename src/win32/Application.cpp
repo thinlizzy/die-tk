@@ -5,11 +5,22 @@
 #include <iostream>
 
 #include "../Application.h"
-
-#include "ApplicationWin32.h"
 #include "../trace.h"
 
+#define _WIN32_IE 0x0300
+
+#include "ApplicationWin32.h"
+
 namespace tk {
+
+class CommonControlInitializer {
+public:
+    explicit CommonControlInitializer(DWORD dwICC)
+    {
+        INITCOMMONCONTROLSEX initccsex = { sizeof(INITCOMMONCONTROLSEX) , dwICC };
+        InitCommonControlsEx(&initccsex);
+    };
+};
 
 Application::Application():
 	appImpl(globalAppImpl)
@@ -69,6 +80,18 @@ std::shared_ptr<CheckBox> Application::createCheckBox(WindowPtr parent, ControlP
 {
 	return create<CheckBox,CheckBoxImpl>(parent,params);
 }
+
+std::shared_ptr<Label> Application::createLabel(WindowPtr parent, ControlParams const & params)
+{
+	return create<Label,LabelImpl>(parent,params);
+}
+
+std::shared_ptr<TreeView> Application::createTreeView(WindowPtr parent, ControlParams const & params)
+{
+    static CommonControlInitializer init(ICC_TREEVIEW_CLASSES);
+	return create<TreeView,TreeViewImpl>(parent,params);
+}
+
 
 
 void Application::waitForMessages()

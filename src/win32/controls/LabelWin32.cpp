@@ -34,7 +34,7 @@ void LabelImpl::setAutosize(bool autosize)
 void LabelImpl::doAutosize()
 {
 	// TODO: make them properties
-	int const width_padding = 0;
+	int const width_padding = 4;
 	int const height_padding = 2;
 
     auto size = getTextDims();

@@ -72,6 +72,14 @@ int main()
 
         buttonRight->bringToFront();
 
+        auto treeView = app.createTreeView(window1,ControlParams().start(10,100).dims(100,300));
+        auto itemTree = treeView->items();
+        auto it1 = itemTree.add(TreeView::Item().setText("test"));
+        itemTree.add(TreeView::Item().setText("second item"));
+        auto it2 = itemTree.add(TreeView::Item().setText("third item"));
+        it1.children().add(TreeView::Item().setText("child"));
+        it1.children().add(TreeView::Item().setText("child2"));
+
 		while( window1->state() == ws_visible || window2->state() == ws_visible ) {
 			app.waitForMessages();
 			app.processMessages();

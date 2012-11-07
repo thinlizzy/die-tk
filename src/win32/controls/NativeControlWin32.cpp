@@ -160,6 +160,7 @@ std::string NativeControlImpl::getText() const
 
 	std::string result(len+1,0);
 	GetWindowText(hWnd,&result[0],len+1);
+	result.resize(len);
 	return result;
 }
 
