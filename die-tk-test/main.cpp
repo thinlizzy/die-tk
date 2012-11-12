@@ -36,11 +36,9 @@ int main()
 		img::Image image("DIEGO1.jpg");
 		auto imagepb = app.createPaintBox(window1,ControlParams().start(400,100).dims(100,100));
 		app.onPaint(imagepb,[&](Canvas & canvas, Rect rect) {
-			auto imageHeader = image.getWindowSystemHeader();
-			auto imageBits = image.rawBits();
-			canvas.drawImage(rect,tk::Point(0,0),imageBits,imageHeader);
+			canvas.drawImage(rect,
+                ImageHolder::native(image.getWindowSystemHeader(),image.rawBits()));
 		});
-
 
 		auto window2 = app.createWindow(WindowParams().text("second window"));
 		window2->clear(RGBColor(100,0,0));
@@ -73,12 +71,12 @@ int main()
         buttonRight->bringToFront();
 
         auto treeView = app.createTreeView(window1,ControlParams().start(10,100).dims(100,300));
-        auto itemTree = treeView->items();
-        auto it1 = itemTree.add(TreeView::Item().setText("test"));
-        itemTree.add(TreeView::Item().setText("second item"));
-        auto it2 = itemTree.add(TreeView::Item().setText("third item"));
-        it1.children().add(TreeView::Item().setText("child"));
-        it1.children().add(TreeView::Item().setText("child2"));
+        auto root = treeView->root();
+        auto it1 = root.addChild(TreeView::ItemProperties().setText("test"));
+        root.addChild(TreeView::ItemProperties().setText("second item"));
+        auto it2 = root.addChild(TreeView::ItemProperties().setText("third item"));
+        it1->addChild(TreeView::ItemProperties().setText("child"));
+        it1->addChild(TreeView::ItemProperties().setText("child2"));
 
 		while( window1->state() == ws_visible || window2->state() == ws_visible ) {
 			app.waitForMessages();

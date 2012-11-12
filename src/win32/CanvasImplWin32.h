@@ -34,10 +34,13 @@ public:
 
 	void fillRect(RECT rect);
 
-	virtual void drawImage(Point start, WDims dim, unsigned char const buffer[], ImageType type);
-	virtual void drawImage(Rect const & openrect, unsigned char const buffer[], ImageType type);
-	virtual void drawImage(Point dest, unsigned char const buffer[], void * header);
-	virtual void drawImage(Rect const & destrect, Point start, unsigned char const buffer[], void * header);
+	virtual void drawImage(Point start, ImageHolder ih);
+	virtual void drawImage(Rect destrect, ImageHolder ih);
+
+    void drawImage(Point dest, unsigned char const buffer[], BITMAPINFO * info);
+    void drawImage(Rect const & destrect, unsigned char const buffer[], BITMAPINFO * info);
+    void drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim);
+    void drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim, WDims dest);
 
 	virtual void textRect(Rect const & openrect, std::string const & text, TextParams const & params);
 

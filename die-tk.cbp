@@ -55,6 +55,7 @@
 		<Unit filename="src\controls\Memo.h" />
 		<Unit filename="src\controls\TreeView.h" />
 		<Unit filename="src\trace.h" />
+		<Unit filename="src\util\ClonePtr.h" />
 		<Unit filename="src\win32\Application.cpp" />
 		<Unit filename="src\win32\ApplicationWin32.cpp" />
 		<Unit filename="src\win32\ApplicationWin32.h" />

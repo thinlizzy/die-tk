@@ -139,22 +139,45 @@ void CanvasImpl::drawPoly(Points const & polygon)
 }
 
 
-void CanvasImpl::drawImage(Point dest, unsigned char const buffer[], void * header)
+void CanvasImpl::drawImage(Point start, ImageHolder ih)
 {
-	auto info = reinterpret_cast<BITMAPINFO *>(header);
-	auto & bHead = info->bmiHeader;
-	SetDIBitsToDevice(dc,dest.x,dest.y,bHead.biWidth,abs(bHead.biHeight),0,0,0,bHead.biHeight,buffer,info,DIB_RGB_COLORS);
+    if( ih.type == it_native ) {
+        drawImage(start,ih.buffer,reinterpret_cast<BITMAPINFO *>(ih.metadata.nativeHeader));
+    } else {
+        drawImage(start,ih.buffer,ih.type,ih.metadata.dimensions);
+    }
 }
 
-void CanvasImpl::drawImage(Rect const & destrect, Point start, unsigned char const buffer[], void * header)
+void CanvasImpl::drawImage(Rect destRect, ImageHolder ih)
 {
-	auto info = reinterpret_cast<BITMAPINFO *>(header);
-	auto & bHead = info->bmiHeader;
-	SetDIBitsToDevice(dc,destrect.left,destrect.top,destrect.openDims().width,destrect.openDims().height,start.x,start.y,0,bHead.biHeight,buffer,info,DIB_RGB_COLORS);
+    if( ih.type == it_native ) {
+        drawImage(destRect,ih.buffer,reinterpret_cast<BITMAPINFO *>(ih.metadata.nativeHeader));
+    } else {
+        drawImage(destRect.pos(),ih.buffer,ih.type,ih.metadata.dimensions,destRect.dims());
+    }
 }
 
+void CanvasImpl::drawImage(Point dest, unsigned char const buffer[], BITMAPINFO * info)
+{
+	auto & bHead = info->bmiHeader;
+	drawImage(Rect::closed(dest,WDims(bHead.biWidth,abs(bHead.biHeight))),buffer,info);
+}
 
-void CanvasImpl::drawImage(Point start, WDims dim, unsigned char const buffer[], ImageType type)
+void CanvasImpl::drawImage(Rect const & destrect, unsigned char const buffer[], BITMAPINFO * info)
+{
+	auto & bHead = info->bmiHeader;
+	// auto dims = destrect.openDims();
+	auto dims = destrect.dims();
+	SetDIBitsToDevice(dc,destrect.left,destrect.top,dims.width,dims.height,
+                   0,0,0,bHead.biHeight,buffer,info,DIB_RGB_COLORS);
+}
+
+void CanvasImpl::drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim)
+{
+    drawImage(start,buffer,type,dim,dim);
+}
+
+void CanvasImpl::drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim, WDims dest)
 {
 	BITMAPINFO info;
 	ZeroMemory(&info,sizeof(BITMAPINFO));
@@ -216,13 +239,8 @@ void CanvasImpl::drawImage(Point start, WDims dim, unsigned char const buffer[],
 	}
 
 	// which is better? :(
-	SetDIBitsToDevice(dc,start.x,start.y,dim.width,abs(dim.height),0,0,0,dim.height,imageBits,&info,DIB_RGB_COLORS);
+	SetDIBitsToDevice(dc,start.x,start.y,dest.width,dest.height,0,0,0,dim.height,imageBits,&info,DIB_RGB_COLORS);
 	// StretchDIBits(dc,start.x,start.y,dim.width,dim.height,0,0,dim.width,dim.height,imageBits,&info,DIB_RGB_COLORS,SRCCOPY);
-}
-
-void CanvasImpl::drawImage(Rect const & rect, unsigned char const buffer[], ImageType type)
-{
-	drawImage(Point(rect.left,rect.top),rect.openDims(),buffer,type);
 }
 
 static RECT convertRect(Rect const & rect)

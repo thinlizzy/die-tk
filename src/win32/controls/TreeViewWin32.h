@@ -11,54 +11,34 @@
 namespace tk {
 
 class TreeViewImpl: public NativeControlImpl, public TreeView {
-    Tree itemTree;
+    Item rootItem;
 public:
 	TreeViewImpl(HWND parent_hWnd, ControlParams const & params);
 
-    virtual Tree & items();
+    virtual Item & root();
     virtual size_t total() const;
 };
 
-class ItemHandle {
+class ItemImpl {
 public:
     HWND hTreeView;
+    HTREEITEM hParent;
     HTREEITEM hItem;
+    HTREEITEM hTail;
 
-    ItemHandle();
-    ItemHandle(HWND hTreeView, HTREEITEM hItem);
-    bool isSet() const;
-    bool operator==(ItemHandle const & ih) const;
-    void next();
+    ItemImpl(HWND hTreeView, HTREEITEM hItem, HTREEITEM hParent);
+    bool operator==(ItemImpl const & ih) const;
     HTREEITEM firstChild() const;
-};
-
-class ItemImpl {
-    mutable std::string text;
-    // TODO add image index here
-public:
-    ItemHandle handle;
-
-    ItemImpl() = default;
-    ItemImpl(HWND hTreeView, HTREEITEM hItem);
-    std::string getText() const;
-    void setText(std::string const & text);
+    HTREEITEM nextSibling() const;
 };
 
 class IteratorImpl {
 public:
     TreeView::Item item;
     IteratorImpl() = default;
-    IteratorImpl(HWND hTreeView, HTREEITEM hItem): item(new ItemImpl(hTreeView,hItem)) {}
-    ItemHandle & itemHandle() { return item.itemImpl->handle; }
-    ItemHandle const & itemHandle() const { return item.itemImpl->handle; }
-};
-
-class TreeImpl {
-public:
-    ItemHandle parent;
-    HTREEITEM hTail;
-    explicit TreeImpl(ItemHandle parent): parent(parent),hTail(0) {}
-    TreeImpl(HWND hTreeView, HTREEITEM hItem): parent(hTreeView,hItem),hTail(0) {}
+    IteratorImpl(HWND hTreeView, HTREEITEM hItem, HTREEITEM hParent): item(new ItemImpl(hTreeView,hItem,hParent)) {}
+    ItemImpl & itemImpl() { return *item.itemImpl; }
+    ItemImpl const & itemImpl() const { return *item.itemImpl; }
 };
 
 }

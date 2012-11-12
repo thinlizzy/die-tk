@@ -13,51 +13,50 @@
 namespace tk {
 
 class ItemImpl;
-class TreeImpl;
 class IteratorImpl;
 
 class TreeView: public virtual Control {
 public:
-    class Tree;
+    class Item;
     class Iterator;
 
-    virtual Tree & items() = 0;
+    virtual Item & root() = 0;
     virtual size_t total() const = 0;
+
+    struct ItemProperties {
+    public:
+        std::string text;
+        // TODO image index
+        ItemProperties & setText(std::string const & text) { this->text = text; return *this; }
+    };
 
     class Item {
         friend class IteratorImpl;
     public:
-        Item();
-        Item(Item const & item);
-        Item & operator=(Item const & item);
+        Item(Item const & Item);
         ~Item();
+        Item & operator=(Item const & item);
 
-        std::string getText() const;
-        Item & setText(std::string const & text);
-        // TODO set image
-        // TODO get image
+        ItemProperties const & getProperties() const;
+        void setText(std::string const & text);
+        // TODO setImage index
+
+        Iterator addChild(ItemProperties const & properties);
+        void eraseChild(Iterator const & it);   // invalidates it
+
+        Iterator begin();
+        Iterator end();
+
+        bool empty() const;
     private:
         ClonePtr<ItemImpl> itemImpl;
+        Item() = default;
+    public:
         explicit Item(ItemImpl * itemImpl);
     };
 
-    class Tree {
-    public:
-        Tree(Tree const & tree);
-        ~Tree();
-        Iterator begin();
-        Iterator end();
-        Iterator add(Item const & item);
-        void erase(Iterator it);
-        bool empty() const;
-    private:
-        ClonePtr<TreeImpl> treeImpl;
-    public:
-        explicit Tree(TreeImpl * treeImpl);
-    };
-
     class Iterator: public std::iterator<std::forward_iterator_tag,Item> {
-        friend class Tree;
+        friend class Item;
     public:
         Iterator() = default;
         Iterator(Iterator const & it);
@@ -69,11 +68,8 @@ public:
         Iterator & operator++();
         Iterator operator++(int);
         bool operator==(Iterator const & it) const;
-
-        Tree children();
     private:
         ClonePtr<IteratorImpl> iteratorImpl;
-    public:
         explicit Iterator(IteratorImpl * iteratorImpl);
     };
 };
