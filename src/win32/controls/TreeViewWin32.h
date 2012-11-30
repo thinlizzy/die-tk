@@ -4,18 +4,19 @@
 #include "NativeControlWin32.h"
 #include "../../controls/TreeView.h"
 #include <commctrl.h>
+#include "../CommonControlInitializer.h"
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
 namespace tk {
 
-class TreeViewImpl: public NativeControlImpl, public TreeView {
-    Item rootItem;
+class TreeViewImpl: public NativeControlImpl, public TreeView, private CommonControlInitializer<ICC_TREEVIEW_CLASSES> {
+    TreeView::Item rootItem;
 public:
 	TreeViewImpl(HWND parent_hWnd, ControlParams const & params);
 
-    virtual Item & root();
+    virtual TreeView::Item & root();
     virtual size_t total() const;
 };
 

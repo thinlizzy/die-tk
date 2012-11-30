@@ -17,6 +17,8 @@
 #include "controls/Label.h"
 #include "controls/TreeView.h"
 
+#include "components/ImageList.h"
+
 namespace tk {
 
 typedef std::shared_ptr<Window> WindowPtr;
@@ -44,6 +46,8 @@ public:
     std::shared_ptr<TreeView> createTreeView(WindowPtr parent, ControlParams const & params = ControlParams());
 
 	void removeControl(std::shared_ptr<Control> control);
+
+	std::shared_ptr<ImageList> createImageList(WDims dims, int capacity = 10);
 
 	void onPaint(std::shared_ptr<Control> control, HandlePaint callback);
 	void onMouse(std::shared_ptr<Control> control, HandleMouseEvent callback);

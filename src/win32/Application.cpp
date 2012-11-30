@@ -7,20 +7,9 @@
 #include "../Application.h"
 #include "../trace.h"
 
-#define _WIN32_IE 0x0300
-
 #include "ApplicationWin32.h"
 
 namespace tk {
-
-class CommonControlInitializer {
-public:
-    explicit CommonControlInitializer(DWORD dwICC)
-    {
-        INITCOMMONCONTROLSEX initccsex = { sizeof(INITCOMMONCONTROLSEX) , dwICC };
-        InitCommonControlsEx(&initccsex);
-    };
-};
 
 Application::Application():
 	appImpl(globalAppImpl)
@@ -31,7 +20,7 @@ Application::~Application()
 
 WindowPtr Application::createWindow(WindowParams const & params)
 {
-	auto windowImpl = std::shared_ptr<WindowImpl>(new WindowImpl(params));
+	auto windowImpl = std::make_shared<WindowImpl>(params);
 	appImpl->registerWindow(windowImpl);
 	return std::dynamic_pointer_cast<Window>(windowImpl);
 }
@@ -40,7 +29,7 @@ template<typename C, typename CI>
 std::shared_ptr<C> Application::create(WindowPtr parent, ControlParams const & params)
 {
 	auto parentWindowImpl = std::dynamic_pointer_cast<WindowImpl>(parent);
-	auto controlImpl = std::shared_ptr<CI>(new CI(parentWindowImpl->hWnd,params));
+	auto controlImpl = std::make_shared<CI>(parentWindowImpl->hWnd,params);
 	appImpl->registerControl(controlImpl);
 	parentWindowImpl->registerControl(controlImpl);
 	return std::dynamic_pointer_cast<C>(controlImpl);
@@ -88,8 +77,14 @@ std::shared_ptr<Label> Application::createLabel(WindowPtr parent, ControlParams 
 
 std::shared_ptr<TreeView> Application::createTreeView(WindowPtr parent, ControlParams const & params)
 {
-    static CommonControlInitializer init(ICC_TREEVIEW_CLASSES);
 	return create<TreeView,TreeViewImpl>(parent,params);
+}
+
+
+
+std::shared_ptr<ImageList> Application::createImageList(WDims dims, int capacity)
+{
+    return std::make_shared<ImageListImpl>(dims,capacity);
 }
 
 

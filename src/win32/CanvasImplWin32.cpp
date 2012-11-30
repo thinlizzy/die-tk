@@ -1,7 +1,6 @@
 #include "CanvasImplWin32.h"
 #include "ConvertersWin32.h"
 #include <algorithm>
-#include <stdexcept>
 
 namespace tk {
 
@@ -139,7 +138,7 @@ void CanvasImpl::drawPoly(Points const & polygon)
 }
 
 
-void CanvasImpl::drawImage(Point start, ImageHolder ih)
+void CanvasImpl::drawImage(ImageHolder ih, Point start)
 {
     if( ih.type == it_native ) {
         drawImage(start,ih.buffer,reinterpret_cast<BITMAPINFO *>(ih.metadata.nativeHeader));
@@ -148,7 +147,7 @@ void CanvasImpl::drawImage(Point start, ImageHolder ih)
     }
 }
 
-void CanvasImpl::drawImage(Rect destRect, ImageHolder ih)
+void CanvasImpl::drawImage(ImageHolder ih, Rect destRect)
 {
     if( ih.type == it_native ) {
         drawImage(destRect,ih.buffer,reinterpret_cast<BITMAPINFO *>(ih.metadata.nativeHeader));
@@ -179,68 +178,8 @@ void CanvasImpl::drawImage(Point start, unsigned char const buffer[], ImageType 
 
 void CanvasImpl::drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim, WDims dest)
 {
-	BITMAPINFO info;
-	ZeroMemory(&info,sizeof(BITMAPINFO));
-	BITMAPINFOHEADER & bHead = info.bmiHeader;
-	bHead.biSize = sizeof(BITMAPINFOHEADER);
-	bHead.biWidth = dim.width;
-	bHead.biHeight = -dim.height;					// -height to invert the image!!!
-	bHead.biPlanes = 1;
-	bHead.biBitCount = 24;
-	bHead.biCompression = BI_RGB;
-	bHead.biSizeImage = 0;
-	bHead.biXPelsPerMeter = 0;
-	bHead.biYPelsPerMeter = 0;
-	bHead.biClrUsed = 0;
-	bHead.biClrImportant = 0;
-
-	// ensure alignment (slow) -- The scan lines must be aligned on a DWORD except for RLE-compressed bitmaps.
-	std::vector<unsigned char> alignBuf;
-	auto normDim = dim;
-	if( dim.width % 4 != 0 ) {
-		auto remainder = 4 - dim.width % 4;
-		normDim.width += remainder;
-		auto bpp = type == it_gray ? 1 : 3;
-		alignBuf.resize(normDim.area()*bpp);
-		for( auto h = 0; h != dim.height; ++h ) {
-			std::copy(&buffer[h*dim.width*bpp],&buffer[(h+1)*dim.width*bpp],&alignBuf[h*normDim.width*bpp]);
-		}
-
-		buffer = &alignBuf[0];
-		bHead.biWidth = normDim.width;
-	}
-
-	void const * imageBits;
-	std::vector<unsigned char> swizzleBuf;
-	switch(type) {
-		case it_BGR:			// native GDI format
-			imageBits = buffer;
-			break;
-		case it_RGB:			// we have to swizzle :( slowwww www w w ww w
-			swizzleBuf.resize(normDim.area()*3);
-			for( unsigned p = 0; p != swizzleBuf.size(); p += 3 ) {
-				swizzleBuf[p] = buffer[p+2];
-				swizzleBuf[p+1] = buffer[p+1];
-				swizzleBuf[p+2] = buffer[p];
-			}
-			imageBits = &swizzleBuf[0];
-			break;
-		case it_gray:			// we have to expand the component colors :( quite slow
-			swizzleBuf.resize(normDim.area()*3);
-			for( unsigned p = 0, b = 0; p != swizzleBuf.size(); p += 3, ++b ) {
-				swizzleBuf[p] = buffer[b];
-				swizzleBuf[p+1] = buffer[b];
-				swizzleBuf[p+2] = buffer[b];
-			}
-			imageBits = &swizzleBuf[0];
-			break;
-		default:
-			throw std::invalid_argument("unknown image type");
-	}
-
-	// which is better? :(
-	SetDIBitsToDevice(dc,start.x,start.y,dest.width,dest.height,0,0,0,dim.height,imageBits,&info,DIB_RGB_COLORS);
-	// StretchDIBits(dc,start.x,start.y,dim.width,dim.height,0,0,dim.width,dim.height,imageBits,&info,DIB_RGB_COLORS,SRCCOPY);
+	auto img = convertRawImage(buffer, type, dim);
+	drawImage(Rect::closed(start,dest), &img.imageBuffer[0], &img.info);
 }
 
 static RECT convertRect(Rect const & rect)

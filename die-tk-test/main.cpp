@@ -19,6 +19,21 @@ int main()
 			std::cout << "window was closed!" << std::endl;
 			return true;
 		});
+
+		auto window2 = app.createWindow(WindowParams().text("second window"));
+		window2->clear(RGBColor(100,0,0));
+		app.onClose(window2,[]() -> bool {
+			static bool x = false;
+			if( x ) {
+				std::cout << "second window was closed!" << std::endl;
+				return true;
+			}
+			x = true;
+			std::cout << "try again!" << std::endl;
+			return false;
+		});
+
+
 		window1->canvas().setBrush(tk::RGBColor(0,100,0));
 		window1->canvas().setPen(tk::RGBColor(0,100,0));
 		app.onPaint(window1,[&](Canvas & canvas, Rect rect) {
@@ -34,24 +49,11 @@ int main()
 		});
 
 		img::Image image("DIEGO1.jpg");
-		auto imagepb = app.createPaintBox(window1,ControlParams().start(400,100).dims(100,100));
+		auto imagepb = app.createPaintBox(window1,ControlParams().start(400,100).dims(200,200));
 		app.onPaint(imagepb,[&](Canvas & canvas, Rect rect) {
-			canvas.drawImage(rect,
-                ImageHolder::native(image.getWindowSystemHeader(),image.rawBits()));
+			canvas.drawImage(ImageHolder::native(image.getWindowSystemHeader(),image.rawBits()));
 		});
 
-		auto window2 = app.createWindow(WindowParams().text("second window"));
-		window2->clear(RGBColor(100,0,0));
-		app.onClose(window2,[]() -> bool {
-			static bool x = false;
-			if( x ) {
-				std::cout << "second window was closed!" << std::endl;
-				return true;
-			}
-			x = true;
-			std::cout << "try again!" << std::endl;
-			return false;
-		});
 
 		auto paintboxG = app.createPaintBox(window2,ControlParams().start(window2->width()/2,window2->height()/2).dims(100,100));
 		paintboxG->setBackground(tk::RGBColor(200,100,0));
@@ -71,7 +73,7 @@ int main()
         buttonRight->bringToFront();
 
         auto treeView = app.createTreeView(window1,ControlParams().start(10,100).dims(100,300));
-        auto root = treeView->root();
+        auto & root = treeView->root();
         auto it1 = root.addChild(TreeView::ItemProperties().setText("test"));
         root.addChild(TreeView::ItemProperties().setText("second item"));
         auto it2 = root.addChild(TreeView::ItemProperties().setText("third item"));

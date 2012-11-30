@@ -68,6 +68,13 @@ public:
 		temp.h = 0;
 	}
 
+	ScopedHandle & operator=(ScopedHandle && temp)
+	{
+        h = temp.h;
+        temp.h = 0;
+	    return *this;
+	}
+
 	void reset(H h = 0) {
 		release();
 		this->h = h;

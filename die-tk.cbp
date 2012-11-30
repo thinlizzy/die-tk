@@ -46,6 +46,7 @@
 		<Unit filename="src\Window.h" />
 		<Unit filename="src\WindowObjects.h" />
 		<Unit filename="src\WindowParams.h" />
+		<Unit filename="src\components\ImageList.h" />
 		<Unit filename="src\controls\Button.h" />
 		<Unit filename="src\controls\ComboBox.h" />
 		<Unit filename="src\controls\Control.h" />
@@ -61,11 +62,15 @@
 		<Unit filename="src\win32\ApplicationWin32.h" />
 		<Unit filename="src\win32\CanvasImplWin32.cpp" />
 		<Unit filename="src\win32\CanvasImplWin32.h" />
+		<Unit filename="src\win32\CommonControlInitializer.cpp" />
+		<Unit filename="src\win32\CommonControlInitializer.h" />
 		<Unit filename="src\win32\ConvertersWin32.cpp" />
 		<Unit filename="src\win32\ConvertersWin32.h" />
 		<Unit filename="src\win32\ScopedObjects.h" />
 		<Unit filename="src\win32\WindowImplWin32.cpp" />
 		<Unit filename="src\win32\WindowImplWin32.h" />
+		<Unit filename="src\win32\components\ImageListWin32.cpp" />
+		<Unit filename="src\win32\components\ImageListWin32.h" />
 		<Unit filename="src\win32\controls\ButtonWin32.cpp" />
 		<Unit filename="src\win32\controls\ButtonWin32.h" />
 		<Unit filename="src\win32\controls\CheckBoxWin32.cpp" />

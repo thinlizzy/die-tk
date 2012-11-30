@@ -21,7 +21,12 @@
 #include "controls/LabelWin32.h"
 #include "controls/TreeViewWin32.h"
 
+#include "components/ImageListWin32.h"
+
 /*
+
+// VS2010 needed this
+
 namespace std {
 
 template<typename T>

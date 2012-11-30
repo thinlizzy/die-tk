@@ -4,7 +4,9 @@
 #include <windows.h>
 #include "../WindowObjects.h"
 #include "../Event.h"
+#include "ScopedObjects.h"
 #include <string>
+#include <vector>
 
 namespace tk {
 
@@ -26,6 +28,15 @@ COLORREF colorWin(RGBColor const & color);
 
 std::string windowsMessageToString(UINT message);
 std::string errorMessage(DWORD error);
+
+struct NativeBitmap {
+    BITMAPINFO info;
+	std::vector<unsigned char> imageBuffer;
+};
+
+NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims dim);
+
+scoped::Bitmap ihToBitmap(ImageHolder ih);
 
 }
 
