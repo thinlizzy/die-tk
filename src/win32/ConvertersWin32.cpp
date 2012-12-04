@@ -347,7 +347,7 @@ NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims
 }
 
 // TODO investigate the use of this on canvas routines
-scoped::Bitmap ihToBitmap(ImageHolder ih)
+scoped::Bitmap ihToBitmap(ImageRef ih)
 {
     HBITMAP hBitmap;
     if( ih.type == it_native ) {

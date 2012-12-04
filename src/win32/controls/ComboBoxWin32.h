@@ -15,7 +15,7 @@ namespace tk {
 class ComboBoxImpl: public NativeControlImpl, public ComboBox {
     int editBoxHeight;
     int nVisibleItems;
-	std::vector<std::string> items;
+    std::vector<std::string> items;
 public:
 	ComboBoxImpl(HWND parent_hWnd, ControlParams const & params);
 

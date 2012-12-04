@@ -36,7 +36,7 @@ struct NativeBitmap {
 
 NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims dim);
 
-scoped::Bitmap ihToBitmap(ImageHolder ih);
+scoped::Bitmap ihToBitmap(ImageRef ih);
 
 }
 

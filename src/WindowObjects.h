@@ -167,7 +167,7 @@ struct Brush {
 
 enum ImageType { it_native, it_RGB, it_BGR, it_gray, };
 
-struct ImageHolder {
+struct ImageRef {
     ImageType type;
     union Metadata {
         void * nativeHeader;
@@ -176,16 +176,16 @@ struct ImageHolder {
     } metadata;
     unsigned char const * buffer;
 
-    static ImageHolder native(void * nativeHeader, unsigned char const * buffer) {
-        ImageHolder result;
+    static ImageRef native(void * nativeHeader, unsigned char const * buffer) {
+        ImageRef result;
         result.type = it_native;
         result.buffer = buffer;
         result.metadata.nativeHeader = nativeHeader;
         return result;
     }
 
-    static ImageHolder raw(ImageType type, WDims dimensions, unsigned char const * buffer) {
-        ImageHolder result;
+    static ImageRef raw(ImageType type, WDims dimensions, unsigned char const * buffer) {
+        ImageRef result;
         result.type = type;
         result.buffer = buffer;
         result.metadata.dimensions = dimensions;

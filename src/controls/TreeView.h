@@ -4,9 +4,11 @@
 #include "Control.h"
 #include <string>
 #include <iterator>
+#include <memory>
+#include "../components/ImageList.h"
 #include "../util/ClonePtr.h"
 
-// TODO design imagelist and handlers
+// TODO design handlers
 // TODO add extra image argument to add functions
 // TODO define callbacks
 
@@ -20,13 +22,17 @@ public:
     class Item;
     class Iterator;
 
-    virtual Item & root() = 0;
+    virtual Item root() = 0;
     virtual size_t total() const = 0;
+    virtual void setImageList(std::shared_ptr<ImageList> imageList) = 0;
+    virtual std::shared_ptr<ImageList> getImageList() = 0;
 
     struct ItemProperties {
     public:
         std::string text;
-        // TODO image index
+        ImageList::Index imageIndex;
+        ItemProperties(): imageIndex(ImageList::noIndex) {}
+        ItemProperties & setImageIndex(ImageList::Index imageIndex) { this->imageIndex = imageIndex; return *this; }        
         ItemProperties & setText(std::string const & text) { this->text = text; return *this; }
     };
 
@@ -37,9 +43,9 @@ public:
         ~Item();
         Item & operator=(Item const & item);
 
-        ItemProperties const & getProperties() const;
+        ItemProperties getProperties() const;
         void setText(std::string const & text);
-        // TODO setImage index
+        void setImageIndex(ImageList::Index imageIndex);
 
         Iterator addChild(ItemProperties const & properties);
         void eraseChild(Iterator const & it);   // invalidates it
@@ -49,10 +55,10 @@ public:
 
         bool empty() const;
     private:
-        ClonePtr<ItemImpl> itemImpl;
+        std::shared_ptr<ItemImpl> itemImpl;
         Item() = default;
     public:
-        explicit Item(ItemImpl * itemImpl);
+        explicit Item(std::shared_ptr<ItemImpl> itemImpl);
     };
 
     class Iterator: public std::iterator<std::forward_iterator_tag,Item> {
@@ -63,8 +69,7 @@ public:
         Iterator & operator=(Iterator const & it);
         ~Iterator();
 
-        Item & operator*();
-        Item * operator->();
+        Item operator*();
         Iterator & operator++();
         Iterator operator++(int);
         bool operator==(Iterator const & it) const;

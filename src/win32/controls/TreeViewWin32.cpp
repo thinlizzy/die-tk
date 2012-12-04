@@ -1,4 +1,5 @@
 #include "TreeViewWin32.h"
+#include "../components/ImageListWin32.h"
 
 namespace tk {
 
@@ -6,18 +7,30 @@ namespace tk {
 
 TreeViewImpl::TreeViewImpl(HWND parent_hWnd, ControlParams const & params):
 	NativeControlImpl(parent_hWnd,params,WC_TREEVIEW,TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS),
-	rootItem(new ItemImpl(hWnd,TVI_ROOT,0))
+	rootItemImpl(std::make_shared<ItemImpl>(hWnd,TVI_ROOT,HTREEITEM(0)))
 {
 }
 
-TreeView::Item & TreeViewImpl::root()
+TreeView::Item TreeViewImpl::root()
 {
-    return rootItem;
+    return TreeView::Item(rootItemImpl);
 }
 
 size_t TreeViewImpl::total() const
 {
     return TreeView_GetCount(hWnd);
+}
+
+void TreeViewImpl::setImageList(std::shared_ptr<ImageList> imageList)
+{
+    this->imageList = imageList;
+    auto & imageListImpl = dynamic_cast<ImageListImpl &>(*imageList);
+    TreeView_SetImageList(hWnd, imageListImpl.getHiml(), TVSIL_NORMAL); 
+}
+
+std::shared_ptr<ImageList> TreeViewImpl::getImageList()
+{
+    return imageList;
 }
 
 /* ItemImpl */
@@ -46,7 +59,7 @@ HTREEITEM ItemImpl::nextSibling() const
 
 /* Item */
 
-TreeView::Item::Item(ItemImpl * itemImpl):
+TreeView::Item::Item(std::shared_ptr<ItemImpl> itemImpl):
     itemImpl(itemImpl)
 {
 }
@@ -66,7 +79,7 @@ TreeView::Item::~Item()
 {
 }
 
-TreeView::ItemProperties const & TreeView::Item::getProperties() const
+TreeView::ItemProperties TreeView::Item::getProperties() const
 {
     ItemProperties result;
     char buffer[261];
@@ -95,6 +108,18 @@ void TreeView::Item::setText(std::string const & text)
     }
 }
 
+void TreeView::Item::setImageIndex(ImageList::Index imageIndex)
+{
+    TVITEM item;
+    item.mask = TVIF_HANDLE | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+    item.hItem = itemImpl->hItem;
+    item.iImage = imageIndex;
+    item.iSelectedImage = imageIndex;
+    if( ! TreeView_SetItem(itemImpl->hTreeView,&item) ) {
+        // TODO log error
+    }
+}
+
 TreeView::Iterator TreeView::Item::addChild(TreeView::ItemProperties const & properties)
 {
     // compute tail if it was not computed yet
@@ -114,7 +139,12 @@ TreeView::Iterator TreeView::Item::addChild(TreeView::ItemProperties const & pro
     tvins.hInsertAfter = itemImpl->hTail != 0 ? itemImpl->hTail : TVI_FIRST;
     tvins.item.mask = TVIF_TEXT;
     tvins.item.pszText = const_cast<char *>(properties.text.c_str());
-    // TODO TVIF_IMAGE | TVIF_SELECTEDIMAGE
+    if( properties.imageIndex != ImageList::noIndex ) {
+        tvins.item.mask |= TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+        tvins.item.iImage = properties.imageIndex;
+        tvins.item.iSelectedImage = properties.imageIndex;
+    }
+    
     HTREEITEM hItem = TreeView_InsertItem(itemImpl->hTreeView,&tvins);
     if( hItem ) {
         itemImpl->hTail = hItem;
@@ -128,12 +158,12 @@ TreeView::Iterator TreeView::Item::addChild(TreeView::ItemProperties const & pro
 void TreeView::Item::eraseChild(TreeView::Iterator const & it)
 {
     // TODO assert treeImpl->parent.hTreeView = it->...treeView
-    HTREEITEM hItem = it.iteratorImpl->itemImpl().hItem;
+    HTREEITEM hItem = it.iteratorImpl->itemImpl.hItem;
     HTREEITEM newTail =
         itemImpl->hTail == hItem ?
         TreeView_GetPrevSibling(itemImpl->hTreeView,itemImpl->hTail) :
         itemImpl->hTail;
-    if( TreeView_DeleteItem(it.iteratorImpl->itemImpl().hTreeView,hItem) ) {
+    if( TreeView_DeleteItem(it.iteratorImpl->itemImpl.hTreeView,hItem) ) {
         itemImpl->hTail = newTail;
     } else {
         // TODO log error
@@ -179,19 +209,14 @@ TreeView::Iterator::~Iterator()
 {
 }
 
-TreeView::Item & TreeView::Iterator::operator*()
+TreeView::Item TreeView::Iterator::operator*()
 {
-    return iteratorImpl->item;
-}
-
-TreeView::Item * TreeView::Iterator::operator->()
-{
-    return &operator*();
+    return TreeView::Item(std::make_shared<ItemImpl>(iteratorImpl->itemImpl));
 }
 
 TreeView::Iterator & TreeView::Iterator::operator++()
 {
-    iteratorImpl->itemImpl().hItem = iteratorImpl->itemImpl().nextSibling();
+    iteratorImpl->itemImpl.hItem = iteratorImpl->itemImpl.nextSibling();
     return *this;
 }
 
@@ -207,7 +232,7 @@ bool TreeView::Iterator::operator==(TreeView::Iterator const & it) const
     if( ! iteratorImpl ) return ! it.iteratorImpl;
     if( ! it.iteratorImpl ) return false;
 
-    return iteratorImpl->itemImpl() == it.iteratorImpl->itemImpl();
+    return iteratorImpl->itemImpl == it.iteratorImpl->itemImpl;
 }
 
 }

@@ -12,12 +12,15 @@
 namespace tk {
 
 class TreeViewImpl: public NativeControlImpl, public TreeView, private CommonControlInitializer<ICC_TREEVIEW_CLASSES> {
-    TreeView::Item rootItem;
+    std::shared_ptr<ItemImpl> rootItemImpl;
+    std::shared_ptr<ImageList> imageList;
 public:
 	TreeViewImpl(HWND parent_hWnd, ControlParams const & params);
 
-    virtual TreeView::Item & root();
+    virtual TreeView::Item root();
     virtual size_t total() const;
+    virtual void setImageList(std::shared_ptr<ImageList> imageList);
+    virtual std::shared_ptr<ImageList> getImageList();
 };
 
 class ItemImpl {
@@ -35,11 +38,9 @@ public:
 
 class IteratorImpl {
 public:
-    TreeView::Item item;
+    ItemImpl itemImpl;    
     IteratorImpl() = default;
-    IteratorImpl(HWND hTreeView, HTREEITEM hItem, HTREEITEM hParent): item(new ItemImpl(hTreeView,hItem,hParent)) {}
-    ItemImpl & itemImpl() { return *item.itemImpl; }
-    ItemImpl const & itemImpl() const { return *item.itemImpl; }
+    IteratorImpl(HWND hTreeView, HTREEITEM hItem, HTREEITEM hParent): itemImpl(hTreeView,hItem,hParent) {}
 };
 
 }

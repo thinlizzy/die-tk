@@ -51,7 +51,7 @@ int main()
 		img::Image image("DIEGO1.jpg");
 		auto imagepb = app.createPaintBox(window1,ControlParams().start(400,100).dims(200,200));
 		app.onPaint(imagepb,[&](Canvas & canvas, Rect rect) {
-			canvas.drawImage(ImageHolder::native(image.getWindowSystemHeader(),image.rawBits()));
+			canvas.drawImage(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()));
 		});
 
 
@@ -72,14 +72,23 @@ int main()
 
         buttonRight->bringToFront();
 
-        auto treeView = app.createTreeView(window1,ControlParams().start(10,100).dims(100,300));
-        auto & root = treeView->root();
-        auto it1 = root.addChild(TreeView::ItemProperties().setText("test"));
-        root.addChild(TreeView::ItemProperties().setText("second item"));
-        auto it2 = root.addChild(TreeView::ItemProperties().setText("third item"));
-        it1->addChild(TreeView::ItemProperties().setText("child"));
-        it1->addChild(TreeView::ItemProperties().setText("child2"));
 
+        auto imageList = app.createImageList(WDims(16,16));
+		img::Image imgBubble("bubble.png");
+        auto iBubble = imageList->add(ImageRef::native(imgBubble.getWindowSystemHeader(),imgBubble.rawBits()));
+		img::Image imgFolder("folder.png");
+        auto iFolder = imageList->add(ImageRef::native(imgFolder.getWindowSystemHeader(),imgFolder.rawBits()));
+        
+        auto treeView = app.createTreeView(window1,ControlParams().start(10,100).dims(100,300));
+        treeView->setImageList(imageList);
+        auto root = treeView->root();
+        auto it1 = root.addChild(TreeView::ItemProperties().setText("test").setImageIndex(iFolder));
+        auto item1 = *it1;
+        item1.addChild(TreeView::ItemProperties().setText("child").setImageIndex(iBubble));
+        item1.addChild(TreeView::ItemProperties().setText("child2"));
+        root.addChild(TreeView::ItemProperties().setText("second item").setImageIndex(iFolder));
+        root.addChild(TreeView::ItemProperties().setText("third item").setImageIndex(iFolder));
+        
 		while( window1->state() == ws_visible || window2->state() == ws_visible ) {
 			app.waitForMessages();
 			app.processMessages();

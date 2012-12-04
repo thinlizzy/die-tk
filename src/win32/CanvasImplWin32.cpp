@@ -138,7 +138,7 @@ void CanvasImpl::drawPoly(Points const & polygon)
 }
 
 
-void CanvasImpl::drawImage(ImageHolder ih, Point start)
+void CanvasImpl::drawImage(ImageRef ih, Point start)
 {
     if( ih.type == it_native ) {
         drawImage(start,ih.buffer,reinterpret_cast<BITMAPINFO *>(ih.metadata.nativeHeader));
@@ -147,7 +147,7 @@ void CanvasImpl::drawImage(ImageHolder ih, Point start)
     }
 }
 
-void CanvasImpl::drawImage(ImageHolder ih, Rect destRect)
+void CanvasImpl::drawImage(ImageRef ih, Rect destRect)
 {
     if( ih.type == it_native ) {
         drawImage(destRect,ih.buffer,reinterpret_cast<BITMAPINFO *>(ih.metadata.nativeHeader));

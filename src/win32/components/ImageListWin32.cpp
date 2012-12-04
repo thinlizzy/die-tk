@@ -1,6 +1,7 @@
 #include "ImageListWin32.h"
 #include "../ConvertersWin32.h"
 #include "../ScopedObjects.h"
+#include <iostream>
 
 namespace tk {
 
@@ -12,11 +13,11 @@ ImageListImpl::ImageListImpl(WDims dims, int capacity)
 ImageListImpl::~ImageListImpl()
 {
     if( ! ImageList_Destroy(himl) ) {
-        // TODO log
+        std::cerr << "failure to destroy imagelist" << std::endl;
     }
 }
 
-ImageList::Index ImageListImpl::add(ImageHolder ih)
+ImageList::Index ImageListImpl::add(ImageRef ih)
 {
     scoped::Bitmap bmImage(ihToBitmap(ih));
     int result = ImageList_Add(himl,bmImage.get(),0);
@@ -26,7 +27,7 @@ ImageList::Index ImageListImpl::add(ImageHolder ih)
     return result;
 }
 
-void ImageListImpl::replace(ImageHolder ih, Index index)
+void ImageListImpl::replace(ImageRef ih, Index index)
 {
     scoped::Bitmap bmImage(ihToBitmap(ih));
     BOOL result = ImageList_Replace(himl,index,bmImage.get(),0);
@@ -62,5 +63,12 @@ void ImageListImpl::clear()
 {
     remove(-1);
 }
+
+HIMAGELIST ImageListImpl::getHiml() const
+{
+    return himl;
+}
+
+ImageList::Index const ImageList::noIndex = -1;
 
 }

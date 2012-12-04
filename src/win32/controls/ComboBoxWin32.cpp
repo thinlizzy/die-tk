@@ -17,8 +17,8 @@ ControlParams chkComboDefaults(ControlParams params)
 }
 
 ComboBoxImpl::ComboBoxImpl(HWND parent_hWnd, ControlParams const & params):
-    nVisibleItems(10),
-	NativeControlImpl(parent_hWnd,chkComboDefaults(params),"combobox",CBS_DROPDOWNLIST | WS_VSCROLL | CBS_HASSTRINGS)
+    NativeControlImpl(parent_hWnd,chkComboDefaults(params),"combobox",CBS_DROPDOWNLIST | WS_VSCROLL | CBS_HASSTRINGS),
+    nVisibleItems(10)
 {
     editBoxHeight = rect_.dims().height;
     adjustHeight();

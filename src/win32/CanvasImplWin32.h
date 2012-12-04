@@ -34,8 +34,8 @@ public:
 
 	void fillRect(RECT rect);
 
-	virtual void drawImage(ImageHolder ih, Point start);
-	virtual void drawImage(ImageHolder ih, Rect destrect);
+	virtual void drawImage(ImageRef ih, Point start);
+	virtual void drawImage(ImageRef ih, Rect destrect);
 
     void drawImage(Point dest, unsigned char const buffer[], BITMAPINFO * info);
     void drawImage(Rect const & destrect, unsigned char const buffer[], BITMAPINFO * info);

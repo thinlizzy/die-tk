@@ -17,14 +17,16 @@ public:
     ImageListImpl(WDims dims, int capacity);
     virtual ~ImageListImpl();
 
-    virtual Index add(ImageHolder ih);
-    virtual void replace(ImageHolder ih, Index index);
+    virtual Index add(ImageRef ih);
+    virtual void replace(ImageRef ih, Index index);
     virtual void remove(Index index);
 
     virtual WDims dims() const;
     virtual int count() const;
 
     virtual void clear();
+    
+    HIMAGELIST getHiml() const;
 };
 
 }
