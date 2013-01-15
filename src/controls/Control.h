@@ -2,6 +2,8 @@
 #define CONTROL_H_gfh430hm4bg73bg93gllhr52bzq
 
 #include "../WindowObjects.h"
+#include <memory>
+#include "../Callbacks.h"
 
 namespace tk {
 
@@ -10,7 +12,7 @@ class Canvas;
 // base class for all widgets including windows
 // TODO think on renaming it to Widget or Surface
 
-class Control {
+class Control: public std::enable_shared_from_this<Control> {
 public:
 	virtual ~Control() {}
 
@@ -44,6 +46,15 @@ public:
 	virtual void clear(RGBColor const & color = RGBColor()) = 0;
 
 	virtual Point screenToClient(Point const & point) const = 0;
+protected:
+    // most used callbacks
+	void onMouse(HandleMouseEvent callback);    // all
+	void onKey(ProcessKeyEvent callback);       // edit, memo
+	void onKeypress(ProcessKeypress callback);  // edit, memo
+	void onClick(HandleOperation callback);     // buttons, checkbox
+    // seldom used callbacks
+	void onPaint(HandlePaint callback);       // window and paintbox
+	void onChange(HandleOperation callback);  // combobox
 };
 
 }

@@ -2,6 +2,7 @@
 
 #include "../ScopedObjects.h"
 #include <algorithm>
+#include "../ApplicationWin32.h"
 
 namespace tk {
 
@@ -104,6 +105,20 @@ void ComboBoxImpl::setDims(WDims dims)
     editBoxHeight = dims.height;
     dims.height = editBoxHeight + itemsHeight();
     NativeControlImpl::setDims(dims);
+}
+
+bool ComboBoxImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
+{
+    if( message == WM_COMMAND && notification == CBN_SELCHANGE ) {
+        auto it = globalAppImpl->onChange.find(shared_from_this());
+        if( it == globalAppImpl->onChange.end() ) return false;
+        
+        auto & on_change = it->second;
+        on_change();
+        return true;
+	}
+
+    return NativeControlImpl::processNotification(message,notification,wParam,lParam);
 }
 
 }

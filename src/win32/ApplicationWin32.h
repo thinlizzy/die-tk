@@ -63,7 +63,8 @@ public:
 
 	LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	bool handleControlCallbacks(UINT message, std::shared_ptr<NativeControlImpl> control, WPARAM & wParam, LPARAM & lParam);
-	bool handleWindowCallbacks(UINT message, std::shared_ptr<WindowImpl> window, WPARAM & wParam, LPARAM & lParam);
+	int handleWindowCallbacks(UINT message, std::shared_ptr<WindowImpl> window, WPARAM & wParam, LPARAM & lParam);
+    bool handleControlWMCommandNotification(UINT notification, std::shared_ptr<NativeControlImpl> control, WPARAM & wParam, LPARAM & lParam);
 
 	std::unordered_map<std::shared_ptr<Control>,HandlePaint> onPaint;
 	std::unordered_map<std::shared_ptr<Control>,HandleMouseEvent> onMouse;

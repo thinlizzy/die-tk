@@ -207,6 +207,11 @@ bool NativeControlImpl::processMessage(UINT message, WPARAM wParam, LPARAM lPara
 	return handled;
 }
 
+bool NativeControlImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
+{
+    return false;
+}
+
 void NativeControlImpl::clear(RGBColor const & color)
 {
     auto & canvas1 = canvas();

@@ -8,6 +8,7 @@
 #include "ControlParams.h"
 
 #include "controls/Control.h"
+#include "controls/PaintBox.h"
 #include "controls/Button.h"
 #include "controls/Image.h"
 #include "controls/ComboBox.h"
@@ -35,7 +36,7 @@ public:
 
 	WindowPtr createWindow(WindowParams const & params = WindowParams());
 
-	std::shared_ptr<Control> createPaintBox(WindowPtr parent, ControlParams const & params = ControlParams());
+	std::shared_ptr<PaintBox> createPaintBox(WindowPtr parent, ControlParams const & params = ControlParams());
 	std::shared_ptr<Button> createButton(WindowPtr parent, ControlParams const & params = ControlParams());
 	std::shared_ptr<Image> createImage(WindowPtr parent, ControlParams const & params = ControlParams());
 	std::shared_ptr<ComboBox> createComboBox(WindowPtr parent, ControlParams const & params = ControlParams());

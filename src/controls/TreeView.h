@@ -27,6 +27,8 @@ public:
     virtual void setImageList(std::shared_ptr<ImageList> imageList) = 0;
     virtual std::shared_ptr<ImageList> getImageList() = 0;
 
+    using Control::onMouse;
+    
     struct ItemProperties {
     public:
         std::string text;

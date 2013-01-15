@@ -32,6 +32,8 @@ public:
 
 	virtual void setDims(WDims dims);
 	virtual void setRect(Rect rect);
+    
+    virtual bool processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);
 private:
 	int itemsHeight() const;
 	void adjustHeight();

@@ -4,6 +4,7 @@
 #include <functional>
 #include "WindowObjects.h"
 #include "Event.h"
+#include "Canvas.h"
 
 namespace tk {
 

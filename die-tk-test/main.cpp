@@ -4,6 +4,8 @@
 #include "../src/Canvas.h"
 #include "../../libimage/src/image.h"
 
+#include "../die-tk-extra/die-tk-extra.h"
+
 #include <iostream>
 
 int main()
@@ -40,11 +42,11 @@ int main()
 			canvas.fillRect(rect);
 		});
 		auto button1 = app.createButton(window1,ControlParams().text("click me").start(20,20));
-		app.onClick(button1,[]() {
+        button1->onClick([]() {
 			std::cout << "clicked me" << std::endl;
 		});
 
-		app.onMouse(button1,[](MouseEvent evt, Point pt) {
+		button1->onMouse([](MouseEvent evt, Point pt) {
 			std::cout << "clicked me with " << evt.type << " at " << pt << std::endl;
 		});
 
@@ -53,8 +55,7 @@ int main()
 		app.onPaint(imagepb,[&](Canvas & canvas, Rect rect) {
 			canvas.drawImage(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()));
 		});
-
-
+        
 		auto paintboxG = app.createPaintBox(window2,ControlParams().start(window2->width()/2,window2->height()/2).dims(100,100));
 		paintboxG->setBackground(tk::RGBColor(200,100,0));
 
@@ -72,12 +73,25 @@ int main()
 
         buttonRight->bringToFront();
 
+        auto combobox = app.createComboBox(window2,ControlParams().start(10,10));
+        combobox->setVisibleItems(5);
+        combobox->addString("laranja");
+        combobox->addString("banana");
+        combobox->addString("maca");
+        combobox->addString("uva");
+        combobox->addString("bergamota");
+        combobox->addString("morango");
+        combobox->addString("maracujeba");
+        combobox->addString("apricu");
+        
+        combobox->onChange([&](){
+			std::cout << "escolhi " << combobox->getString(combobox->selectedIndex()) << std::endl;            
+        });
+
 
         auto imageList = app.createImageList(WDims(16,16));
-		img::Image imgBubble("bubble.png");
-        auto iBubble = imageList->add(ImageRef::native(imgBubble.getWindowSystemHeader(),imgBubble.rawBits()));
-		img::Image imgFolder("folder.png");
-        auto iFolder = imageList->add(ImageRef::native(imgFolder.getWindowSystemHeader(),imgFolder.rawBits()));
+        auto iBubble = addFile(*imageList,"bubble.png");
+        auto iFolder = addFile(*imageList,"folder.png");
         
         auto treeView = app.createTreeView(window1,ControlParams().start(10,100).dims(100,300));
         treeView->setImageList(imageList);

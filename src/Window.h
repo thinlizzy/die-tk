@@ -4,6 +4,7 @@
 #include <memory>
 #include "WindowObjects.h"
 #include "controls/Control.h"
+#include "Callbacks.h"
 
 namespace tk {
 
@@ -12,6 +13,12 @@ public:
 	virtual ~Window() {};
 
 	virtual int state() const = 0;
+    
+    using Control::onMouse;
+    using Control::onPaint;
+	void onClose(AllowOperation callback);
+	void onResize(ProcessResize callback);
+	void onUserEvent(HandleEvent callback);
 };
 
 }

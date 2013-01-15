@@ -12,6 +12,8 @@ public:
 	virtual void setText(std::string const & text) = 0;
 
 	virtual void setAutosize(bool autosize) = 0;
+    
+    using Control::onMouse;
 };
 
 }

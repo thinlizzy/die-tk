@@ -10,6 +10,8 @@ public:
 	virtual void setImage(unsigned char const buffer[], void * header) = 0;
 
 	virtual void setAutosize(bool autosize) = 0;
+    
+    using Control::onMouse;
 };
 
 }

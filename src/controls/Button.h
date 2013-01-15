@@ -10,6 +10,9 @@ class Button: public virtual Control {
 public:
 	virtual std::string getText() const = 0;
 	virtual void setText(std::string const & text) = 0;
+
+    using Control::onMouse;
+    using Control::onClick;
 };
 
 }

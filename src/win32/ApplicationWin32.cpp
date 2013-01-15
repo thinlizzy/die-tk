@@ -53,8 +53,9 @@ LRESULT ApplicationImpl::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		TRACE_M("WndProc -> WINDOW! hWnd = " << hWnd << " message = " << windowsMessageToString(message));
 		int handled = 0;
 		if( handleControlCallbacks(message,windowImpl,wParam,lParam) ) handled = 1;
-		else if( handleWindowCallbacks(message,windowImpl,wParam,lParam) ) handled = 1;
+		else if( (handled = handleWindowCallbacks(message,windowImpl,wParam,lParam)) ) {}
 		else if( windowImpl->processMessage(message,wParam,lParam) ) handled = 2;
+        
 		if( handled ) {
 		    TRACE_M("WndProc HANDLED " << handled << " -> WINDOW! hWnd = " << hWnd << " message = " << windowsMessageToString(message));
 		    return 0;
@@ -149,7 +150,7 @@ bool ApplicationImpl::handleControlCallbacks(UINT message, std::shared_ptr<Nativ
 	return false;
 }
 
-bool ApplicationImpl::handleWindowCallbacks(UINT message, std::shared_ptr<WindowImpl> window, WPARAM & wParam, LPARAM & lParam)
+int ApplicationImpl::handleWindowCallbacks(UINT message, std::shared_ptr<WindowImpl> window, WPARAM & wParam, LPARAM & lParam)
 {
 #define GETCBW(mapname,varname) \
 			auto it = mapname.find(window); \
@@ -173,18 +174,10 @@ bool ApplicationImpl::handleWindowCallbacks(UINT message, std::shared_ptr<Window
 		case WM_COMMAND: {
 			if( auto control = findControl(HWND(lParam)) ) {
 				auto notification = HIWORD(wParam);
-				switch(notification) {
-					case BN_CLICKED:{
-						GETCB(onClick,on_click);
-						on_click();
-						return true;
-					}
-					case CBN_SELCHANGE:{
-						GETCB(onChange,on_change);
-						on_change();
-						return true;
-					}
-				}
+                int handled = 0;
+                if( handleControlWMCommandNotification(notification,control,wParam,lParam) ) handled = 1;
+                else if( control->processNotification(WM_COMMAND,notification,wParam,lParam) ) handled = 2;
+                return handled;                
 			}
 			} break;
 
@@ -192,11 +185,26 @@ bool ApplicationImpl::handleWindowCallbacks(UINT message, std::shared_ptr<Window
 			if( message >= WM_USER ) {
 				GETCBW(onUserEvent,on_userEvent)
 				on_userEvent(toUserEvent(message,lParam));
-				return true;
+				return 3;
 			}
 	}
 
-	return false;
+	return 0;
+}
+
+// if no more messages appear here, perhaps create a ButtonImpl parent class of all windows button controls (checkbox, button, radio, etc)
+// and move this method to that process message class
+bool ApplicationImpl::handleControlWMCommandNotification(UINT notification, std::shared_ptr<NativeControlImpl> control, WPARAM & wParam, LPARAM & lParam)
+{
+    switch(notification) {
+        case BN_CLICKED:{
+            GETCB(onClick,on_click);
+            on_click();
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 void ApplicationImpl::registerWindow(std::shared_ptr<WindowImpl> window) {

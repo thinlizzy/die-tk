@@ -23,9 +23,12 @@ size_t TreeViewImpl::total() const
 
 void TreeViewImpl::setImageList(std::shared_ptr<ImageList> imageList)
 {
-    this->imageList = imageList;
+    // set the new image list
     auto & imageListImpl = dynamic_cast<ImageListImpl &>(*imageList);
-    TreeView_SetImageList(hWnd, imageListImpl.getHiml(), TVSIL_NORMAL); 
+    auto hOld = TreeView_SetImageList(hWnd, imageListImpl.getHiml(), TVSIL_NORMAL);
+    // TODO if hOld != null , assert hOld equals handle of old one
+    // replace the old one
+    this->imageList = imageList;
 }
 
 std::shared_ptr<ImageList> TreeViewImpl::getImageList()

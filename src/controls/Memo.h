@@ -12,6 +12,10 @@ public:
 	virtual void setText(std::string const & text) = 0;
 
 	virtual void setReadOnly(bool readOnly) = 0;
+    
+    using Control::onMouse;
+    using Control::onKey;
+    using Control::onKeypress;
 };
 
 }

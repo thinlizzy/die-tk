@@ -31,6 +31,7 @@ public:
 
 	virtual ~NativeControlImpl() = 0;
 	virtual bool processMessage(UINT message, WPARAM wParam, LPARAM lParam);
+    virtual bool processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);
 
 	virtual int x() const;
 	virtual int y() const;

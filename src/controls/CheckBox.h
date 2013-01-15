@@ -13,6 +13,9 @@ public:
 	virtual bool checked() const = 0;
 	virtual void check(bool state) = 0;
 	virtual void setAutosize(bool autosize) = 0;
+    
+    using Control::onMouse;
+    using Control::onClick;
 };
 
 }

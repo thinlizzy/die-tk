@@ -16,6 +16,9 @@ public:
 
 	virtual void setVisibleItems(int numItems) = 0;
 	virtual int visibleItems() const = 0;
+    
+    using Control::onMouse;
+    using Control::onChange;
 };
 
 }

@@ -35,9 +35,9 @@ std::shared_ptr<C> Application::create(WindowPtr parent, ControlParams const & p
 	return std::dynamic_pointer_cast<C>(controlImpl);
 }
 
-std::shared_ptr<Control> Application::createPaintBox(WindowPtr parent, ControlParams const & params)
+std::shared_ptr<PaintBox> Application::createPaintBox(WindowPtr parent, ControlParams const & params)
 {
-	return create<Control,PaintBoxImpl>(parent,params);
+	return create<PaintBox,PaintBoxImpl>(parent,params);
 }
 
 std::shared_ptr<Button> Application::createButton(WindowPtr parent, ControlParams const & params)
