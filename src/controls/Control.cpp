@@ -3,6 +3,17 @@
 
 namespace tk {
 
+void Control::setEnabled(bool enabled)
+{
+    if( enabled ) enable(); else disable();
+}
+
+void Control::setVisible(bool visible)
+{
+    if( visible ) show(); else hide();
+}
+
+    
 template<typename CbType>
 void callbackImpl(Control & control, void (Application::*appCallback)(std::shared_ptr<Control>,CbType), CbType callback)
 {

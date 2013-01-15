@@ -5,7 +5,7 @@
 namespace tk {
 
 CheckBoxImpl::CheckBoxImpl(HWND parent_hWnd, ControlParams const & params):
-	NativeControlImpl(parent_hWnd,params,"BUTTON",BS_AUTOCHECKBOX),
+	ButtonBaseImpl(parent_hWnd,params,BS_AUTOCHECKBOX),
 	autosize(params.autosize_)
 {
 	setText(params.text_);
@@ -45,7 +45,7 @@ void CheckBoxImpl::setAutosize(bool autosize)
 WDims CheckBoxImpl::getDimsByText()
 {
 	// TODO: get values from current font
-	int const width_padding = 10;
+	int const width_padding = 20;
 	int const height_padding = 2;
 	int const min_height = 15;
 

@@ -85,9 +85,13 @@ int main()
         combobox->addString("apricu");
         
         combobox->onChange([&](){
-			std::cout << "escolhi " << combobox->getString(combobox->selectedIndex()) << std::endl;            
+			std::cout << "escolhi " << combobox->getString(combobox->selectedIndex()) << std::endl;
         });
 
+        auto checkbox = app.createCheckBox(window2,ControlParams().start(100,100).text("disable box").autosize(true));
+        checkbox->onClick([&](){
+			combobox->setEnabled(! checkbox->checked());
+        });
 
         auto imageList = app.createImageList(WDims(16,16));
         auto iBubble = addFile(*imageList,"bubble.png");

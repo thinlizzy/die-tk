@@ -36,6 +36,9 @@ public:
 	virtual void hide() = 0;
 	virtual void bringToFront() = 0;
 	virtual void sendToBack() = 0;
+    
+    void setEnabled(bool enabled);
+    void setVisible(bool visible);
 
 	virtual Canvas & canvas() = 0;
 	virtual void repaint() = 0;

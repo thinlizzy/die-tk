@@ -1,12 +1,12 @@
 #ifndef CHECKBOX_WIN32_H_jjjjjj3428fh234r32vvasdf25
 #define CHECKBOX_WIN32_H_jjjjjj3428fh234r32vvasdf25
 
-#include "NativeControlWin32.h"
+#include "ButtonBaseWin32.h"
 #include "../../controls/CheckBox.h"
 
 namespace tk {
 
-class CheckBoxImpl: public NativeControlImpl, public CheckBox {
+class CheckBoxImpl: public ButtonBaseImpl, public CheckBox {
 	bool autosize;
 	WDims getDimsByText();
 public:

@@ -3,8 +3,8 @@
 
 namespace tk {
 
-ButtonBaseImpl::ButtonBaseImpl(HWND parent_hWnd, ControlParams const & params, char const classname[], DWORD style):
-    NativeControlImpl(parent_hWnd,params,classname,style)
+ButtonBaseImpl::ButtonBaseImpl(HWND parent_hWnd, ControlParams const & params, DWORD style):
+    NativeControlImpl(parent_hWnd,params,"BUTTON",style)
 {}
   
 bool ButtonBaseImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)

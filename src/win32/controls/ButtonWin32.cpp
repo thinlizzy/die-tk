@@ -3,7 +3,7 @@
 namespace tk {
 
 ButtonImpl::ButtonImpl(HWND parent_hWnd, ControlParams const & params):
-	NativeControlImpl(parent_hWnd,params,"BUTTON",BS_PUSHBUTTON)
+	ButtonBaseImpl(parent_hWnd,params,BS_PUSHBUTTON)
 {
 	if( ! params.text_.empty() ) {
 		setText(params.text_);

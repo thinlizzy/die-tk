@@ -1,7 +1,7 @@
 #ifndef BUTTON_WIN32_H_kkg921aznf3234829reiufd
 #define BUTTON_WIN32_H_kkg921aznf3234829reiufd
 
-#include "NativeControlWin32.h"
+#include "ButtonBaseWin32.h"
 #include "../../controls/Button.h"
 
 #pragma warning( push )
@@ -9,7 +9,7 @@
 
 namespace tk {
 
-class ButtonImpl: public NativeControlImpl, public Button {
+class ButtonImpl: public ButtonBaseImpl, public Button {
 	WDims getDimsByText(WDims dims);
 public:
 	ButtonImpl(HWND parent_hWnd, ControlParams const & params);
