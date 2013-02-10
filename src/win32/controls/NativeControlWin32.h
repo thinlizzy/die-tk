@@ -8,6 +8,7 @@
 #include <windows.h>
 #include "../ScopedObjects.h"
 #include "../CanvasImplWin32.h"
+#include "../../util/optional.h"
 
 namespace tk {
 
@@ -30,8 +31,8 @@ public:
 	NativeControlImpl(HWND parent_hWnd, ControlParams const & params, char const classname[], DWORD style);
 
 	virtual ~NativeControlImpl() = 0;
-	virtual bool processMessage(UINT message, WPARAM wParam, LPARAM lParam);
-    virtual bool processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);
+	virtual optional<LRESULT> processMessage(UINT message, WPARAM & wParam, LPARAM & lParam);
+    virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);
 
 	virtual int x() const;
 	virtual int y() const;

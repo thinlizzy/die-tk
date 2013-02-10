@@ -107,7 +107,7 @@ void ComboBoxImpl::setDims(WDims dims)
     NativeControlImpl::setDims(dims);
 }
 
-bool ComboBoxImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
+optional<LRESULT> ComboBoxImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
 {
     if( message == WM_COMMAND && notification == CBN_SELCHANGE ) {
         auto it = globalAppImpl->onChange.find(shared_from_this());
@@ -115,7 +115,7 @@ bool ComboBoxImpl::processNotification(UINT message, UINT notification, WPARAM w
         
         auto & on_change = it->second;
         on_change();
-        return true;
+        return 0;
 	}
 
     return NativeControlImpl::processNotification(message,notification,wParam,lParam);

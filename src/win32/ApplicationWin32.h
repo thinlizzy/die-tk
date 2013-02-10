@@ -23,6 +23,8 @@
 
 #include "components/ImageListWin32.h"
 
+#include "../util/optional.h"
+
 /*
 
 // VS2010 needed this
@@ -58,12 +60,11 @@ public:
 	void registerControl(std::shared_ptr<NativeControlImpl> control);
 	std::shared_ptr<WindowImpl> findWindow(HWND hWnd);
 	std::shared_ptr<NativeControlImpl> findControl(HWND hWnd);
+    std::shared_ptr<NativeControlImpl> findControlOrWindow(HWND hWnd);
 
     void processMessages();
 
 	LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	bool handleControlCallbacks(UINT message, std::shared_ptr<NativeControlImpl> control, WPARAM & wParam, LPARAM & lParam);
-	bool handleWindowCallbacks(UINT message, std::shared_ptr<WindowImpl> window, WPARAM & wParam, LPARAM & lParam);
 
 	std::unordered_map<std::shared_ptr<Control>,HandlePaint> onPaint;
 	std::unordered_map<std::shared_ptr<Control>,HandleMouseEvent> onMouse;
@@ -77,9 +78,34 @@ public:
 	std::unordered_map<WindowPtr,HandleEvent> onUserEvent;
 
 	HCURSOR cursors[cur_numCursors];
+    
 };
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+// find and execute a callback
+template<typename M, typename C, typename... Args>
+bool findExec(M & callbackMap, C control, Args &&... args)
+{
+    auto it = callbackMap.find(control);
+    if( it == callbackMap.end() ) return false;
+    
+    auto & callback = it->second;
+    callback(std::forward<Args>(args)...);
+    return true;
+}
+
+// find and execute a callback
+template<typename R, typename M, typename C, typename... Args>
+optional<R> findExec(M & callbackMap, C control, Args &&... args)
+{
+    auto it = callbackMap.find(control);
+    if( it == callbackMap.end() ) return optional<R>();
+    
+    auto & callback = it->second;
+    return callback(std::forward<Args>(args)...);
+}
+
 
 extern std::shared_ptr<ApplicationImpl> globalAppImpl;
 

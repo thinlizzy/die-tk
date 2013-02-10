@@ -16,21 +16,31 @@ class TreeViewImpl: public NativeControlImpl, public TreeView, private CommonCon
     std::shared_ptr<ImageList> imageList;
 public:
 	TreeViewImpl(HWND parent_hWnd, ControlParams const & params);
+    virtual ~TreeViewImpl();
 
     virtual TreeView::Item root();
     virtual size_t total() const;
     virtual void setImageList(std::shared_ptr<ImageList> imageList);
     virtual std::shared_ptr<ImageList> getImageList();
+    virtual TreeView::Iterator selected() const;
+
+    virtual void beforeChange(TreeView::AllowChangeFromTo callback);
+    virtual void onChange(TreeView::HandleItemOperation callback);
+    virtual void beforeExpand(TreeView::AllowItemChange callback);
+    virtual void onExpand(TreeView::HandleItemOperation callback);
+    virtual void beforeCollapse(TreeView::AllowItemChange callback);
+    virtual void onCollapse(TreeView::HandleItemOperation callback);
+    
+    virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);    
 };
 
 class ItemImpl {
 public:
     HWND hTreeView;
-    HTREEITEM hParent;
     HTREEITEM hItem;
     HTREEITEM hTail;
 
-    ItemImpl(HWND hTreeView, HTREEITEM hItem, HTREEITEM hParent);
+    ItemImpl(HWND hTreeView, HTREEITEM hItem);
     bool operator==(ItemImpl const & ih) const;
     HTREEITEM firstChild() const;
     HTREEITEM nextSibling() const;
@@ -40,7 +50,7 @@ class IteratorImpl {
 public:
     ItemImpl itemImpl;    
     IteratorImpl() = default;
-    IteratorImpl(HWND hTreeView, HTREEITEM hItem, HTREEITEM hParent): itemImpl(hTreeView,hItem,hParent) {}
+    IteratorImpl(HWND hTreeView, HTREEITEM hItem): itemImpl(hTreeView,hItem) {}
 };
 
 }

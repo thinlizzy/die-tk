@@ -17,14 +17,14 @@ int main()
 		app.showConsole();
 
 		auto window1 = app.createWindow();
-		app.onClose(window1,[]() -> bool {
+		window1->onClose([]() -> bool {
 			std::cout << "window was closed!" << std::endl;
 			return true;
 		});
 
 		auto window2 = app.createWindow(WindowParams().text("second window"));
 		window2->clear(RGBColor(100,0,0));
-		app.onClose(window2,[]() -> bool {
+		window2->onClose([]() -> bool {
 			static bool x = false;
 			if( x ) {
 				std::cout << "second window was closed!" << std::endl;
@@ -38,7 +38,7 @@ int main()
 
 		window1->canvas().setBrush(tk::RGBColor(0,100,0));
 		window1->canvas().setPen(tk::RGBColor(0,100,0));
-		app.onPaint(window1,[&](Canvas & canvas, Rect rect) {
+		window1->onPaint([&](Canvas & canvas, Rect rect) {
 			canvas.fillRect(rect);
 		});
 		auto button1 = app.createButton(window1,ControlParams().text("click me").start(20,20));
@@ -52,7 +52,7 @@ int main()
 
 		img::Image image("DIEGO1.jpg");
 		auto imagepb = app.createPaintBox(window1,ControlParams().start(400,100).dims(200,200));
-		app.onPaint(imagepb,[&](Canvas & canvas, Rect rect) {
+		imagepb->onPaint([&](Canvas & canvas, Rect rect) {
 			canvas.drawImage(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()));
 		});
         
@@ -106,6 +106,23 @@ int main()
         item1.addChild(TreeView::ItemProperties().setText("child2"));
         root.addChild(TreeView::ItemProperties().setText("second item").setImageIndex(iFolder));
         root.addChild(TreeView::ItemProperties().setText("third item").setImageIndex(iFolder));
+        
+        treeView->onClick([&](){
+			std::cout << "cliquei na treeview" << std::endl;
+        });
+        
+        treeView->onChange([](TreeView::Item item){
+			std::cout << "mudou para " << item.getProperties().text << std::endl;
+        });
+        
+        treeView->beforeChange([](TreeView::Item before, TreeView::Item after) -> bool {
+            return after.getProperties().text != "second item";
+        });
+        
+        treeView->beforeCollapse([](TreeView::Item item) -> bool {
+            std::cout << "vai encolher " << item.getProperties().text << std::endl;
+            return true;
+        });
         
 		while( window1->state() == ws_visible || window2->state() == ws_visible ) {
 			app.waitForMessages();

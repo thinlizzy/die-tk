@@ -160,19 +160,36 @@ void WindowImpl::registerControl(std::shared_ptr<NativeControlImpl> control)
 	controls[control->hWnd] = control;
 }
 
-bool WindowImpl::processMessage(UINT message, WPARAM wParam, LPARAM lParam)
+std::shared_ptr<Window> WindowImpl::w_shared_from_this()
 {
-    if( NativeControlImpl::processMessage(message,wParam,lParam) ) return true;
+    return std::dynamic_pointer_cast<WindowImpl>(shared_from_this());
+}
+
+optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPARAM & lParam)
+{
+    if( auto result = NativeControlImpl::processMessage(message,wParam,lParam) ) return result;
 
 	switch( message ) {
 		case WM_DESTROY:
 			state_ = ws_destroyed;
 			PostQuitMessage(0);			// TODO really need that? I am not processing WM_QUIT anymore
 			break;
-		case WM_CLOSE:
+            
+		case WM_CLOSE: {
+            auto canClose = findExec<bool>(globalAppImpl->onClose,w_shared_from_this());
+            if( canClose ) {
+                if( *canClose == false ) return 0;
+            }
+/*
+            auto it = globalAppImpl->on_close.find(shared_from_this());
+            if( it != globalAppImpl->on_close.end() ) {
+                auto canClose = it->second();
+                if( ! canClose ) return 0;
+            }
+ */            
 			hide();
-			return true;
-			break;
+			return 0;            
+		} break;
 
 		case WM_SIZE: {
 			WDims newDims = lParamToWDims(lParam);
@@ -190,10 +207,36 @@ bool WindowImpl::processMessage(UINT message, WPARAM wParam, LPARAM lParam)
 					state_ &= ~(ws_minimized | ws_maximized);
 					break;
 			}
-			} break;
+            
+            auto resNewDims = findExec<WDims>(globalAppImpl->onResize,w_shared_from_this(),newDims);
+            if( resNewDims ) {
+                // TODO verify the need of creating on_minimize and on_maximize callbacks also
+                lParam = WDimsToLParam(*resNewDims);
+            }            
+		} break;
+        
+		case WM_COMMAND: {
+			if( auto control = globalAppImpl->findControl(HWND(lParam)) ) {
+                return control->processNotification(WM_COMMAND,HIWORD(wParam),wParam,lParam);
+			}
+		} break;
+
+		case WM_NOTIFY: {
+            auto hdr = reinterpret_cast<LPNMHDR>(lParam);
+			if( auto control = globalAppImpl->findControl(hdr->hwndFrom) ) {
+                return control->processNotification(WM_NOTIFY,hdr->code,wParam,lParam);
+			}
+		} break;
+
+		default:
+			if( message >= WM_USER ) {
+                if( findExec(globalAppImpl->onUserEvent,w_shared_from_this(),toUserEvent(message,lParam)) ) {
+                    return 0;
+                }
+			}
 	}
 
-	return false;
+	return optional<LRESULT>();
 }
 
 }

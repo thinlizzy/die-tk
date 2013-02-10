@@ -7,15 +7,10 @@ ButtonBaseImpl::ButtonBaseImpl(HWND parent_hWnd, ControlParams const & params, D
     NativeControlImpl(parent_hWnd,params,"BUTTON",style)
 {}
   
-bool ButtonBaseImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
+optional<LRESULT> ButtonBaseImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
 {
     if( message == WM_COMMAND && notification == BN_CLICKED ) {
-        auto it = globalAppImpl->onClick.find(shared_from_this());
-        if( it == globalAppImpl->onClick.end() ) return false;
-        
-        auto & on_click = it->second;
-        on_click();
-        return true;
+       if( findExec(globalAppImpl->onClick,shared_from_this()) ) return 0;
 	}
 
     return NativeControlImpl::processNotification(message,notification,wParam,lParam);

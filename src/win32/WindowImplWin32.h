@@ -33,6 +33,8 @@ class WindowImpl: public NativeControlImpl, public Window {
 	WindowImpl(WindowImpl const &); // prevent copying
 
 	void createWindow(Point pos, WDims dims, char const windowname[], char const classname[], DWORD style);
+    
+    std::shared_ptr<Window> w_shared_from_this();
 public:
 	WindowImpl(WindowParams const & params);
 
@@ -48,7 +50,7 @@ public:
 
 	void clear(RGBColor const & color);
 
-	virtual bool processMessage(UINT message, WPARAM wParam, LPARAM lParam);
+	virtual optional<LRESULT> processMessage(UINT message, WPARAM & wParam, LPARAM & lParam);
 
 	RECT windowRect() const;
 

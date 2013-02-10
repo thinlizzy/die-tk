@@ -9,7 +9,7 @@ class ButtonBaseImpl: public NativeControlImpl {
 public:
 	ButtonBaseImpl(HWND parent_hWnd, ControlParams const & params, DWORD style);
     
-    virtual bool processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);    
+    virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);    
 };
 
 }
