@@ -18,12 +18,17 @@ public:
     class Item;
     class Iterator;
     
-    virtual Item root() = 0;
+    virtual Item root() const = 0;
     virtual size_t total() const = 0;
+    virtual Iterator selected() const = 0;
+    
+    virtual Item getParent(Item const & item) const = 0;
+
+    virtual void clear() = 0;
+
     virtual void setImageList(std::shared_ptr<ImageList> imageList) = 0;
     virtual std::shared_ptr<ImageList> getImageList() = 0;
-    virtual Iterator selected() const = 0;
-
+    
     typedef std::function<bool(Item)> AllowItemChange;
     typedef std::function<bool(Item,Item)> AllowChangeFromTo;
     typedef std::function<void(Item)> HandleItemOperation;
@@ -43,28 +48,31 @@ public:
         std::string text;
         ImageList::Index imageIndex;
         ItemProperties(): imageIndex(ImageList::noIndex) {}
-        ItemProperties & setImageIndex(ImageList::Index imageIndex) { this->imageIndex = imageIndex; return *this; }        
+        explicit ItemProperties(std::string text, ImageList::Index imageIndex = ImageList::noIndex): text(text), imageIndex(imageIndex) {}
         ItemProperties & setText(std::string const & text) { this->text = text; return *this; }
+        ItemProperties & setImageIndex(ImageList::Index imageIndex) { this->imageIndex = imageIndex; return *this; }        
     };
 
     class Item {
         friend class IteratorImpl;
+        friend class TreeViewImpl;
     public:
         Item(Item const & Item);
         ~Item();
         Item & operator=(Item const & item);
-
+        bool operator==(Item const & item) const;
+        
         ItemProperties getProperties() const;
         void setText(std::string const & text);
         void setImageIndex(ImageList::Index imageIndex);
 
         Iterator addChild(ItemProperties const & properties);
-        void eraseChild(Iterator const & it);   // invalidates it
-
-        Iterator begin();
+        void eraseChild(Iterator const & it);    // invalidates it
+        
+        Iterator begin();      // first child
         Iterator end();
-
-        bool empty() const;
+        
+        bool empty() const;    // empty if item has no children
     private:
         std::shared_ptr<ItemImpl> itemImpl;
         Item() = default;

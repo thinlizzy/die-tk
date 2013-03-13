@@ -35,6 +35,7 @@ int main()
 			return false;
 		});
 
+		img::Image image("DIEGO1.jpg");
 
 		window1->canvas().setBrush(tk::RGBColor(0,100,0));
 		window1->canvas().setPen(tk::RGBColor(0,100,0));
@@ -50,12 +51,6 @@ int main()
 			std::cout << "clicked me with " << evt.type << " at " << pt << std::endl;
 		});
 
-		img::Image image("DIEGO1.jpg");
-		auto imagepb = app.createPaintBox(window1,ControlParams().start(400,100).dims(200,200));
-		imagepb->onPaint([&](Canvas & canvas, Rect rect) {
-			canvas.drawImage(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()));
-		});
-        
 		auto paintboxG = app.createPaintBox(window2,ControlParams().start(window2->width()/2,window2->height()/2).dims(100,100));
 		paintboxG->setBackground(tk::RGBColor(200,100,0));
 
@@ -123,6 +118,28 @@ int main()
             std::cout << "vai encolher " << item.getProperties().text << std::endl;
             return true;
         });
+        
+        
+        auto treeView2 = app.createTreeView(window1,ControlParams().start(treeView->pos().addX(150)).dims(300,300));
+        treeView2->setImageList(imageList);
+        FileTreeView ftv(treeView2);
+        ftv.setBaseDir("c:\\");
+        
+        auto buttonFileTreeView = app.createButton(window1,ControlParams()
+            .start(treeView2->pos().addY(treeView2->height()+5))
+            .autosize(true)
+            .text("abrir"));
+        buttonFileTreeView->onClick([&](){
+            std::cout << "filename = " << ftv.getFile().filename << ' ' <<
+                    "full path = " << ftv.getFile().fullPath << ' ' <<
+                    "isDir? = " << ftv.getFile().isDirectory << std::endl;
+        });
+        
+		auto imagepb = app.createPaintBox(window1,ControlParams().start(500,100).dims(200,200));
+		imagepb->onPaint([&](Canvas & canvas, Rect rect) {
+			canvas.drawImage(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()));
+		});
+        
         
 		while( window1->state() == ws_visible || window2->state() == ws_visible ) {
 			app.waitForMessages();

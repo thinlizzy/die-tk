@@ -49,7 +49,7 @@ TreeViewImpl::~TreeViewImpl()
     removeFromCb(this,cbOnCollapse);
 }
 
-TreeView::Item TreeViewImpl::root()
+TreeView::Item TreeViewImpl::root() const
 {
     return TreeView::Item(rootItemImpl);
 }
@@ -171,6 +171,21 @@ optional<LRESULT> TreeViewImpl::processNotification(UINT message, UINT notificat
     return NativeControlImpl::processNotification(message,notification,wParam,lParam);
 }
 
+void TreeViewImpl::clear()
+{
+    if( ! TreeView_DeleteAllItems(hWnd) ) {
+        // TODO log error
+    }
+}
+
+TreeView::Item TreeViewImpl::getParent(TreeView::Item const & item) const
+{
+    HTREEITEM hParent = item.itemImpl->parent();
+    if( hParent == 0 ) return root();
+    
+    return TreeView::Item(std::make_shared<ItemImpl>(hWnd,hParent));
+}
+
 /* ItemImpl */
 
 ItemImpl::ItemImpl(HWND hTreeView, HTREEITEM hItem):
@@ -192,6 +207,11 @@ HTREEITEM ItemImpl::firstChild() const
 HTREEITEM ItemImpl::nextSibling() const
 {
     return TreeView_GetNextSibling(hTreeView, hItem);
+}
+
+HTREEITEM ItemImpl::parent() const
+{
+    return TreeView_GetParent(hTreeView, hItem);
 }
 
 /* Item */
@@ -221,13 +241,13 @@ TreeView::ItemProperties TreeView::Item::getProperties() const
     ItemProperties result;
     char buffer[261];
     TVITEM item;
-    item.mask = TVIF_HANDLE | TVIF_TEXT;
+    item.mask = TVIF_HANDLE | TVIF_TEXT | TVIF_IMAGE;
     item.hItem = itemImpl->hItem;
     item.pszText = &buffer[0];
     item.cchTextMax = sizeof(buffer) - 1;
     if( TreeView_GetItem(itemImpl->hTreeView,&item) ) {
         result.text = buffer;
-        // TODO get image index too
+        result.imageIndex = item.iImage;
     } else {
         // TODO log error
     }
@@ -322,6 +342,11 @@ bool TreeView::Item::empty() const
 {
     HTREEITEM hChild = itemImpl->firstChild();
     return hChild == 0;
+}
+
+bool TreeView::Item::operator==(Item const & item) const
+{
+    return *itemImpl == *item.itemImpl;
 }
 
 /* Iterator */

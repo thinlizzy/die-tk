@@ -18,11 +18,15 @@ public:
 	TreeViewImpl(HWND parent_hWnd, ControlParams const & params);
     virtual ~TreeViewImpl();
 
-    virtual TreeView::Item root();
+    virtual TreeView::Item root() const;
     virtual size_t total() const;
     virtual void setImageList(std::shared_ptr<ImageList> imageList);
     virtual std::shared_ptr<ImageList> getImageList();
     virtual TreeView::Iterator selected() const;
+    
+    virtual Item getParent(Item const & item) const;
+    
+    virtual void clear();
 
     virtual void beforeChange(TreeView::AllowChangeFromTo callback);
     virtual void onChange(TreeView::HandleItemOperation callback);
@@ -44,6 +48,7 @@ public:
     bool operator==(ItemImpl const & ih) const;
     HTREEITEM firstChild() const;
     HTREEITEM nextSibling() const;
+    HTREEITEM parent() const;
 };
 
 class IteratorImpl {
