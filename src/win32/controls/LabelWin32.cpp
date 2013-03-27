@@ -2,24 +2,14 @@
 
 namespace tk {
 
-LabelImpl::LabelImpl(HWND parent_hWnd, ControlParams const & params):
-	NativeControlImpl(parent_hWnd,params,"STATIC",SS_CENTER),
+LabelImpl::LabelImpl(Window & parent, ControlParams const & params):
+	NativeControlImpl(parent,params,"STATIC",SS_CENTER),
 	autosize(params.autosize_)
 {
 	setText(params.text_);
     if( autosize ) {
         doAutosize();
     }
-}
-
-std::string LabelImpl::getText() const
-{
-    return NativeControlImpl::getText();
-}
-
-void LabelImpl::setText(std::string const & text)
-{
-    NativeControlImpl::setText(text);
 }
 
 void LabelImpl::setAutosize(bool autosize)

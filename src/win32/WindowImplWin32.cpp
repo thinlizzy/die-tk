@@ -1,10 +1,11 @@
 #include "WindowImplWin32.h"
-#include "../Window.h"
+#include <algorithm>
+#include <stdexcept>
+
 #include "ConvertersWin32.h"
 #include "ScopedObjects.h"
-#include <algorithm>
-#include "ApplicationWin32.h"
-#include <stdexcept>
+#include "ResourceManager.h"
+#include "CallbackUtils.h"
 
 #include "../trace.h"
 
@@ -15,6 +16,10 @@ std::shared_ptr<tk::NativeControlImpl> nullControl;
 }
 
 namespace tk {
+
+ControlCallbackMap<AllowOperation> cbClose;
+ControlCallbackMap<ProcessResize> cbResize;
+ControlCallbackMap<HandleEvent> cbUserEvent;
 
 WindowClass::WindowClass()
 {
@@ -40,7 +45,9 @@ tk::WDims windowPayload(8,27);
 DWORD stateToWinStyle(int state)
 {
 	DWORD result = 0;
-	if( state & ws_visible ) result |= WS_VISIBLE;
+	if( state & ws_visible ) {
+        result |= WS_VISIBLE;
+    }
 	if( state & ws_minimized ) {
 		result |= WS_MINIMIZE;
 	} else
@@ -70,14 +77,14 @@ WindowImpl::WindowImpl(WindowParams const & params):
 		dims = params.dims_ + windowPayload;
 	}
 
-	createWindow(Point(x,y),dims,params.text_.c_str(),windowClass.wc.lpszClassName,stateToWinStyle(params.initialState));
+	hWnd = createWindow(Point(x,y),dims,params.text_.c_str(),windowClass.wc.lpszClassName,stateToWinStyle(params.initialState));
 
 	rect_ = convertRect(windowRect());
 }
 
-void WindowImpl::createWindow(Point pos, WDims dims, char const windowname[], char const classname[], DWORD style)
+HWND WindowImpl::createWindow(Point pos, WDims dims, char const windowname[], char const classname[], DWORD style)
 {
-	hWnd = CreateWindowEx(
+	HWND hWnd = CreateWindowEx(
 		WS_EX_APPWINDOW,
 		classname, windowname,
 //		WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | style,
@@ -91,6 +98,7 @@ void WindowImpl::createWindow(Point pos, WDims dims, char const windowname[], ch
 		auto error = errorMessage(GetLastError());
 		throw std::runtime_error(error);
 	}
+    return hWnd;
 }
 
 WindowImpl::~WindowImpl()
@@ -100,6 +108,9 @@ WindowImpl::~WindowImpl()
 		// PostMessage(hWnd,WM_CLOSE,0,0);
 		PostMessage(hWnd,WM_DESTROY,0,0);
 	}
+    removeFromCb(this,cbClose);
+    removeFromCb(this,cbResize);
+    removeFromCb(this,cbUserEvent);
 }
 
 
@@ -132,14 +143,6 @@ void WindowImpl::hide()
 	NativeControlImpl::hide();
 }
 
-void WindowImpl::clear(RGBColor const & color)
-{
-	canvasImpl.setBrush(color);
-	canvasImpl.setPen(color);
-	canvasImpl.fillRect(windowRect());
-}
-
-
 RECT WindowImpl::windowRect() const
 {
 	RECT rect;
@@ -158,11 +161,25 @@ std::shared_ptr<NativeControlImpl> WindowImpl::findControl(HWND handle)
 void WindowImpl::registerControl(std::shared_ptr<NativeControlImpl> control)
 {
 	controls[control->hWnd] = control;
+    resourceManager.registerControl(control);
 }
 
-std::shared_ptr<Window> WindowImpl::w_shared_from_this()
+
+// callbacks & messages
+
+AllowOperation WindowImpl::onClose(AllowOperation callback)
 {
-    return std::dynamic_pointer_cast<WindowImpl>(shared_from_this());
+    return setCallback(this,cbClose,callback);    
+}
+
+ProcessResize WindowImpl::onResize(ProcessResize callback)
+{
+    return setCallback(this,cbResize,callback);    
+}
+
+HandleEvent WindowImpl::onUserEvent(HandleEvent callback)
+{
+    return setCallback(this,cbUserEvent,callback);    
 }
 
 optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPARAM & lParam)
@@ -176,17 +193,11 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
 			break;
             
 		case WM_CLOSE: {
-            auto canClose = findExec<bool>(globalAppImpl->onClose,w_shared_from_this());
+            auto canClose = findExec<bool>(this,cbClose);
             if( canClose ) {
                 if( *canClose == false ) return 0;
             }
-/*
-            auto it = globalAppImpl->on_close.find(shared_from_this());
-            if( it != globalAppImpl->on_close.end() ) {
-                auto canClose = it->second();
-                if( ! canClose ) return 0;
-            }
- */            
+            
 			hide();
 			return 0;            
 		} break;
@@ -208,7 +219,7 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
 					break;
 			}
             
-            auto resNewDims = findExec<WDims>(globalAppImpl->onResize,w_shared_from_this(),newDims);
+            auto resNewDims = findExec<WDims>(this,cbResize,newDims);
             if( resNewDims ) {
                 // TODO verify the need of creating on_minimize and on_maximize callbacks also
                 lParam = WDimsToLParam(*resNewDims);
@@ -216,21 +227,21 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
 		} break;
         
 		case WM_COMMAND: {
-			if( auto control = globalAppImpl->findControl(HWND(lParam)) ) {
+			if( auto control = resourceManager.findControl(HWND(lParam)) ) {
                 return control->processNotification(WM_COMMAND,HIWORD(wParam),wParam,lParam);
 			}
 		} break;
 
 		case WM_NOTIFY: {
             auto hdr = reinterpret_cast<LPNMHDR>(lParam);
-			if( auto control = globalAppImpl->findControl(hdr->hwndFrom) ) {
+			if( auto control = resourceManager.findControl(hdr->hwndFrom) ) {
                 return control->processNotification(WM_NOTIFY,hdr->code,wParam,lParam);
 			}
 		} break;
 
 		default:
 			if( message >= WM_USER ) {
-                if( findExec(globalAppImpl->onUserEvent,w_shared_from_this(),toUserEvent(message,lParam)) ) {
+                if( findExec(this,cbUserEvent,toUserEvent(message,lParam)) ) {
                     return 0;
                 }
 			}

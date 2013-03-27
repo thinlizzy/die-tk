@@ -2,36 +2,35 @@
 #define COMBOBOX_WIN32_H_d32h8r437tj54665k
 
 #include "NativeControlWin32.h"
-#include "../../controls/ComboBox.h"
 
 #include <string>
 #include <vector>
 
-#pragma warning( push )
-#pragma warning( disable : 4250 )
-
 namespace tk {
 
-class ComboBoxImpl: public NativeControlImpl, public ComboBox {
+class ComboBoxImpl: public NativeControlImpl {
     int editBoxHeight;
     int nVisibleItems;
     std::vector<std::string> items;
 public:
-	ComboBoxImpl(HWND parent_hWnd, ControlParams const & params);
+	ComboBoxImpl(Window & parent, ControlParams const & params);
+    virtual ~ComboBoxImpl();
 
-	virtual void addString(std::string const & str);
-	virtual std::string getString(int index) const;
-	virtual void clear();
-	virtual int selectedIndex() const;
-	virtual int count() const;
+	void addString(std::string const & str);
+	std::string getString(int index) const;
+	void clearItems();
+	int selectedIndex() const;
+	int count() const;
 
-	virtual void setVisibleItems(int numItems);
-	virtual int visibleItems() const;
+	void setVisibleItems(int numItems);
+	int visibleItems() const;
 
 	virtual Rect rect() const;
 
 	virtual void setDims(WDims dims);
 	virtual void setRect(Rect rect);
+    
+    HandleOperation onChange(HandleOperation callback);
     
     virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);
 private:
@@ -40,7 +39,5 @@ private:
 };
 
 }
-
-#pragma warning( pop )
 
 #endif

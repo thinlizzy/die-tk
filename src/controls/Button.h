@@ -1,18 +1,14 @@
 #ifndef BUTTON_H_gjhrjh4543jfdsgjdsio23
 #define BUTTON_H_gjhrjh4543jfdsgjdsio23
 
-#include "Control.h"
-#include <string>
+#include "base/ButtonBase.h"
 
 namespace tk {
 
-class Button: public virtual Control {
+class Button: public ButtonBase {
 public:
-	virtual std::string getText() const = 0;
-	virtual void setText(std::string const & text) = 0;
-
-    using Control::onMouse;
-    using Control::onClick;
+    Button() = default;
+    Button(Window & parent, ControlParams const & params = ControlParams());    
 };
 
 }

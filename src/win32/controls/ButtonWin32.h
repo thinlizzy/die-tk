@@ -4,24 +4,16 @@
 #include "ButtonBaseWin32.h"
 #include "../../controls/Button.h"
 
-#pragma warning( push )
-#pragma warning( disable : 4250 )
-
 namespace tk {
 
-class ButtonImpl: public ButtonBaseImpl, public Button {
+class ButtonImpl: public ButtonBaseImpl {
 	WDims getDimsByText(WDims dims);
 public:
-	ButtonImpl(HWND parent_hWnd, ControlParams const & params);
-
-	virtual std::string getText() const;
-	virtual void setText(std::string const & text);
+	ButtonImpl(Window & parent, ControlParams const & params);
 
 	virtual void setDims(WDims dims);
 };
 
 }
-
-#pragma warning( pop )
 
 #endif

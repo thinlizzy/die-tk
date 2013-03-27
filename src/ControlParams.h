@@ -27,7 +27,7 @@ public:
 	ControlParams & dims(int width, int height) { dims_ = WDims(width,height); return *this; }
 
 	ControlParams & scrollbar(Scrollbar value) { scrollbar_ = value; return *this; }
-	ControlParams & autosize(bool value) { autosize_ = value; return *this; }
+	ControlParams & autosize(bool value = true) { autosize_ = value; return *this; }
 	// TODO review params (add cursor and background)
 };
 

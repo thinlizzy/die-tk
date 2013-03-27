@@ -1,11 +1,17 @@
 #include "NativeControlWin32.h"
 #include "../ConvertersWin32.h"
-#include "../ApplicationWin32.h"
+#include "../ResourceManager.h"
+#include "../CallbackUtils.h"
 
 #include "../../trace.h"
 #include <stdexcept>
 
 namespace tk {
+
+ControlCallbackMap<HandlePaint> cbPaint;
+ControlCallbackMap<HandleMouseEvent> cbMouse;
+ControlCallbackMap<ProcessKeyEvent> cbKey;
+ControlCallbackMap<ProcessKeypress> cbKeypress;
 
 DWORD scrollbarToWinStyle(Scrollbar sb)
 {
@@ -24,11 +30,12 @@ NativeControlImpl::NativeControlImpl():
 {
 }
 
-NativeControlImpl::NativeControlImpl(HWND parent_hWnd, ControlParams const & params, char const classname[], DWORD style):
+NativeControlImpl::NativeControlImpl(Window & parent, ControlParams const & params, char const classname[], DWORD style):
     cursor(cur_default),
     backgroundColor(RGBColor()),
 	rect_(Rect::closed(params.start_,params.dims_))
 {
+    HWND parent_hWnd = parent.getImpl().hWnd;
 	hWnd = CreateWindow(
 		classname, NULL,
         style | scrollbarToWinStyle(params.scrollbar_) |
@@ -46,7 +53,12 @@ NativeControlImpl::NativeControlImpl(HWND parent_hWnd, ControlParams const & par
 }
 
 NativeControlImpl::~NativeControlImpl()
-{}
+{
+    removeFromCb(this,cbPaint);
+    removeFromCb(this,cbMouse);
+    removeFromCb(this,cbKey);
+    removeFromCb(this,cbKeypress);
+}
 
 Canvas & NativeControlImpl::canvas()
 {
@@ -54,41 +66,10 @@ Canvas & NativeControlImpl::canvas()
 	return canvasImpl;
 }
 
-int NativeControlImpl::x() const
-{
-	return pos().x;
-}
-
-int NativeControlImpl::y() const
-{
-	return pos().y;
-}
-
-Point NativeControlImpl::pos() const
-{
-	return rect().pos();
-}
-
-int NativeControlImpl::width() const
-{
-	return dims().width;
-}
-
-int NativeControlImpl::height() const
-{
-	return dims().height;
-}
-
-WDims NativeControlImpl::dims() const
-{
-	return rect().dims();
-}
-
 Rect NativeControlImpl::rect() const
 {
-	return rect_;
+    return rect_;
 }
-
 
 void NativeControlImpl::setPos(Point pos)
 {
@@ -183,14 +164,6 @@ scoped::DC NativeControlImpl::getDC()
 	return scoped::DC(hWnd);
 }
 
-void NativeControlImpl::clear(RGBColor const & color)
-{
-    auto & canvas1 = canvas();
-    canvas1.setBrush(color);
-	canvas1.setPen(color);
-	canvas1.fillRect(Rect::closed(Point(0,0),dims()));
-}
-
 void NativeControlImpl::setCursor(Cursor cursor)
 {
     this->cursor = cursor;
@@ -209,10 +182,32 @@ Point NativeControlImpl::screenToClient(Point const & point) const
 }
 
 
+// callbacks & messages
+
+HandleMouseEvent NativeControlImpl::onMouse(HandleMouseEvent callback)
+{
+    return setCallback(this,cbMouse,callback);
+}
+
+ProcessKeyEvent NativeControlImpl::onKey(ProcessKeyEvent callback)
+{
+    return setCallback(this,cbKey,callback);
+}
+
+ProcessKeypress NativeControlImpl::onKeypress(ProcessKeypress callback)
+{
+    return setCallback(this,cbKeypress,callback);
+}
+
+HandlePaint NativeControlImpl::onPaint(HandlePaint callback)
+{
+    return setCallback(this,cbPaint,callback);
+}
+
+
 #define GETCB(mapname,varname) \
-    auto it = globalAppImpl->mapname.find(shared_from_this()); \
-    if( it == globalAppImpl->mapname.end() ) return optional<LRESULT>(); \
-    auto & varname = it->second;
+    auto varname = fetchCallback(this,mapname); \
+    if( varname == nullptr ) return optional<LRESULT>(); 
 
 optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wParam, LPARAM & lParam)
 {
@@ -221,7 +216,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
         case WM_SETCURSOR:
             if( cursor != cur_default ) {
                 result = 0;
-                SetCursor(globalAppImpl->cursors[cursor]);
+                SetCursor(resourceManager.cursors[cursor]);
             }
             break;
         case WM_ERASEBKGND:
@@ -236,7 +231,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
             break;
             
 		case WM_PAINT: {
-			GETCB(onPaint,on_paint);
+			GETCB(cbPaint,on_paint);
 			scoped::PaintSection sps(hWnd);
 			CanvasImpl canvas(sps.ps.hdc);
 			auto rect = convertRect(sps.ps.rcPaint);
@@ -246,7 +241,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 
 		case WM_KEYDOWN:
 		case WM_KEYUP:{
-			GETCB(onKey,on_key);
+			GETCB(cbKey,on_key);
 			auto keyEvent = toKeyEvent(message,wParam);
 			WindowKey key = on_key(keyEvent);
 			if( key == k_NONE ) return 0;
@@ -255,7 +250,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 			} break;
 
 		case WM_CHAR:{
-			GETCB(onKeypress,on_keypress);
+			GETCB(cbKeypress,on_keypress);
 			char key = on_keypress(wParam);
 			if( key == 0 ) return 0;
             
@@ -269,7 +264,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 		case WM_MBUTTONDOWN:
 		case WM_MBUTTONUP:
 		case WM_MOUSEMOVE:{
-			GETCB(onMouse,on_mouse);
+			GETCB(cbMouse,on_mouse);
 			auto p = lParamToPoint(lParam);
 			auto mouseEvent = toMouseEvent(message,wParam);
 			on_mouse(mouseEvent,p);

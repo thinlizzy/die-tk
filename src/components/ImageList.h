@@ -6,21 +6,28 @@
 
 namespace tk {
 
+class ImageListImpl;
+    
 class ImageList {
+    friend class TreeViewImpl;
+    
+    std::shared_ptr<ImageListImpl> impl;
+    ImageList(std::shared_ptr<ImageListImpl> impl);
 public:
     typedef int Index;
     static Index const noIndex;
 
-    virtual Index add(ImageRef ih) = 0;
-    virtual void replace(ImageRef ih, Index index) = 0;
-    virtual void remove(Index index) = 0;
+    explicit ImageList(WDims dims, int capacity = 10);
+    ~ImageList();
+    
+    Index add(ImageRef ih);
+    void replace(ImageRef ih, Index index);
+    void remove(Index index);
 
-    virtual WDims dims() const = 0;
-    virtual int count() const = 0;
+    WDims dims() const;
+    int count() const;
 
-    virtual void clear() = 0;
-
-    virtual ~ImageList() {};
+    void clear();
 };
 
 }

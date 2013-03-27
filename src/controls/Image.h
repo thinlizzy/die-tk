@@ -1,15 +1,18 @@
 #ifndef IMAGE_H_dssssfas3289fk560ftgjdwtsss
 #define IMAGE_H_dssssfas3289fk560ftgjdwtsss
 
-#include "Control.h"
+#include "../Control.h"
 
 namespace tk {
 
-class Image: public virtual Control {
+class Image: public Control {
 public:
-	virtual void setImage(unsigned char const buffer[], void * header) = 0;
+    Image() = default;
+    Image(Window & parent, ControlParams const & params = ControlParams());
+    
+	void setImage(unsigned char const buffer[], void * header);
 
-	virtual void setAutosize(bool autosize) = 0;
+	void setAutosize(bool autosize);
     
     using Control::onMouse;
 };

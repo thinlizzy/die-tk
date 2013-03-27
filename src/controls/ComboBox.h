@@ -1,24 +1,29 @@
 #ifndef COMBOBOX_H_3432fdk450pdfl231
 #define COMBOBOX_H_3432fdk450pdfl231
 
-#include "Control.h"
+#include "../Control.h"
 #include <string>
+#include <initializer_list>
 
 namespace tk {
 
-class ComboBox: public virtual Control {
+class ComboBox: public Control {
 public:
-	virtual void addString(std::string const & str) = 0;
-	virtual std::string getString(int index) const = 0;
-	virtual void clear() = 0;
-	virtual int selectedIndex() const = 0;
-	virtual int count() const = 0;
+    ComboBox() = default;
+    ComboBox(Window & parent, ControlParams const & params = ControlParams());
+    
+	void addString(std::string const & str);
+    void addStrings(std::initializer_list<std::string> strings);
+	std::string getString(int index) const;
+	void clearItems();
+	int selectedIndex() const;
+	int count() const;
 
-	virtual void setVisibleItems(int numItems) = 0;
-	virtual int visibleItems() const = 0;
+	void setVisibleItems(int numItems);
+	int visibleItems() const;
     
     using Control::onMouse;
-    using Control::onChange;
+    HandleOperation onChange(HandleOperation callback);
     // TODO on dropdown open
     // TODO on dropdown close
 };

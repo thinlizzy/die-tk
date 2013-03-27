@@ -1,18 +1,20 @@
 #ifndef LABEL_H_hfjds34230pp2b4jugf
 #define LABEL_H_hfjds34230pp2b4jugf
 
-#include "Control.h"
-#include <string>
+#include "../Control.h"
 
 namespace tk {
 
-class Label: public virtual Control {
+class Label: public Control {
 public:
-	virtual std::string getText() const = 0;
-	virtual void setText(std::string const & text) = 0;
-
-	virtual void setAutosize(bool autosize) = 0;
+    Label() = default;
+    Label(Window & parent, ControlParams const & params = ControlParams());
     
+	void setAutosize(bool autosize);
+    
+	using Control::getText;
+	using Control::setText;
+
     using Control::onMouse;
 };
 

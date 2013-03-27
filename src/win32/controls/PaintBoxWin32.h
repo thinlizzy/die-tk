@@ -2,13 +2,12 @@
 #define PAINTBOX_WIN32_H_j3422224fdsfdsfs342432432332
 
 #include "NativeControlWin32.h"
-#include "../../controls/PaintBox.h"
 
 namespace tk {
 
-class PaintBoxImpl: public NativeControlImpl, public PaintBox {
+class PaintBoxImpl: public NativeControlImpl {
 public:
-	PaintBoxImpl(HWND parent_hWnd, ControlParams const & params);
+	PaintBoxImpl(Window & parent, ControlParams const & params);
 };
 
 }

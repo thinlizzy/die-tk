@@ -6,15 +6,13 @@
 
 namespace tk {
 
-// TODO this will be tested as a TreeView adapter. refactor in the future to allow user custom controls in the application handler
-// do a thing like app.registerUserControl<FileTreeView,TreeView> that allows the creation of custom controls that delegate the callbacks
-
 // TODO specify an enum mask to filter files or directories
     
 class FileTreeView {
-    std::shared_ptr<TreeView> treeView;
+    TreeView treeView;
     std::string baseDir;
     std::string globMask;
+    TreeView::AllowItemChange oldBeforeExpand;
 public:
     class File {
     public:
@@ -27,7 +25,11 @@ public:
         imgFile,imgDirectory,
     };
     
-    explicit FileTreeView(std::shared_ptr<TreeView> treeView);
+    explicit FileTreeView(TreeView treeView);
+    FileTreeView(FileTreeView const &) = delete;
+    FileTreeView & operator=(FileTreeView const &) = delete;
+    ~FileTreeView();
+    
     void setGlobMask(std::string const & globMask);
     void setBaseDir(std::string const & baseDir);
     // TODO void enableDirectories(boolean enabled);

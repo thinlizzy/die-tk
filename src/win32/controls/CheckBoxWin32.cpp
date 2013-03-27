@@ -4,16 +4,11 @@
 
 namespace tk {
 
-CheckBoxImpl::CheckBoxImpl(HWND parent_hWnd, ControlParams const & params):
-	ButtonBaseImpl(parent_hWnd,params,BS_AUTOCHECKBOX),
+CheckBoxImpl::CheckBoxImpl(Window & parent, ControlParams const & params):
+	ButtonBaseImpl(parent,params,BS_AUTOCHECKBOX),
 	autosize(params.autosize_)
 {
 	setText(params.text_);
-}
-
-std::string CheckBoxImpl::getText() const
-{
-    return NativeControlImpl::getText();
 }
 
 void CheckBoxImpl::setText(std::string const & text)

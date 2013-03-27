@@ -6,17 +6,17 @@
 
 namespace tk {
 
-class CheckBoxImpl: public ButtonBaseImpl, public CheckBox {
+class CheckBoxImpl: public ButtonBaseImpl {
 	bool autosize;
 	WDims getDimsByText();
 public:
-	CheckBoxImpl(HWND parent_hWnd, ControlParams const & params);
+	CheckBoxImpl(Window & parent, ControlParams const & params);
 
-	virtual std::string getText() const;
 	virtual void setText(std::string const & text);
-	virtual bool checked() const;
-	virtual void check(bool state);
-	virtual void setAutosize(bool autosize);
+    
+	bool checked() const;
+	void check(bool state);
+	void setAutosize(bool autosize);
 };
 
 }

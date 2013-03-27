@@ -15,12 +15,16 @@ namespace tk {
     
 TreeView::ItemProperties loadingItem{"loading...",0};
     
-FileTreeView::FileTreeView(std::shared_ptr<TreeView> treeView):
+FileTreeView::FileTreeView(TreeView treeView):
     treeView(treeView),
     globMask("*")
 {
-    // TODO stack callbacks (make beforeExpand and onChange return the old function object
-    treeView->beforeExpand(std::bind(&FileTreeView::directoryExpand,this,std::placeholders::_1));
+    oldBeforeExpand = treeView.beforeExpand(std::bind(&FileTreeView::directoryExpand,this,std::placeholders::_1));
+}
+
+FileTreeView::~FileTreeView()
+{
+    treeView.beforeExpand(oldBeforeExpand);
 }
 
 void FileTreeView::setGlobMask(std::string const & globMask)
@@ -66,20 +70,22 @@ void populateFiles(fs::Path const & path, TreeView::Item baseItem)
 
 void FileTreeView::build()
 {
-    treeView->clear();
+    treeView.clear();
     auto path = fs::Path(baseDir).append(globMask);            
-    populateFiles(path,treeView->root());    
+    populateFiles(path,treeView.root());    
 }
 
-fs::Path pathTo(std::shared_ptr<TreeView> const & treeView, TreeView::Item item)
+fs::Path pathTo(TreeView const & treeView, TreeView::Item item)
 {
-    if( item == treeView->root() ) return fs::Path();
+    if( item == treeView.root() ) return fs::Path();
     
-    return pathTo(treeView,treeView->getParent(item)).append(item.getProperties().text);
+    return pathTo(treeView,treeView.getParent(item)).append(item.getProperties().text);
 }
 
 bool FileTreeView::directoryExpand(TreeView::Item item)
 {
+    if( oldBeforeExpand != nullptr && ! oldBeforeExpand(item) ) return false;
+    
     auto it = item.begin();
     auto firstChild = *it;
     if( firstChild.getProperties().text == loadingItem.text ) {
@@ -94,7 +100,7 @@ bool FileTreeView::directoryExpand(TreeView::Item item)
 FileTreeView::File FileTreeView::getFile() const
 {
     File result;
-    auto it = treeView->selected();
+    auto it = treeView.selected();
     if( it ) {
         auto item = *it;
         result.filename = item.getProperties().text;

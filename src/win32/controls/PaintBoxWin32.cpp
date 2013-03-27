@@ -1,7 +1,5 @@
 #include "PaintBoxWin32.h"
-#include "../ConvertersWin32.h"
-
-#include "../ApplicationWin32.h"
+#include "../ResourceManager.h"
 
 namespace tk {
 
@@ -28,8 +26,8 @@ public:
 
 PaintBoxClass paintBoxClass;
 
-PaintBoxImpl::PaintBoxImpl(HWND parent_hWnd, ControlParams const & params):
-	NativeControlImpl(parent_hWnd,params,paintBoxClass.wc.lpszClassName,0)
+PaintBoxImpl::PaintBoxImpl(Window & parent, ControlParams const & params):
+	NativeControlImpl(parent,params,paintBoxClass.wc.lpszClassName,0)
 {
 }
 

@@ -5,13 +5,9 @@
 #include <memory>
 #include <unordered_map>
 
-#include "../Window.h"
 #include "../WindowParams.h"
 #include "CanvasImplWin32.h"
 #include "controls/NativeControlWin32.h"
-
-#pragma warning( push )
-#pragma warning( disable : 4250 )
 
 namespace tk {
 
@@ -22,7 +18,7 @@ public:
 	WindowClass();
 };
 
-class WindowImpl: public NativeControlImpl, public Window {
+class WindowImpl: public NativeControlImpl {
 	static WindowClass windowClass;
 
 	typedef std::unordered_map<HWND,std::shared_ptr<NativeControlImpl>> Controls;
@@ -32,9 +28,7 @@ class WindowImpl: public NativeControlImpl, public Window {
 
 	WindowImpl(WindowImpl const &); // prevent copying
 
-	void createWindow(Point pos, WDims dims, char const windowname[], char const classname[], DWORD style);
-    
-    std::shared_ptr<Window> w_shared_from_this();
+	static HWND createWindow(Point pos, WDims dims, char const windowname[], char const classname[], DWORD style);    
 public:
 	WindowImpl(WindowParams const & params);
 
@@ -48,20 +42,19 @@ public:
 	virtual void show();
 	virtual void hide();
 
-	void clear(RGBColor const & color);
-
 	virtual optional<LRESULT> processMessage(UINT message, WPARAM & wParam, LPARAM & lParam);
 
 	RECT windowRect() const;
 
 	std::shared_ptr<NativeControlImpl> findControl(HWND handle);
 	void registerControl(std::shared_ptr<NativeControlImpl> control);
+    
+	AllowOperation onClose(AllowOperation callback);
+	ProcessResize onResize(ProcessResize callback);
+	HandleEvent onUserEvent(HandleEvent callback);
 };
 
-
 }
-
-#pragma warning( pop )
 
 #endif
 

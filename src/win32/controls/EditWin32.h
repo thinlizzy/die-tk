@@ -1,21 +1,17 @@
-#include "NativeControlWin32.h"
-#include "../../controls/Edit.h"
+#ifndef EDIT_WIN32_H_jfhe3340394bmvbm4
+#define EDIT_WIN32_H_jfhe3340394bmvbm4
 
-#pragma warning( push )
-#pragma warning( disable : 4250 )
+#include "NativeControlWin32.h"
 
 namespace tk {
 
-class EditImpl: public NativeControlImpl, public Edit {
+class EditImpl: public NativeControlImpl {
 public:
-	EditImpl(HWND parent_hWnd, ControlParams const & params);
+	EditImpl(Window & parent, ControlParams const & params);
 
-	virtual std::string getText() const;
-	virtual void setText(std::string const & text);
-
-	virtual void setReadOnly(bool readOnly);
+	void setReadOnly(bool readOnly);
 };
 
 }
 
-#pragma warning( pop )
+#endif

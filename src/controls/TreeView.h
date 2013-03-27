@@ -1,47 +1,51 @@
 #ifndef TREEVIEW_H_hfdh43529jfgjk3432gf0sdj
 #define TREEVIEW_H_hfdh43529jfgjk3432gf0sdj
 
-#include "Control.h"
 #include <string>
 #include <iterator>
 #include <memory>
+#include <functional>
+#include "../Control.h"
 #include "../components/ImageList.h"
 #include "../util/ClonePtr.h"
+#include "../util/optional.h"
 
 namespace tk {
 
 class ItemImpl;
 class IteratorImpl;
 
-class TreeView: public virtual Control {
+class TreeView: public Control {
 public:
     class Item;
     class Iterator;
     
-    virtual Item root() const = 0;
-    virtual size_t total() const = 0;
-    virtual Iterator selected() const = 0;
+    TreeView() = default;
+	TreeView(Window & parent, ControlParams const & params);
     
-    virtual Item getParent(Item const & item) const = 0;
+    Item root() const;
+    size_t total() const;
+    Iterator selected() const;
+    
+    Item getParent(Item const & item) const;
 
-    virtual void clear() = 0;
+    void clearItems();
 
-    virtual void setImageList(std::shared_ptr<ImageList> imageList) = 0;
-    virtual std::shared_ptr<ImageList> getImageList() = 0;
+    void setImageList(ImageList & imageList);
+    void removeImageList();
+    optional<ImageList> getImageList();
     
     typedef std::function<bool(Item)> AllowItemChange;
     typedef std::function<bool(Item,Item)> AllowChangeFromTo;
     typedef std::function<void(Item)> HandleItemOperation;
 
     using Control::onMouse;
-    using Control::onClick;
-    
-    virtual void beforeChange(AllowChangeFromTo callback) = 0;
-    virtual void onChange(HandleItemOperation callback) = 0;
-    virtual void beforeExpand(AllowItemChange callback) = 0;
-    virtual void onExpand(HandleItemOperation callback) = 0;
-    virtual void beforeCollapse(AllowItemChange callback) = 0;
-    virtual void onCollapse(HandleItemOperation callback) = 0;
+    AllowChangeFromTo beforeChange(AllowChangeFromTo callback);
+    HandleItemOperation onChange(HandleItemOperation callback);
+    AllowItemChange beforeExpand(AllowItemChange callback);
+    HandleItemOperation onExpand(HandleItemOperation callback);
+    AllowItemChange beforeCollapse(AllowItemChange callback);
+    HandleItemOperation onCollapse(HandleItemOperation callback);
     
     struct ItemProperties {
     public:

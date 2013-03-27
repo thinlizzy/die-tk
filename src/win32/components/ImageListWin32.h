@@ -1,35 +1,32 @@
 #ifndef IMAGELIST_WIN32_H_jffffkjfvkvkc0328cbadbhwe54
 #define IMAGELIST_WIN32_H_jffffkjfvkvkc0328cbadbhwe54
 
-#include "../../components/ImageList.h"
 #include <windows.h>
 #include <commctrl.h>
 #include "../CommonControlInitializer.h"
+#include "../../components/ImageList.h"
 
 namespace tk {
 
-class ImageListImpl: public ImageList, private CommonControlInitializer<0> {
+class ImageListImpl: private CommonControlInitializer<0> {
     HIMAGELIST himl;
     int images;
 public:
-    ImageListImpl(ImageListImpl const &) = delete;
-
     ImageListImpl(WDims dims, int capacity);
-    virtual ~ImageListImpl();
+    ~ImageListImpl();
 
-    virtual Index add(ImageRef ih);
-    virtual void replace(ImageRef ih, Index index);
-    virtual void remove(Index index);
+    ImageList::Index add(ImageRef ih);
+    void replace(ImageRef ih, ImageList::Index index);
+    void remove(ImageList::Index index);
 
-    virtual WDims dims() const;
-    virtual int count() const;
+    WDims dims() const;
+    int count() const;
 
-    virtual void clear();
+    void clear();
     
     HIMAGELIST getHiml() const;
 };
 
 }
-
 
 #endif

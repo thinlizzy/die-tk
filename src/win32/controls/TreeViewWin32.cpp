@@ -1,42 +1,33 @@
 #include "TreeViewWin32.h"
 #include "../components/ImageListWin32.h"
-#include "../ApplicationWin32.h"
-#include <unordered_map>
+#include "../CallbackUtils.h"
 
 namespace tk {
 
-std::unordered_map<TreeViewImpl *,TreeView::AllowChangeFromTo> cbBeforeChange;
-std::unordered_map<TreeViewImpl *,TreeView::HandleItemOperation> cbOnChange;
-std::unordered_map<TreeViewImpl *,TreeView::AllowItemChange> cbBeforeExpand;
-std::unordered_map<TreeViewImpl *,TreeView::HandleItemOperation> cbOnExpand;
-std::unordered_map<TreeViewImpl *,TreeView::AllowItemChange> cbBeforeCollapse;
-std::unordered_map<TreeViewImpl *,TreeView::HandleItemOperation> cbOnCollapse;
+ControlCallbackMap<TreeView::AllowChangeFromTo> cbBeforeChange;
+ControlCallbackMap<TreeView::HandleItemOperation> cbOnChange;
+ControlCallbackMap<TreeView::AllowItemChange> cbBeforeExpand;
+ControlCallbackMap<TreeView::HandleItemOperation> cbOnExpand;
+ControlCallbackMap<TreeView::AllowItemChange> cbBeforeCollapse;
+ControlCallbackMap<TreeView::HandleItemOperation> cbOnCollapse;
 
 // find and execute a callback
-template<typename M>
-bool findExecItem(M & callbackMap, TreeViewImpl * treeView, HTREEITEM hItem)
+template<typename CbType>
+bool findExecItem(ControlCallbackMap<CbType> & callbackMap, NativeControlImpl * treeView, HTREEITEM hItem)
 {
-    auto it = callbackMap.find(treeView);
-    if( it == callbackMap.end() ) return false;
+    auto callback = fetchCallback(treeView,callbackMap);    
+    if( callback == nullptr ) return false;
     
-    auto & callback = it->second;
     callback(TreeView::Item(std::make_shared<ItemImpl>(treeView->hWnd,hItem)));
     return true;
 }
 
 /* TreeViewImpl */
 
-TreeViewImpl::TreeViewImpl(HWND parent_hWnd, ControlParams const & params):
-	NativeControlImpl(parent_hWnd,params,WC_TREEVIEW,TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS),
+TreeViewImpl::TreeViewImpl(Window & parent, ControlParams const & params):
+	NativeControlImpl(parent,params,WC_TREEVIEW,TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS),
 	rootItemImpl(std::make_shared<ItemImpl>(hWnd,TVI_ROOT))
 {
-}
-
-template<typename T>
-void removeFromCb(TreeViewImpl * t, T & map)
-{
-    auto it = map.find(t);
-    if( it != map.end() ) map.erase(it);    
 }
 
 TreeViewImpl::~TreeViewImpl()
@@ -59,64 +50,65 @@ size_t TreeViewImpl::total() const
     return TreeView_GetCount(hWnd);
 }
 
-void TreeViewImpl::setImageList(std::shared_ptr<ImageList> imageList)
+void TreeViewImpl::setImageList(ImageList & imageList)
 {
-    // set the new image list
-    auto & imageListImpl = dynamic_cast<ImageListImpl &>(*imageList);
-    auto hOld = TreeView_SetImageList(hWnd, imageListImpl.getHiml(), TVSIL_NORMAL);
-    // TODO if hOld != null , assert hOld equals handle of old one
-    // replace the old one
-    this->imageList = imageList;
+    TreeView_SetImageList(hWnd, imageList.impl->getHiml(), TVSIL_NORMAL);
+    imageListImpl = imageList.impl;
 }
 
-std::shared_ptr<ImageList> TreeViewImpl::getImageList()
+void TreeViewImpl::removeImageList()
 {
-    return imageList;
+    TreeView_SetImageList(hWnd, NULL, TVSIL_NORMAL);
+    imageListImpl.reset();
+}
+
+optional<ImageList> TreeViewImpl::getImageList()
+{
+    if( ! imageListImpl ) return optional<ImageList>();
+            
+    return ImageList(imageListImpl);
 }
 
 TreeView::Iterator TreeViewImpl::selected() const
 {
     HTREEITEM hItem = TreeView_GetSelection(hWnd);
-    return Iterator(new IteratorImpl(hWnd,hItem));
+    return TreeView::Iterator(new IteratorImpl(hWnd,hItem));
 }
 
-void TreeViewImpl::beforeChange(TreeView::AllowChangeFromTo callback)
+TreeView::AllowChangeFromTo TreeViewImpl::beforeChange(TreeView::AllowChangeFromTo callback)
 {
-    cbBeforeChange[this] = callback;
+    return setCallback(this,cbBeforeChange,callback);
 }
 
-void TreeViewImpl::onChange(TreeView::HandleItemOperation callback)
+TreeView::HandleItemOperation TreeViewImpl::onChange(TreeView::HandleItemOperation callback)
 {
-    cbOnChange[this] = callback;    
+    return setCallback(this,cbOnChange,callback);
 }
 
-void TreeViewImpl::beforeExpand(TreeView::AllowItemChange callback)
+TreeView::AllowItemChange TreeViewImpl::beforeExpand(TreeView::AllowItemChange callback)
 {
-    cbBeforeExpand[this] = callback;
+    return setCallback(this,cbBeforeExpand,callback);
 }
 
-void TreeViewImpl::onExpand(TreeView::HandleItemOperation callback)
+TreeView::HandleItemOperation TreeViewImpl::onExpand(TreeView::HandleItemOperation callback)
 {
-    cbOnExpand[this] = callback;
+    return setCallback(this,cbOnExpand,callback);
 }
 
-void TreeViewImpl::beforeCollapse(TreeView::AllowItemChange callback)
+TreeView::AllowItemChange TreeViewImpl::beforeCollapse(TreeView::AllowItemChange callback)
 {
-    cbBeforeCollapse[this] = callback;
+    return setCallback(this,cbBeforeCollapse,callback);
 }
 
-void TreeViewImpl::onCollapse(TreeView::HandleItemOperation callback)
+TreeView::HandleItemOperation TreeViewImpl::onCollapse(TreeView::HandleItemOperation callback)
 {
-    cbOnCollapse[this] = callback;
+    return setCallback(this,cbOnCollapse,callback);
 }
 
 optional<LRESULT> TreeViewImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
 {
     if( message == WM_NOTIFY ) {
         switch(notification) {
-            case NM_CLICK:
-                if( findExec(globalAppImpl->onClick,shared_from_this()) ) return 0;
-                break;
             case TVN_SELCHANGING: {
                 auto it = cbBeforeChange.find(this);
                 if( it != cbBeforeChange.end() ) {
@@ -171,7 +163,7 @@ optional<LRESULT> TreeViewImpl::processNotification(UINT message, UINT notificat
     return NativeControlImpl::processNotification(message,notification,wParam,lParam);
 }
 
-void TreeViewImpl::clear()
+void TreeViewImpl::clearItems()
 {
     if( ! TreeView_DeleteAllItems(hWnd) ) {
         // TODO log error
@@ -185,6 +177,7 @@ TreeView::Item TreeViewImpl::getParent(TreeView::Item const & item) const
     
     return TreeView::Item(std::make_shared<ItemImpl>(hWnd,hParent));
 }
+
 
 /* ItemImpl */
 
@@ -347,61 +340,6 @@ bool TreeView::Item::empty() const
 bool TreeView::Item::operator==(Item const & item) const
 {
     return *itemImpl == *item.itemImpl;
-}
-
-/* Iterator */
-
-TreeView::Iterator::Iterator(IteratorImpl * iteratorImpl):
-    iteratorImpl(iteratorImpl)
-{
-}
-
-TreeView::Iterator::Iterator(TreeView::Iterator const & it):
-    iteratorImpl(it.iteratorImpl)
-{
-}
-
-TreeView::Iterator & TreeView::Iterator::operator=(TreeView::Iterator const & it)
-{
-    iteratorImpl = it.iteratorImpl;
-    return *this;
-}
-
-TreeView::Iterator::~Iterator()
-{
-}
-
-TreeView::Item TreeView::Iterator::operator*()
-{
-    return TreeView::Item(std::make_shared<ItemImpl>(iteratorImpl->itemImpl));
-}
-
-TreeView::Iterator & TreeView::Iterator::operator++()
-{
-    iteratorImpl->itemImpl.hItem = iteratorImpl->itemImpl.nextSibling();
-    return *this;
-}
-
-TreeView::Iterator TreeView::Iterator::operator++(int)
-{
-    auto result = *this;
-    operator++();
-    return result;
-}
-
-bool TreeView::Iterator::operator==(TreeView::Iterator const & it) const
-{
-    if( ! iteratorImpl ) return ! it.iteratorImpl;
-    if( ! it.iteratorImpl ) return false;
-
-    return iteratorImpl->itemImpl == it.iteratorImpl->itemImpl;
-}
-
-TreeView::Iterator::operator bool() const
-{
-    if( ! iteratorImpl ) return false;
-    
-    return iteratorImpl->itemImpl.hItem != 0;
 }
 
 }

@@ -1,10 +1,11 @@
 #include "ComboBoxWin32.h"
 
 #include "../ScopedObjects.h"
-#include <algorithm>
-#include "../ApplicationWin32.h"
+#include "../CallbackUtils.h"
 
 namespace tk {
+
+ControlCallbackMap<HandleOperation> cbChange;
 
 ControlParams chkComboDefaults(ControlParams params)
 {
@@ -17,12 +18,17 @@ ControlParams chkComboDefaults(ControlParams params)
 	return params;
 }
 
-ComboBoxImpl::ComboBoxImpl(HWND parent_hWnd, ControlParams const & params):
-    NativeControlImpl(parent_hWnd,chkComboDefaults(params),"combobox",CBS_DROPDOWNLIST | WS_VSCROLL | CBS_HASSTRINGS),
+ComboBoxImpl::ComboBoxImpl(Window & parent, ControlParams const & params):
+    NativeControlImpl(parent,chkComboDefaults(params),"combobox",CBS_DROPDOWNLIST | WS_VSCROLL | CBS_HASSTRINGS),
     nVisibleItems(10)
 {
     editBoxHeight = rect_.dims().height;
     adjustHeight();
+}
+
+ComboBoxImpl::~ComboBoxImpl()
+{
+    removeFromCb(this,cbChange);
 }
 
 void ComboBoxImpl::addString(std::string const & str)
@@ -40,7 +46,7 @@ std::string ComboBoxImpl::getString(int index) const
 	return items.at(index);		// TODO wrap exception
 }
 
-void ComboBoxImpl::clear()
+void ComboBoxImpl::clearItems()
 {
 	SendMessage(hWnd,CB_RESETCONTENT,0,0);
 	items.clear();
@@ -107,15 +113,17 @@ void ComboBoxImpl::setDims(WDims dims)
     NativeControlImpl::setDims(dims);
 }
 
+HandleOperation ComboBoxImpl::onChange(HandleOperation callback)
+{
+    return setCallback(this,cbChange,callback);
+}    
+
 optional<LRESULT> ComboBoxImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
 {
     if( message == WM_COMMAND && notification == CBN_SELCHANGE ) {
-        auto it = globalAppImpl->onChange.find(shared_from_this());
-        if( it == globalAppImpl->onChange.end() ) return false;
-        
-        auto & on_change = it->second;
-        on_change();
-        return 0;
+        if( findExec(this,cbChange) ) {
+            return 0;
+        }
 	}
 
     return NativeControlImpl::processNotification(message,notification,wParam,lParam);

@@ -1,18 +1,20 @@
 #ifndef MEMO_H_kjfdsfk34
 #define MEMO_H_kjfdsfk34
 
-#include "Control.h"
-#include <string>
+#include "../Control.h"
 
 namespace tk {
 
-class Memo: public virtual Control {
+class Memo: public Control {
 public:
-	virtual std::string getText() const = 0;
-	virtual void setText(std::string const & text) = 0;
-
-	virtual void setReadOnly(bool readOnly) = 0;
+    Memo() = default;
+    Memo(Window & parent, ControlParams const & params = ControlParams());
     
+	void setReadOnly(bool readOnly);
+    
+	using Control::getText;
+	using Control::setText;
+
     using Control::onMouse;
     using Control::onKey;
     using Control::onKeypress;

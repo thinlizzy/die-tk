@@ -6,34 +6,34 @@
 #include <commctrl.h>
 #include "../CommonControlInitializer.h"
 
-#pragma warning( push )
-#pragma warning( disable : 4250 )
-
 namespace tk {
 
-class TreeViewImpl: public NativeControlImpl, public TreeView, private CommonControlInitializer<ICC_TREEVIEW_CLASSES> {
+class TreeViewImpl: public NativeControlImpl, private CommonControlInitializer<ICC_TREEVIEW_CLASSES> {
     std::shared_ptr<ItemImpl> rootItemImpl;
-    std::shared_ptr<ImageList> imageList;
+    std::shared_ptr<ImageListImpl> imageListImpl;
 public:
-	TreeViewImpl(HWND parent_hWnd, ControlParams const & params);
-    virtual ~TreeViewImpl();
+	TreeViewImpl(Window & parent, ControlParams const & params);
+    ~TreeViewImpl();
 
-    virtual TreeView::Item root() const;
-    virtual size_t total() const;
-    virtual void setImageList(std::shared_ptr<ImageList> imageList);
-    virtual std::shared_ptr<ImageList> getImageList();
-    virtual TreeView::Iterator selected() const;
+    TreeView::Item root() const;
+    size_t total() const;
     
-    virtual Item getParent(Item const & item) const;
+    void setImageList(ImageList & imageList);
+    void removeImageList();
+    optional<ImageList> getImageList();
     
-    virtual void clear();
+    TreeView::Iterator selected() const;
+    
+    TreeView::Item getParent(TreeView::Item const & item) const;
+    
+    void clearItems();
 
-    virtual void beforeChange(TreeView::AllowChangeFromTo callback);
-    virtual void onChange(TreeView::HandleItemOperation callback);
-    virtual void beforeExpand(TreeView::AllowItemChange callback);
-    virtual void onExpand(TreeView::HandleItemOperation callback);
-    virtual void beforeCollapse(TreeView::AllowItemChange callback);
-    virtual void onCollapse(TreeView::HandleItemOperation callback);
+    TreeView::AllowChangeFromTo beforeChange(TreeView::AllowChangeFromTo callback);
+    TreeView::HandleItemOperation onChange(TreeView::HandleItemOperation callback);
+    TreeView::AllowItemChange beforeExpand(TreeView::AllowItemChange callback);
+    TreeView::HandleItemOperation onExpand(TreeView::HandleItemOperation callback);
+    TreeView::AllowItemChange beforeCollapse(TreeView::AllowItemChange callback);
+    TreeView::HandleItemOperation onCollapse(TreeView::HandleItemOperation callback);
     
     virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);    
 };
@@ -59,7 +59,5 @@ public:
 };
 
 }
-
-#pragma warning( pop )
 
 #endif

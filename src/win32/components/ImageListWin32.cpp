@@ -27,7 +27,7 @@ ImageList::Index ImageListImpl::add(ImageRef ih)
     return result;
 }
 
-void ImageListImpl::replace(ImageRef ih, Index index)
+void ImageListImpl::replace(ImageRef ih, ImageList::Index index)
 {
     scoped::Bitmap bmImage(ihToBitmap(ih));
     BOOL result = ImageList_Replace(himl,index,bmImage.get(),0);
@@ -36,7 +36,7 @@ void ImageListImpl::replace(ImageRef ih, Index index)
     }
 }
 
-void ImageListImpl::remove(Index index)
+void ImageListImpl::remove(ImageList::Index index)
 {
     BOOL result = ImageList_Remove(himl,index);
     if( result == 0 ) {

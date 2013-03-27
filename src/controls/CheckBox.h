@@ -1,21 +1,17 @@
 #ifndef CHECKBOX_H_fk3492gjl50fh27g
 #define CHECKBOX_H_fk3492gjl50fh27g
 
-#include "Control.h"
-#include <string>
+#include "base/ButtonBase.h"
 
 namespace tk {
 
-class CheckBox: public virtual Control {
+class CheckBox: public ButtonBase {
 public:
-	virtual std::string getText() const = 0;
-	virtual void setText(std::string const & text) = 0;
-	virtual bool checked() const = 0;
-	virtual void check(bool state) = 0;
-	virtual void setAutosize(bool autosize) = 0;
-    
-    using Control::onMouse;
-    using Control::onClick;
+    CheckBox() = default;
+    CheckBox(Window & parent, ControlParams const & params = ControlParams());    
+	bool checked() const;
+	void check(bool state);
+	void setAutosize(bool autosize);
 };
 
 }

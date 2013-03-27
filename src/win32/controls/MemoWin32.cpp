@@ -2,17 +2,12 @@
 
 namespace tk {
 
- MemoImpl::MemoImpl(HWND parent_hWnd, ControlParams const & params):
-	NativeControlImpl(parent_hWnd,params,"EDIT",ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL)
+ MemoImpl::MemoImpl(Window & parent, ControlParams const & params):
+	NativeControlImpl(parent,params,"EDIT",ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL)
 {
 	if( ! params.text_.empty() ) {
 		setText(params.text_);
 	}
-}
-
-std::string MemoImpl::getText() const
-{
-    return NativeControlImpl::getText();
 }
 
 void MemoImpl::setText(std::string const & text)
@@ -39,6 +34,5 @@ void MemoImpl::setReadOnly(bool readOnly)
 {
     PostMessage(hWnd,EM_SETREADONLY,readOnly,0);
 }
-
 
 }

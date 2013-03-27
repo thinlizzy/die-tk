@@ -1,4 +1,4 @@
-#include "ApplicationWin32.h"
+#include "ResourceManager.h"
 #include "../trace.h"
 
 namespace {
@@ -10,9 +10,9 @@ std::shared_ptr<tk::NativeControlImpl> nullControl;
 
 namespace tk {
 
-std::shared_ptr<ApplicationImpl> globalAppImpl(new ApplicationImpl);
+ResourceManager resourceManager;
 
-ApplicationImpl::ApplicationImpl()
+ResourceManager::ResourceManager()
 {
     cursors[cur_arrow] = LoadCursor(NULL, IDC_ARROW);
     cursors[cur_wait] = LoadCursor(NULL, IDC_WAIT);
@@ -23,7 +23,7 @@ ApplicationImpl::ApplicationImpl()
     cursors[cur_cross] = LoadCursor(NULL, IDC_CROSS);
 }
 
-void ApplicationImpl::processMessages()
+void ResourceManager::processMessages()
 {
 	MSG msg;
 	while( PeekMessage(&msg,NULL,0,0,PM_REMOVE) != 0 ) {
@@ -43,12 +43,11 @@ void ApplicationImpl::processMessages()
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	return globalAppImpl->WndProc(hWnd,message,wParam,lParam);
+	return resourceManager.WndProc(hWnd,message,wParam,lParam);
 }
 
-LRESULT ApplicationImpl::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT ResourceManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    // TODO move handleCommonCallbacks to NativeControlImpl processMessage
     if( auto controlImpl = findControlOrWindow(hWnd) ) {
         TRACE_M("WndProc! hWnd = " << hWnd << " message = " << windowsMessageToString(message));
         optional<LRESULT> result = controlImpl->processMessage(message,wParam,lParam);
@@ -62,7 +61,7 @@ LRESULT ApplicationImpl::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	return DefWindowProc(hWnd,message,wParam,lParam);
 }
 
-void ApplicationImpl::handleTopLevelWindowMessages(HWND hWnd, UINT message, WPARAM & wParam, LPARAM & lParam)
+void ResourceManager::handleTopLevelWindowMessages(HWND hWnd, UINT message, WPARAM & wParam, LPARAM & lParam)
 {
 	switch( message ) {
 		case WM_KEYDOWN:
@@ -77,32 +76,32 @@ void ApplicationImpl::handleTopLevelWindowMessages(HWND hWnd, UINT message, WPAR
 	}
 }
 
-std::shared_ptr<NativeControlImpl> ApplicationImpl::getTopLevelWindow(HWND hWnd)
+std::shared_ptr<NativeControlImpl> ResourceManager::getTopLevelWindow(HWND hWnd)
 {
     auto parentHWnd = GetAncestor(hWnd,GA_ROOT);
     if( ! parentHWnd ) return nullWindow;
     return findWindow(parentHWnd);
 }
 
-void ApplicationImpl::registerWindow(std::shared_ptr<WindowImpl> window) {
+void ResourceManager::registerWindow(std::shared_ptr<WindowImpl> window) {
 	windowMap[window->hWnd] = window;
 }
 
-void ApplicationImpl::registerControl(std::shared_ptr<NativeControlImpl> control) {
+void ResourceManager::registerControl(std::shared_ptr<NativeControlImpl> control) {
 	controlMap[control->hWnd] = control;
 }
 
-std::shared_ptr<WindowImpl> ApplicationImpl::findWindow(HWND hWnd) {
+std::shared_ptr<WindowImpl> ResourceManager::findWindow(HWND hWnd) {
 	auto it = windowMap.find(hWnd);
 	return it == windowMap.end() ? nullWindow : it->second;
 }
 
-std::shared_ptr<NativeControlImpl> ApplicationImpl::findControl(HWND hWnd) {
+std::shared_ptr<NativeControlImpl> ResourceManager::findControl(HWND hWnd) {
 	auto it = controlMap.find(hWnd); 
     return it == controlMap.end() ? nullControl : it->second;
 }
 
-std::shared_ptr<NativeControlImpl> ApplicationImpl::findControlOrWindow(HWND hWnd) {
+std::shared_ptr<NativeControlImpl> ResourceManager::findControlOrWindow(HWND hWnd) {
     if( auto result = findWindow(hWnd) ) return result;
     return findControl(hWnd);
 }

@@ -7,9 +7,13 @@ namespace tk {
 
 class ButtonBaseImpl: public NativeControlImpl {
 public:
-	ButtonBaseImpl(HWND parent_hWnd, ControlParams const & params, DWORD style);
+	ButtonBaseImpl(Window & parent, ControlParams const & params, DWORD style);
+    
+    virtual ~ButtonBaseImpl();
     
     virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);    
+    
+	HandleOperation onClick(HandleOperation callback);
 };
 
 }

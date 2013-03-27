@@ -5,95 +5,12 @@
 #include <iostream>
 
 #include "../Application.h"
+#include "ResourceManager.h"
+#include "ConvertersWin32.h"
+
 #include "../trace.h"
 
-#include "ApplicationWin32.h"
-
 namespace tk {
-
-Application::Application():
-	appImpl(globalAppImpl)
-{}
-
-Application::~Application()
-{}
-
-WindowPtr Application::createWindow(WindowParams const & params)
-{
-	auto windowImpl = std::make_shared<WindowImpl>(params);
-	appImpl->registerWindow(windowImpl);
-	return std::dynamic_pointer_cast<Window>(windowImpl);
-}
-
-template<typename C, typename CI>
-std::shared_ptr<C> Application::create(WindowPtr parent, ControlParams const & params)
-{
-	auto parentWindowImpl = std::dynamic_pointer_cast<WindowImpl>(parent);
-	auto controlImpl = std::make_shared<CI>(parentWindowImpl->hWnd,params);
-	appImpl->registerControl(controlImpl);
-	parentWindowImpl->registerControl(controlImpl);
-	return std::dynamic_pointer_cast<C>(controlImpl);
-}
-
-std::shared_ptr<PaintBox> Application::createPaintBox(WindowPtr parent, ControlParams const & params)
-{
-	return create<PaintBox,PaintBoxImpl>(parent,params);
-}
-
-std::shared_ptr<Button> Application::createButton(WindowPtr parent, ControlParams const & params)
-{
-	return create<Button,ButtonImpl>(parent,params);
-}
-
-std::shared_ptr<Image> Application::createImage(WindowPtr parent, ControlParams const & params)
-{
-	return create<Image,ImageImpl>(parent,params);
-}
-
-std::shared_ptr<ComboBox> Application::createComboBox(WindowPtr parent, ControlParams const & params)
-{
-	return create<ComboBox,ComboBoxImpl>(parent,params);
-}
-
-std::shared_ptr<Edit> Application::createEdit(WindowPtr parent, ControlParams const & params)
-{
-	return create<Edit,EditImpl>(parent,params);
-}
-
-std::shared_ptr<Memo> Application::createMemo(WindowPtr parent, ControlParams const & params)
-{
-	return create<Memo,MemoImpl>(parent,params);
-}
-
-std::shared_ptr<CheckBox> Application::createCheckBox(WindowPtr parent, ControlParams const & params)
-{
-	return create<CheckBox,CheckBoxImpl>(parent,params);
-}
-
-std::shared_ptr<Label> Application::createLabel(WindowPtr parent, ControlParams const & params)
-{
-	return create<Label,LabelImpl>(parent,params);
-}
-
-std::shared_ptr<TreeView> Application::createTreeView(WindowPtr parent, ControlParams const & params)
-{
-	return create<TreeView,TreeViewImpl>(parent,params);
-}
-
-
-
-std::shared_ptr<ImageList> Application::createImageList(WDims dims, int capacity)
-{
-    return std::make_shared<ImageListImpl>(dims,capacity);
-}
-
-
-
-void Application::waitForMessages()
-{
-	WaitMessage();
-}
-
 
 void Application::showConsole()
 {
@@ -135,9 +52,14 @@ void Application::showConsole()
     std::ios::sync_with_stdio();
 }
 
+void Application::waitForMessages()
+{
+	WaitMessage();
+}
+
 void Application::processMessages()
 {
-    appImpl->processMessages();
+    resourceManager.processMessages();
 }
 
 Point Application::getCursorPos() const
@@ -146,38 +68,5 @@ Point Application::getCursorPos() const
     GetCursorPos(&p);
     return convertPoint(p);
 }
-
-
-#define CHKNULL(name,elem) \
-	if( callback == nullptr ) { \
-		auto it = appImpl->name.find(elem); \
-		if( it != appImpl->name.end() ) appImpl->name.erase(it); \
-		return; \
-	}
-
-#define ONCTL(name,type) \
-void Application::name(std::shared_ptr<Control> control, type callback) \
-{ \
-	CHKNULL(name,control) \
-	appImpl->name[control] = callback; \
-}
-
-#define ONWND(name,type) \
-void Application::name(WindowPtr window, type callback) \
-{ \
-	CHKNULL(name,window) \
-	appImpl->name[window] = callback; \
-}
-
-ONCTL(onPaint,HandlePaint)
-ONCTL(onMouse,HandleMouseEvent)
-ONCTL(onKey,ProcessKeyEvent)
-ONCTL(onKeypress,ProcessKeypress)
-ONCTL(onClick,HandleOperation)
-ONCTL(onChange,HandleOperation)
-
-ONWND(onClose,AllowOperation)
-ONWND(onResize,ProcessResize)
-ONWND(onUserEvent,HandleEvent)
 
 }

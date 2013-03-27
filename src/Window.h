@@ -1,24 +1,30 @@
 #ifndef WINDOW_H_jdfsr89f4wrjfdasfsd
 #define WINDOW_H_jdfsr89f4wrjfdasfsd
 
-#include <memory>
-#include "WindowObjects.h"
-#include "controls/Control.h"
+#include "Control.h"
 #include "Callbacks.h"
+#include "WindowParams.h"
 
 namespace tk {
 
-class Window: public virtual Control {
+class WindowImpl;
+    
+class Window: public Control {
 public:
-	virtual ~Window() {};
+    Window(WindowParams const & params = WindowParams());
+	virtual ~Window();
 
-	virtual int state() const = 0;
+	int state();
     
     using Control::onMouse;
     using Control::onPaint;
-	void onClose(AllowOperation callback);
-	void onResize(ProcessResize callback);
-	void onUserEvent(HandleEvent callback);
+    using Control::onKey;
+    using Control::onKeypress;
+	AllowOperation onClose(AllowOperation callback);
+	ProcessResize onResize(ProcessResize callback);
+	HandleEvent onUserEvent(HandleEvent callback);
+    
+    WindowImpl & getImpl();     // internal use only
 };
 
 }
