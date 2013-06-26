@@ -19,7 +19,7 @@ ControlParams chkComboDefaults(ControlParams params)
 }
 
 ComboBoxImpl::ComboBoxImpl(Window & parent, ControlParams const & params):
-    NativeControlImpl(parent,chkComboDefaults(params),"combobox",CBS_DROPDOWNLIST | WS_VSCROLL | CBS_HASSTRINGS),
+    NativeControlImpl(parent,chkComboDefaults(params),L"combobox",CBS_DROPDOWNLIST | WS_VSCROLL | CBS_HASSTRINGS),
     nVisibleItems(10)
 {
     editBoxHeight = rect_.dims().height;
@@ -31,30 +31,30 @@ ComboBoxImpl::~ComboBoxImpl()
     removeFromCb(this,cbChange);
 }
 
-void ComboBoxImpl::addString(std::string const & str)
+void ComboBoxImpl::addString(die::NativeString const & str)
 {
 	bool wasEmpty = items.empty();
 	items.push_back(str);
-	SendMessage(hWnd,CB_ADDSTRING,0,reinterpret_cast<LPARAM>(items.back().c_str()));
+	SendMessageW(hWnd,CB_ADDSTRING,0,reinterpret_cast<LPARAM>(items.back().wstr.c_str()));
 	if( wasEmpty ) {
-		SendMessage(hWnd,CB_SETCURSEL,0,0);
+		SendMessageW(hWnd,CB_SETCURSEL,0,0);
 	}
 }
 
-std::string ComboBoxImpl::getString(int index) const
+die::NativeString ComboBoxImpl::getString(int index) const
 {
 	return items.at(index);		// TODO wrap exception
 }
 
 void ComboBoxImpl::clearItems()
 {
-	SendMessage(hWnd,CB_RESETCONTENT,0,0);
+	SendMessageW(hWnd,CB_RESETCONTENT,0,0);
 	items.clear();
 }
 
 int ComboBoxImpl::selectedIndex() const
 {
-	return SendMessage(hWnd,CB_GETCURSEL,0,0);
+	return SendMessageW(hWnd,CB_GETCURSEL,0,0);
 }
 
 int ComboBoxImpl::count() const
@@ -77,7 +77,7 @@ int ComboBoxImpl::itemsHeight() const
 {
 	scoped::DC sdc(hWnd);
 	SIZE size;
-	GetTextExtentPoint32(sdc.hdc,"|",1,&size);
+	GetTextExtentPoint32(sdc.hdc,L"|",1,&size);
 
 	float const height_padding = 1;
 	return int(size.cy + height_padding) * nVisibleItems;

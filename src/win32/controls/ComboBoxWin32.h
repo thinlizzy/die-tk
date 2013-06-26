@@ -11,13 +11,13 @@ namespace tk {
 class ComboBoxImpl: public NativeControlImpl {
     int editBoxHeight;
     int nVisibleItems;
-    std::vector<std::string> items;
+    std::vector<die::NativeString> items;
 public:
 	ComboBoxImpl(Window & parent, ControlParams const & params);
     virtual ~ComboBoxImpl();
 
-	void addString(std::string const & str);
-	std::string getString(int index) const;
+	void addString(die::NativeString const & str);
+	die::NativeString getString(int index) const;
 	void clearItems();
 	int selectedIndex() const;
 	int count() const;

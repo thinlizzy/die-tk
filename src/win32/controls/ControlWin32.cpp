@@ -88,13 +88,17 @@ Point Control::screenToClient(Point const & point) const
     return impl->screenToClient(point);
 }
 
+Control::operator bool() const
+{
+    return impl.operator bool();
+}
 
-std::string Control::getText() const
+die::NativeString Control::getText() const
 {
     return impl->getText();
 }
 
-void Control::setText(std::string const & text)
+void Control::setText(die::NativeString const & text)
 {
     impl->setText(text);
 }

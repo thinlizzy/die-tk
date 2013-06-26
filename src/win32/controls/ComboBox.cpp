@@ -8,19 +8,19 @@ namespace tk {
 
 CONSTRUCTOR_IMPL(ComboBox);
 
-void ComboBox::addStrings(std::initializer_list<std::string> strings)
+void ComboBox::addStrings(std::initializer_list<die::NativeString> strings)
 {
     for( auto & str : strings ) {
         addString(str);
     }
 }
 
-void ComboBox::addString(std::string const & str)
+void ComboBox::addString(die::NativeString const & str)
 {
     IMPL.addString(str);
 }
 
-std::string ComboBox::getString(int index) const
+die::NativeString ComboBox::getString(int index) const
 {
     return IMPL.getString(index);
 }

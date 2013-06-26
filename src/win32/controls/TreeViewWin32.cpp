@@ -1,6 +1,11 @@
 #include "TreeViewWin32.h"
 #include "../components/ImageListWin32.h"
 #include "../CallbackUtils.h"
+#include "../../controls/base/ItemProperties.h"
+
+#ifndef MAX_TREEVIEW_ITEM_CHARS
+#define MAX_TREEVIEW_ITEM_CHARS 261
+#endif
 
 namespace tk {
 
@@ -25,7 +30,7 @@ bool findExecItem(ControlCallbackMap<CbType> & callbackMap, NativeControlImpl * 
 /* TreeViewImpl */
 
 TreeViewImpl::TreeViewImpl(Window & parent, ControlParams const & params):
-	NativeControlImpl(parent,params,WC_TREEVIEW,TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS),
+	NativeControlImpl(parent,params,WC_TREEVIEWW,TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS),
 	rootItemImpl(std::make_shared<ItemImpl>(hWnd,TVI_ROOT))
 {
 }
@@ -229,17 +234,17 @@ TreeView::Item::~Item()
 {
 }
 
-TreeView::ItemProperties TreeView::Item::getProperties() const
+ItemProperties TreeView::Item::getProperties() const
 {
     ItemProperties result;
-    char buffer[261];
-    TVITEM item;
+    wchar_t buffer[MAX_TREEVIEW_ITEM_CHARS];
+    TVITEMW item;
     item.mask = TVIF_HANDLE | TVIF_TEXT | TVIF_IMAGE;
     item.hItem = itemImpl->hItem;
     item.pszText = &buffer[0];
     item.cchTextMax = sizeof(buffer) - 1;
-    if( TreeView_GetItem(itemImpl->hTreeView,&item) ) {
-        result.text = buffer;
+    if( SendMessageW(itemImpl->hTreeView,TVM_GETITEMW,0,reinterpret_cast<LPARAM>(&item)) ) {
+        result.text.wstr = std::wstring(buffer);
         result.imageIndex = item.iImage;
     } else {
         // TODO log error
@@ -247,14 +252,14 @@ TreeView::ItemProperties TreeView::Item::getProperties() const
     return result;
 }
 
-void TreeView::Item::setText(std::string const & text)
+void TreeView::Item::setText(die::NativeString const & text)
 {
-    TVITEM item;
+    TVITEMW item;
     item.mask = TVIF_HANDLE | TVIF_TEXT;
     item.hItem = itemImpl->hItem;
-    item.pszText = const_cast<char *>(text.c_str());
-    if( ! TreeView_SetItem(itemImpl->hTreeView,&item) ) {
-        // TODO log error
+    item.pszText = const_cast<wchar_t *>(text.wstr.c_str());
+    if( ! SendMessageW(itemImpl->hTreeView,TVM_SETITEMW,0,reinterpret_cast<LPARAM>(&item)) ) {
+        // TODO log error        
     }
 }
 
@@ -270,7 +275,7 @@ void TreeView::Item::setImageIndex(ImageList::Index imageIndex)
     }
 }
 
-TreeView::Iterator TreeView::Item::addChild(TreeView::ItemProperties const & properties)
+TreeView::Iterator TreeView::Item::addChild(ItemProperties const & properties)
 {
     // compute tail if it was not computed yet
     if( itemImpl->hTail == 0 ) {
@@ -284,18 +289,18 @@ TreeView::Iterator TreeView::Item::addChild(TreeView::ItemProperties const & pro
         }
     }
 
-    TVINSERTSTRUCT tvins;
+    TVINSERTSTRUCTW tvins;
     tvins.hParent = itemImpl->hItem;
     tvins.hInsertAfter = itemImpl->hTail != 0 ? itemImpl->hTail : TVI_FIRST;
     tvins.item.mask = TVIF_TEXT;
-    tvins.item.pszText = const_cast<char *>(properties.text.c_str());
+    tvins.item.pszText = const_cast<wchar_t *>(properties.text.wstr.c_str());
     if( properties.imageIndex != ImageList::noIndex ) {
         tvins.item.mask |= TVIF_IMAGE | TVIF_SELECTEDIMAGE;
         tvins.item.iImage = properties.imageIndex;
         tvins.item.iSelectedImage = properties.imageIndex;
     }
     
-    HTREEITEM hItem = TreeView_InsertItem(itemImpl->hTreeView,&tvins);
+    HTREEITEM hItem = (HTREEITEM) SendMessageW(itemImpl->hTreeView,TVM_INSERTITEMW,0,(LPARAM)&tvins);
     if( hItem ) {
         itemImpl->hTail = hItem;
     } else {

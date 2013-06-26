@@ -9,15 +9,14 @@ namespace tk {
 class ImageListImpl;
     
 class ImageList {
-    friend class TreeViewImpl;
-    
-    std::shared_ptr<ImageListImpl> impl;
-    ImageList(std::shared_ptr<ImageListImpl> impl);
 public:
     typedef int Index;
     static Index const noIndex;
 
+    std::shared_ptr<ImageListImpl> impl;                // internal use only
+    
     explicit ImageList(WDims dims, int capacity = 10);
+    ImageList(std::shared_ptr<ImageListImpl> impl);     // internal use only
     ~ImageList();
     
     Index add(ImageRef ih);

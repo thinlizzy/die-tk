@@ -188,7 +188,7 @@ static RECT convertRect(Rect const & rect)
 	return result;
 }
 
-void CanvasImpl::textRect(Rect const & rect, std::string const & text, TextParams const & params)
+void CanvasImpl::textRect(Rect const & rect, die::NativeString const & text, TextParams const & params)
 {
 	RECT winRect = convertRect(rect);
 	// set colors
@@ -220,7 +220,7 @@ void CanvasImpl::textRect(Rect const & rect, std::string const & text, TextParam
 			format |= DT_SINGLELINE;
 			break;
 	};
-	DrawText(dc,text.c_str(),text.size(),&winRect,format);
+	DrawText(dc,text.wstr.c_str(),text.wstr.size(),&winRect,format);
 }
 
 

@@ -2,11 +2,13 @@
 #include "../src/Callbacks.h"
 #include "../src/Window.h"
 #include "../src/Canvas.h"
-#include "../../libimage/src/image.h"
 
 #include "../die-tk-extra/die-tk-extra.h"
+#include "../../libimage/src/image.h"
+#include <fileutils.h>
 
 #include <iostream>
+#include <fstream>
 
 int main()
 {
@@ -95,15 +97,15 @@ int main()
         TreeView treeView(window1,ControlParams().start(10,100).dims(100,300));
         treeView.setImageList(imageList);
         auto root = treeView.root();
-        auto it1 = root.addChild(TreeView::ItemProperties().setText("test").setImageIndex(iFolder));
+        auto it1 = root.addChild(ItemProperties().setText("test").setImageIndex(iFolder));
         auto item1 = *it1;
-        item1.addChild(TreeView::ItemProperties().setText("child").setImageIndex(iBubble));
-        item1.addChild(TreeView::ItemProperties().setText("child2"));
-        root.addChild(TreeView::ItemProperties().setText("second item").setImageIndex(iFolder));
-        root.addChild(TreeView::ItemProperties().setText("third item").setImageIndex(iFolder));
+        item1.addChild(ItemProperties().setText("child").setImageIndex(iBubble));
+        item1.addChild(ItemProperties().setText("child2"));
+        root.addChild(ItemProperties().setText("second item").setImageIndex(iFolder));
+        root.addChild(ItemProperties().setText("third item").setImageIndex(iFolder));
         
         treeView.onChange([](TreeView::Item item){
-			std::cout << "mudou para " << item.getProperties().text << std::endl;
+			std::cout << "mudou para " << item.getProperties().text.toUTF8() << std::endl;
         });
         
         treeView.beforeChange([](TreeView::Item before, TreeView::Item after) -> bool {
@@ -111,7 +113,7 @@ int main()
         });
         
         treeView.beforeCollapse([](TreeView::Item item) -> bool {
-            std::cout << "vai encolher " << item.getProperties().text << std::endl;
+            std::cout << "vai encolher " << item.getProperties().text.toUTF8() << std::endl;
             return true;
         });
         
@@ -121,17 +123,50 @@ int main()
         FileTreeView ftv(treeView2);
         ftv.setBaseDir("c:\\");
         
+        Memo text(window1,ControlParams().start(500,100).dims(300,390));
+        
+        TableView tableView(window1,ControlParams().start(810,100).dims(300,200));
+        tableView.addColumn(ColumnProperties("column 1",100));
+        tableView.addColumn(ColumnProperties("column 2"));
+        tableView.addColumn(ColumnProperties("column 3"));
+        tableView.setColumn(1,ColumnProperties("second",30));
+        
+        auto colProp = tableView.column(2);
+        std::cout << "column 2 width[" << colProp.width << "] header [" << colProp.header << "]" << std::endl;
+        
+        tableView.setImageList(imageList);
+        tableView.addColumn(ColumnProperties("col image",100,1));
+        
+        tableView.addRow({die::NativeString("test")});
+        tableView.addRow({die::NativeString("1"),die::NativeString("2"),die::NativeString("3")});
+        
+        tableView.addRow({ItemProperties().setText("image").setImageIndex(1)});
+        
+        tableView.setItem(3,0,ItemProperties().setText("changed").setImageIndex(0));
+        
         Button buttonFileTreeView(window1,ControlParams()
             .start(treeView2.pos().addY(treeView2.height()+5))
             .autosize()
-            .text("abrir"));
+            .text("open"));
         buttonFileTreeView.onClick([&](){
-            std::cout << "filename = " << ftv.getFile().filename << ' ' <<
+            std::cout << "opening filename = " << ftv.getFile().filename << ' ' <<
                     "full path = " << ftv.getFile().fullPath << ' ' <<
                     "isDir? = " << ftv.getFile().isDirectory << std::endl;
+            if( ftv.getFile().isDirectory ) return;
+            
+            fs::FileStreamWrapper file(ftv.getFile().fullPath);
+            if( file ) {
+                std::string buf(2048,'\0');
+                file.read(&buf[0],buf.size());
+                buf.resize(file.gcount());
+                text.setText(buf);
+            } else {
+                std::cout << "fail!" << std::endl;
+                app.showMessage("failed to open " + ftv.getFile().fullPath);
+            }
         });
         
-		PaintBox imagepb(window1,ControlParams().start(500,100).dims(200,200));
+		PaintBox imagepb(window1,ControlParams().start(500,500).dims(200,200));
 		imagepb.onPaint([&](Canvas & canvas, Rect rect) {
 			canvas.drawImage(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()));
 		});

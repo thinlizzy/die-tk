@@ -2,6 +2,7 @@
 #define APPLICATION_H_fdj498gj454328gfjh
 
 #include <memory>
+#include <NativeString.h>
 #include "WindowObjects.h"
 
 namespace tk {
@@ -14,6 +15,8 @@ public:
     void showConsole();
 
     Point getCursorPos() const;
+    
+    void showMessage(die::NativeString const & message);
 };
 
 }

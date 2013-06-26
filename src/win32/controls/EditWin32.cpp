@@ -3,7 +3,7 @@
 namespace tk {
 
 EditImpl::EditImpl(Window & parent, ControlParams const & params):
-	NativeControlImpl(parent,params,"EDIT",0)
+	NativeControlImpl(parent,params,L"EDIT",0)
 {
 	if( ! params.text_.empty() ) {
 		setText(params.text_);

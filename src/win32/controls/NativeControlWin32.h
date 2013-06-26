@@ -10,6 +10,7 @@
 #include "../ScopedObjects.h"
 #include "../CanvasImplWin32.h"
 #include "../../util/optional.h"
+#include <NativeString.h>
 
 namespace tk {
 
@@ -28,7 +29,7 @@ protected:
 public:
 	HWND hWnd;
 
-	NativeControlImpl(Window & parent, ControlParams const & params, char const classname[], DWORD style);
+	NativeControlImpl(Window & parent, ControlParams const & params, wchar_t const classname[], DWORD style);
     NativeControlImpl(NativeControlImpl const &) = delete;
     NativeControlImpl & operator=(NativeControlImpl const &) = delete;
     
@@ -42,6 +43,9 @@ public:
 	virtual void setDims(WDims dims);
 	virtual void setRect(Rect rect);
 
+	virtual die::NativeString getText() const;
+	virtual void setText(die::NativeString const & text);
+    
 	bool enabled() const;
 	void enable();
 	void disable();
@@ -60,9 +64,6 @@ public:
 
 	Point screenToClient(Point const & point) const;
 
-	virtual std::string getText() const;
-	virtual void setText(std::string const & text);
-    
     // most used callbacks
 	HandleMouseEvent onMouse(HandleMouseEvent callback);
 	ProcessKeyEvent onKey(ProcessKeyEvent callback);

@@ -2,7 +2,6 @@
 #define CONTROL_H_gfh430hm4bg73bg93gllhr52bzq
 
 #include <memory>
-#include <string>
 #include "WindowObjects.h"
 #include "Callbacks.h"
 #include "ControlParams.h"
@@ -58,11 +57,13 @@ public:
 	void clear(RGBColor const & color = RGBColor());
 
 	Point screenToClient(Point const & point) const;
+    
+    explicit operator bool() const;
 protected:
     std::shared_ptr<NativeControlImpl> impl;
 
-	std::string getText() const;
-	void setText(std::string const & text);
+	die::NativeString getText() const;
+	void setText(die::NativeString const & text);
     
     // most used callbacks
 	HandleMouseEvent onMouse(HandleMouseEvent callback);    // all

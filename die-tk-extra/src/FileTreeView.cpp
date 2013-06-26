@@ -6,45 +6,78 @@
  */
 
 #include "FileTreeView.h"
-#include "../../../magic/fileutils/src/fileutils.h"
 #include <functional>
 #include <vector>
 #include <algorithm>
 
+#include <fileutils.h>
+
 namespace tk {
     
-TreeView::ItemProperties loadingItem{"loading...",0};
+ItemProperties loadingItem{L"loading...",0};
     
-FileTreeView::FileTreeView(TreeView treeView):
-    treeView(treeView),
-    globMask("*")
+FileTreeView::FileTreeView():
+    treeView(0)
+{}
+
+FileTreeView::FileTreeView(TreeView & treeView):
+    globMask("*"),
+    treeView(&treeView),
+    oldBeforeExpand(treeView.beforeExpand(std::bind(&FileTreeView::directoryExpand,this,std::placeholders::_1)))
 {
-    oldBeforeExpand = treeView.beforeExpand(std::bind(&FileTreeView::directoryExpand,this,std::placeholders::_1));
+}
+
+// TODO change move operations to default and create move wrappers to treeView and oldBeforeExpand
+FileTreeView::FileTreeView(FileTreeView && other):
+    globMask(std::move(other.globMask)),
+    baseDir(std::move(other.baseDir)),
+    treeView(other.treeView),
+    oldBeforeExpand(other.oldBeforeExpand)
+{
+    other.treeView = 0;
+    other.oldBeforeExpand = nullptr;
+}
+
+FileTreeView & FileTreeView::operator=(FileTreeView && other)
+{
+    globMask = std::move(other.globMask);
+    baseDir = std::move(other.baseDir);
+    treeView = other.treeView;
+    oldBeforeExpand = other.oldBeforeExpand;
+    
+    other.treeView = 0;
+    other.oldBeforeExpand = nullptr;
+    
+    return *this;
 }
 
 FileTreeView::~FileTreeView()
 {
-    treeView.beforeExpand(oldBeforeExpand);
+    if( treeView ) {
+        treeView->beforeExpand(oldBeforeExpand);
+    }
 }
 
-void FileTreeView::setGlobMask(std::string const & globMask)
+FileTreeView & FileTreeView::setGlobMask(die::NativeString const & globMask)
 {
     this->globMask = globMask;
     if( ! baseDir.empty() ) {
         build();
     }
+    return *this;
 }
 
-void FileTreeView::setBaseDir(std::string const & baseDir)
+FileTreeView & FileTreeView::setBaseDir(die::NativeString const & baseDir)
 {
     this->baseDir = baseDir;
     build();
+    return *this;
 }
 
 void populateFiles(fs::Path const & path, TreeView::Item baseItem) 
 {
-    std::vector<std::string> directories;
-    std::vector<std::string> files;
+    std::vector<die::NativeString> directories;
+    std::vector<die::NativeString> files;
     for( fs::GlobIterator git(path); git != fs::GlobIterator(); ++git ) {
         fs::GlobFile & file = *git;
         if( file.isSpecialDirectory() ) continue;
@@ -57,22 +90,22 @@ void populateFiles(fs::Path const & path, TreeView::Item baseItem)
     }
     
     for( auto const & directory : directories ) {
-        TreeView::ItemProperties ip(directory,FileTreeView::imgDirectory);
+        ItemProperties ip(directory,FileTreeView::imgDirectory);
         auto it = baseItem.addChild(ip);
         (*it).addChild(loadingItem);
     }
     
     for( auto const & filename : files ) {
-        TreeView::ItemProperties ip(filename,FileTreeView::imgFile);
+        ItemProperties ip(filename,FileTreeView::imgFile);
         baseItem.addChild(ip);
     }
 }
 
 void FileTreeView::build()
 {
-    treeView.clear();
+    treeView->clear();
     auto path = fs::Path(baseDir).append(globMask);            
-    populateFiles(path,treeView.root());    
+    populateFiles(path,treeView->root());    
 }
 
 fs::Path pathTo(TreeView const & treeView, TreeView::Item item)
@@ -90,7 +123,7 @@ bool FileTreeView::directoryExpand(TreeView::Item item)
     auto firstChild = *it;
     if( firstChild.getProperties().text == loadingItem.text ) {
         item.eraseChild(it);
-        auto path = fs::Path(baseDir).append(pathTo(treeView,item)).append(globMask);            
+        auto path = fs::Path(baseDir).append(pathTo(*treeView,item)).append(globMask);            
         populateFiles(path,item);
     }
     
@@ -100,11 +133,11 @@ bool FileTreeView::directoryExpand(TreeView::Item item)
 FileTreeView::File FileTreeView::getFile() const
 {
     File result;
-    auto it = treeView.selected();
+    auto it = treeView->selected();
     if( it ) {
         auto item = *it;
         result.filename = item.getProperties().text;
-        result.fullPath = fs::Path(baseDir).append(pathTo(treeView,item));
+        result.fullPath = fs::Path(baseDir).append(pathTo(*treeView,item));
         result.isDirectory = item.getProperties().imageIndex == imgDirectory;
     }
     

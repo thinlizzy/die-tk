@@ -3,7 +3,7 @@
 namespace tk {
 
 LabelImpl::LabelImpl(Window & parent, ControlParams const & params):
-	NativeControlImpl(parent,params,"STATIC",SS_CENTER),
+	NativeControlImpl(parent,params,L"STATIC",SS_CENTER),
 	autosize(params.autosize_)
 {
 	setText(params.text_);

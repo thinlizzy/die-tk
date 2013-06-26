@@ -3,13 +3,13 @@
 
 #include "WindowObjects.h"
 #include <limits>
-#include <string>
+#include <NativeString.h>
 
 namespace tk {
 
 class WindowParams {
 public:
-	std::string text_;
+	die::NativeString text_;
 	Point start_;
 	WDims dims_;
 	int initialState;
@@ -17,15 +17,15 @@ public:
 	static inline Point defaultPos() { int min = std::numeric_limits<int>::min(); return Point(min,min); }
 	static inline WDims defaultDims() { int min = std::numeric_limits<int>::min(); return WDims(min,min); }
 
-	WindowParams():
-		text_("unnamed window"),
+	explicit WindowParams(die::NativeString text_ = die::NativeString()):
+		text_(text_),
 		start_(defaultPos()),
 		dims_(defaultDims()),
 		initialState(ws_visible)
 	{
 	}
 
-	WindowParams & text(std::string const & value) { text_ = value; return *this; }
+	WindowParams & text(die::NativeString const & value) { text_ = value; return *this; }
 	WindowParams & start(Point value) { start_ = value; return *this; }
 	WindowParams & start(int x, int y) { start_ = Point(x,y); return *this; }
 	WindowParams & dims(WDims value) { dims_ = value; return *this; }

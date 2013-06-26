@@ -5,7 +5,7 @@
 namespace tk {
 
 ImageImpl::ImageImpl(Window & parent, ControlParams const & params):
-	NativeControlImpl(parent,params,"STATIC",SS_BITMAP),
+	NativeControlImpl(parent,params,L"STATIC",SS_BITMAP),
 	autosize(params.autosize_)
 {
 }

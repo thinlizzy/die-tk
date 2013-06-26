@@ -42,7 +42,7 @@ public:
     void drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim);
     void drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim, WDims dest);
 
-	virtual void textRect(Rect const & openrect, std::string const & text, TextParams const & params);
+	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params);
 
 	void restoreObjects();
 };

@@ -3,29 +3,29 @@
 namespace tk {
 
  MemoImpl::MemoImpl(Window & parent, ControlParams const & params):
-	NativeControlImpl(parent,params,"EDIT",ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL)
+	NativeControlImpl(parent,params,L"EDIT",ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL)
 {
 	if( ! params.text_.empty() ) {
 		setText(params.text_);
 	}
 }
 
-void MemoImpl::setText(std::string const & text)
+void MemoImpl::setText(die::NativeString const & text)
 {
-    auto p = text.find('\n');
+    auto p = text.wstr.find('\n');
     if( p == std::string::npos ) {
         NativeControlImpl::setText(text);
     } else {
         // replace \n with \r\n
-        auto textR = text.substr(0,p) + "\r\n";
+        auto textR = text.wstr.substr(0,p) + L"\r\n";
         for(;;) {
             ++p;
-            auto p2 = text.find('\n',p);
+            auto p2 = text.wstr.find(L'\n',p);
             if( p2 == std::string::npos ) break;
-            textR += text.substr(p,p2-p) + "\r\n";
+            textR += text.wstr.substr(p,p2-p) + L"\r\n";
             p = p2;
         }
-        textR += text.substr(p);
+        textR += text.wstr.substr(p);
         NativeControlImpl::setText(textR);
     }
 }

@@ -12,7 +12,7 @@ class CheckBoxImpl: public ButtonBaseImpl {
 public:
 	CheckBoxImpl(Window & parent, ControlParams const & params);
 
-	virtual void setText(std::string const & text);
+	virtual void setText(die::NativeString const & text);
     
 	bool checked() const;
 	void check(bool state);

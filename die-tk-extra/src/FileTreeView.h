@@ -2,22 +2,22 @@
 #define	FILETREEVIEW_H_mc903jnvhd7234jdfa
 
 #include "../../die-tk.h"
-#include <string>
+#include <NativeString.h>
 
 namespace tk {
 
 // TODO specify an enum mask to filter files or directories
     
 class FileTreeView {
-    TreeView treeView;
-    std::string baseDir;
-    std::string globMask;
+    die::NativeString globMask;
+    die::NativeString baseDir;
+    TreeView * treeView;
     TreeView::AllowItemChange oldBeforeExpand;
 public:
     class File {
     public:
-        std::string filename;
-        std::string fullPath;
+        die::NativeString filename;
+        die::NativeString fullPath;
         bool isDirectory;
     };
     
@@ -25,13 +25,16 @@ public:
         imgFile,imgDirectory,
     };
     
-    explicit FileTreeView(TreeView treeView);
+    FileTreeView();
+    explicit FileTreeView(TreeView & treeView);
     FileTreeView(FileTreeView const &) = delete;
     FileTreeView & operator=(FileTreeView const &) = delete;
+    FileTreeView(FileTreeView && other);
+    FileTreeView & operator=(FileTreeView && other);
     ~FileTreeView();
     
-    void setGlobMask(std::string const & globMask);
-    void setBaseDir(std::string const & baseDir);
+    FileTreeView & setBaseDir(die::NativeString const & baseDir);
+    FileTreeView & setGlobMask(die::NativeString const & globMask);
     // TODO void enableDirectories(boolean enabled);
     // TODO void enableFiles(boolean enabled);
     

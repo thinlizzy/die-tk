@@ -9,6 +9,7 @@
 #include "../components/ImageList.h"
 #include "../util/ClonePtr.h"
 #include "../util/optional.h"
+#include "base/ItemProperties.h"
 
 namespace tk {
 
@@ -47,16 +48,6 @@ public:
     AllowItemChange beforeCollapse(AllowItemChange callback);
     HandleItemOperation onCollapse(HandleItemOperation callback);
     
-    struct ItemProperties {
-    public:
-        std::string text;
-        ImageList::Index imageIndex;
-        ItemProperties(): imageIndex(ImageList::noIndex) {}
-        explicit ItemProperties(std::string text, ImageList::Index imageIndex = ImageList::noIndex): text(text), imageIndex(imageIndex) {}
-        ItemProperties & setText(std::string const & text) { this->text = text; return *this; }
-        ItemProperties & setImageIndex(ImageList::Index imageIndex) { this->imageIndex = imageIndex; return *this; }        
-    };
-
     class Item {
         friend class IteratorImpl;
         friend class TreeViewImpl;
@@ -67,7 +58,7 @@ public:
         bool operator==(Item const & item) const;
         
         ItemProperties getProperties() const;
-        void setText(std::string const & text);
+        void setText(die::NativeString const & text);
         void setImageIndex(ImageList::Index imageIndex);
 
         Iterator addChild(ItemProperties const & properties);

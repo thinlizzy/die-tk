@@ -32,8 +32,8 @@ WindowClass::WindowClass()
 	wc.hCursor = LoadCursor(NULL,IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = "die-tk-window";
-	RegisterClass(&wc);
+	wc.lpszClassName = L"die-tk-window";
+	RegisterClassW(&wc);
 }
 
 WindowClass WindowImpl::windowClass;
@@ -77,14 +77,14 @@ WindowImpl::WindowImpl(WindowParams const & params):
 		dims = params.dims_ + windowPayload;
 	}
 
-	hWnd = createWindow(Point(x,y),dims,params.text_.c_str(),windowClass.wc.lpszClassName,stateToWinStyle(params.initialState));
+	hWnd = createWindow(Point(x,y),dims,params.text_.wstr.c_str(),windowClass.wc.lpszClassName,stateToWinStyle(params.initialState));
 
 	rect_ = convertRect(windowRect());
 }
 
-HWND WindowImpl::createWindow(Point pos, WDims dims, char const windowname[], char const classname[], DWORD style)
+HWND WindowImpl::createWindow(Point pos, WDims dims, wchar_t const windowname[], wchar_t const classname[], DWORD style)
 {
-	HWND hWnd = CreateWindowEx(
+	HWND hWnd = CreateWindowExW(
 		WS_EX_APPWINDOW,
 		classname, windowname,
 //		WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | style,

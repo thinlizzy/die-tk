@@ -15,3 +15,4 @@
 #include "src/controls/Memo.h"
 #include "src/controls/PaintBox.h"
 #include "src/controls/TreeView.h"
+#include "src/controls/TableView.h"

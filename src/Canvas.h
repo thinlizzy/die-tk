@@ -3,7 +3,7 @@
 
 #include "WindowObjects.h"
 #include <vector>
-#include <string>
+#include <NativeString.h>
 
 namespace tk {
 
@@ -30,7 +30,7 @@ public:
 	virtual void drawImage(ImageRef ih, Point start = Point()) = 0;
 	virtual void drawImage(ImageRef ih, Rect destrect) = 0;
 
-	virtual void textRect(Rect const & openrect, std::string const & text, TextParams const & params = TextParams()) = 0;
+	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) = 0;
 };
 
 }

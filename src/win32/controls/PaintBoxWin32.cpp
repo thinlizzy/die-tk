@@ -5,7 +5,7 @@ namespace tk {
 
 class PaintBoxClass {
 public:
-	WNDCLASS wc;
+	WNDCLASSW wc;
 
 	PaintBoxClass()
 	{
@@ -19,8 +19,8 @@ public:
         wc.hCursor = LoadCursor(NULL,IDC_ARROW);
 		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 		wc.lpszMenuName = NULL;
-		wc.lpszClassName = "die-tk-paintbox";
-		RegisterClass(&wc);
+		wc.lpszClassName = L"die-tk-paintbox";
+		RegisterClassW(&wc);
 	}
 };
 

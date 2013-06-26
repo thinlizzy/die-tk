@@ -69,4 +69,9 @@ Point Application::getCursorPos() const
     return convertPoint(p);
 }
 
+void Application::showMessage(die::NativeString const & message)
+{
+    MessageBoxW(NULL, message.wstr.c_str(), L"Alert", MB_OK | MB_ICONINFORMATION);
+}
+
 }

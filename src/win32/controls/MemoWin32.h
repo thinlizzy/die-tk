@@ -11,7 +11,7 @@ public:
 
 	void setReadOnly(bool readOnly);
     
-    virtual void setText(std::string const & text);
+    virtual void setText(die::NativeString const & text);
 };
 
 }

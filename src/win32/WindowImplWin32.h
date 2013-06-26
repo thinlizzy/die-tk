@@ -13,7 +13,7 @@ namespace tk {
 
 class WindowClass {
 public:
-	WNDCLASS wc;
+	WNDCLASSW wc;
 
 	WindowClass();
 };
@@ -28,7 +28,7 @@ class WindowImpl: public NativeControlImpl {
 
 	WindowImpl(WindowImpl const &); // prevent copying
 
-	static HWND createWindow(Point pos, WDims dims, char const windowname[], char const classname[], DWORD style);    
+	static HWND createWindow(Point pos, WDims dims, wchar_t const windowname[], wchar_t const classname[], DWORD style);    
 public:
 	WindowImpl(WindowParams const & params);
 

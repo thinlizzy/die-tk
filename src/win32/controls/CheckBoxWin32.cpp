@@ -11,7 +11,7 @@ CheckBoxImpl::CheckBoxImpl(Window & parent, ControlParams const & params):
 	setText(params.text_);
 }
 
-void CheckBoxImpl::setText(std::string const & text)
+void CheckBoxImpl::setText(die::NativeString const & text)
 {
     NativeControlImpl::setText(text);
     if( autosize ) {

@@ -2,7 +2,6 @@
 #define COMBOBOX_H_3432fdk450pdfl231
 
 #include "../Control.h"
-#include <string>
 #include <initializer_list>
 
 namespace tk {
@@ -12,9 +11,9 @@ public:
     ComboBox() = default;
     ComboBox(Window & parent, ControlParams const & params = ControlParams());
     
-	void addString(std::string const & str);
-    void addStrings(std::initializer_list<std::string> strings);
-	std::string getString(int index) const;
+	void addString(die::NativeString const & str);
+    void addStrings(std::initializer_list<die::NativeString> strings);
+	die::NativeString getString(int index) const;
 	void clearItems();
 	int selectedIndex() const;
 	int count() const;

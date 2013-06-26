@@ -1,5 +1,5 @@
 #include "utils.h"
-#include "../../../libimage/src/image.h"
+#include <image.h>
 
 namespace tk {
     
