@@ -9,4 +9,9 @@ ImageList::Index addFile(ImageList & imageList, char const * filename)
     return imageList.add(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()));
 }
 
+ImageList::Index addFile(ImageList & imageList, std::string const & filename)
+{
+    return addFile(imageList,filename.c_str());
+}
+
 }

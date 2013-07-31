@@ -1,5 +1,6 @@
 #include "../../components/ImageList.h"
 #include "ImageListWin32.h"
+#include "../CanvasImplWin32.h"
 
 namespace tk {
     
@@ -31,6 +32,16 @@ void ImageList::remove(ImageList::Index index)
     impl->remove(index);
 }
 
+void ImageList::clear()
+{
+    impl->clear();
+}
+
+void ImageList::drawInto(Canvas & canvas, Index index, Point pos)
+{
+    impl->drawInto(static_cast<CanvasImpl &>(canvas),index,pos);
+}
+
 WDims ImageList::dims() const
 {
     return impl->dims();
@@ -39,11 +50,6 @@ WDims ImageList::dims() const
 int ImageList::count() const
 {
     return impl->count();
-}
-
-void ImageList::clear()
-{
-    impl->clear();
 }
 
 }

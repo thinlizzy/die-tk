@@ -7,6 +7,8 @@
 #include "ResourceManager.h"
 #include "CallbackUtils.h"
 
+#include "../log.h"
+
 #include "../trace.h"
 
 namespace {
@@ -95,8 +97,7 @@ HWND WindowImpl::createWindow(Point pos, WDims dims, wchar_t const windowname[],
 		GetModuleHandle(NULL), NULL
 	);
 	if( hWnd == NULL ) {
-		auto error = errorMessage(GetLastError());
-		throw std::runtime_error(error);
+		throw std::runtime_error(log::nativeErrorString());
 	}
     return hWnd;
 }

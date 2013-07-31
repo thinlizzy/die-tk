@@ -34,8 +34,8 @@ public:
     TreeView::HandleItemOperation onExpand(TreeView::HandleItemOperation callback);
     TreeView::AllowItemChange beforeCollapse(TreeView::AllowItemChange callback);
     TreeView::HandleItemOperation onCollapse(TreeView::HandleItemOperation callback);
-    
-    virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);    
+private:
+    virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);
 };
 
 class ItemImpl {

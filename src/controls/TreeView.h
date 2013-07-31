@@ -40,7 +40,6 @@ public:
     typedef std::function<bool(Item,Item)> AllowChangeFromTo;
     typedef std::function<void(Item)> HandleItemOperation;
 
-    using Control::onMouse;
     AllowChangeFromTo beforeChange(AllowChangeFromTo callback);
     HandleItemOperation onChange(HandleItemOperation callback);
     AllowItemChange beforeExpand(AllowItemChange callback);

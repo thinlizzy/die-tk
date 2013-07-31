@@ -59,6 +59,8 @@ public:
 	Point screenToClient(Point const & point) const;
     
     explicit operator bool() const;
+    
+	HandleMouseEvent onMouse(HandleMouseEvent callback);     
 protected:
     std::shared_ptr<NativeControlImpl> impl;
 
@@ -66,7 +68,6 @@ protected:
 	void setText(die::NativeString const & text);
     
     // most used callbacks
-	HandleMouseEvent onMouse(HandleMouseEvent callback);    // all
 	ProcessKeyEvent onKey(ProcessKeyEvent callback);       // edit, memo
 	ProcessKeypress onKeypress(ProcessKeypress callback);  // edit, memo
     // seldom used callbacks

@@ -53,9 +53,24 @@ void TableView::setItem(int c, int r, ItemProperties itemProp)
     IMPL.setItem(c,r,itemProp);
 }
 
+void TableView::setItem(ItemPos pos, ItemProperties itemProp)
+{
+    IMPL.setItem(pos.c,pos.r,itemProp);
+}
+
 ItemProperties TableView::item(int c, int r) const
 {
     return IMPL.item(c,r);
+}
+
+ItemProperties TableView::item(ItemPos pos) const
+{
+    return IMPL.item(pos.c,pos.r);
+}
+
+auto TableView::getItemPos(Point point) const -> ItemPos 
+{
+    return IMPL.getItemPos(point);
 }
 
 void TableView::setImageList(ImageList & imageList)
@@ -73,7 +88,28 @@ optional<ImageList> TableView::getImageList()
     return IMPL.getImageList();
 }
 
-void TableView::addRow(std::initializer_list<ItemProperties> items)
+void TableView::setGridLines(bool drawGrid)
+{
+    IMPL.setGridLines(drawGrid);
+}
+
+void TableView::setRowSelect(bool rowSelect)
+{
+    IMPL.setRowSelect(rowSelect);
+}
+
+TableView::DrawItem TableView::onDrawItem(TableView::DrawItem callback)
+{
+    return IMPL.onDrawItem(callback);
+}
+
+TableView::ItemEvent TableView::onClickItem(TableView::ItemEvent callback)
+{
+    return IMPL.onClickItem(callback);
+}
+
+template<typename T>
+void TableView::doAddRow(std::initializer_list<T> items)
 {
     auto it = items.begin();
     int r = IMPL.newRow(*it);
@@ -81,6 +117,16 @@ void TableView::addRow(std::initializer_list<ItemProperties> items)
     for( int c = 1; it != items.end(); ++it,++c ) {
         IMPL.setItem(c,r,*it);
     }
+}
+
+void TableView::addRow(std::initializer_list<die::NativeString> items)
+{
+    doAddRow(items);
+}
+
+void TableView::addRow(std::initializer_list<ItemProperties> items)
+{
+    doAddRow(items);
 }
 
 void TableView::setColumns(std::initializer_list<ColumnProperties> columnList)

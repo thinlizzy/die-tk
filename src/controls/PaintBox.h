@@ -10,7 +10,6 @@ public:
     PaintBox() = default;
     PaintBox(Window & parent, ControlParams const & params = ControlParams());
     
-    using Control::onMouse;
     using Control::onPaint;
 };
 

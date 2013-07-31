@@ -11,7 +11,6 @@ protected:
 public:
 	using Control::getText;
 	using Control::setText;
-    using Control::onMouse;
     HandleOperation onClick(HandleOperation callback);
 };
 

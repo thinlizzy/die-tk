@@ -136,13 +136,31 @@ int main()
         
         tableView.setImageList(imageList);
         tableView.addColumn(ColumnProperties("col image",100,1));
-        
         tableView.addRow({die::NativeString("test")});
         tableView.addRow({die::NativeString("1"),die::NativeString("2"),die::NativeString("3")});
-        
         tableView.addRow({ItemProperties().setText("image").setImageIndex(1)});
-        
         tableView.setItem(3,0,ItemProperties().setText("changed").setImageIndex(0));
+        
+        Label tvLabelRows(window1,ControlParams().text("set rows").start(tableView.rect().posDown(2)).autosize());
+        Edit tvEditRows(window1,ControlParams().start(tvLabelRows.rect().posRight(2)).dims(30,20));
+        Button tvButRows(window1,ControlParams().text("OK").start(tvEditRows.rect().posRight(2)).autosize());
+        tvButRows.onClick([&](){
+            tableView.setRows(tvEditRows.getText().toInt());
+        });
+        
+        Label tvLabelDelRow(window1,ControlParams().text("delete row").start(tvLabelRows.rect().posDown(2)).autosize());
+        Edit tvEditDelRow(window1,ControlParams().start(tvLabelDelRow.rect().posRight(2)).dims(30,20));
+        Button tvButDelRow(window1,ControlParams().text("OK").start(tvEditDelRow.rect().posRight(2)).autosize());
+        tvButDelRow.onClick([&](){
+            tableView.deleteRow(tvEditDelRow.getText().toInt());
+        });
+        
+        bool hasGrid = true;
+        Button tvToggleGrid(window1,ControlParams().text("toggle grid lines").start(tvLabelDelRow.rect().posDown(2)).autosize());
+        tvToggleGrid.onClick([&](){
+            hasGrid = ! hasGrid;
+            tableView.setGridLines(hasGrid);
+        });
         
         Button buttonFileTreeView(window1,ControlParams()
             .start(treeView2.pos().addY(treeView2.height()+5))

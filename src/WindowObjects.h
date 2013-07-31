@@ -72,15 +72,19 @@ public:
 
 	static Rect closed(Point p, WDims dims) { return open(p,dims+WDims(-1,-1)); }
 
+    int width() const { return right-left+1; }
+    int height() const { return bottom-top+1; }
+
 	Point pos() const { return Point(left,top); }
-
-	WDims openDims() const { return WDims(right-left,bottom-top); }
-
-	WDims dims() const { return WDims(right-left+1,bottom-top+1); }
+	// WDims openDims() const { return WDims(right-left,bottom-top); }
+	WDims dims() const { return WDims(width(),height()); }
 
 	Rect move(Point p) const { return Rect(p.x,p.y,right+p.x-left,bottom+p.y-top); }
 
 	Rect resize(WDims dims) const { return closed(pos(),dims); }
+    
+    Point posDown(int margin) const { return pos().addY(height() + margin); }
+    Point posRight(int margin) const { return pos().addX(width() + margin); }
 
 	bool intersect(Rect const & rect) const
 	{
@@ -147,22 +151,27 @@ public:
 	TextParams & background(RGBColor const & color) { backgroundColor = color; return *this; }
 };
 
+enum PenStyle {
+    ps_solid, ps_dash, ps_dot, ps_dashdot, ps_dashdotdot, ps_invisible,
+};
+
 struct Pen {
 	RGBColor color;
 	unsigned width;
-	int style;
-	Pen():
-		color(),width(),style()
-	{}
-	Pen(RGBColor const & color):
+	PenStyle style;
+    
+	Pen(RGBColor const & color = RGBColor()):
 		color(color),width(),style()
 	{}
+    Pen & setWidth(unsigned width) { this->width = width; return *this; }
+    Pen & setStyle(PenStyle style) { this->style = style; return *this; }
 };
+
+// TODO add styles for brushes
 
 struct Brush {
 	RGBColor color;
-	Brush(): color() {}
-	Brush(RGBColor const & color): color(color) {}
+	Brush(RGBColor const & color = RGBColor()): color(color) {}
 };
 
 enum ImageType { it_native, it_RGB, it_BGR, it_gray, };

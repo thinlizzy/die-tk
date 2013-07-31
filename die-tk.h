@@ -1,6 +1,7 @@
 #include "src/Application.h"
 #include "src/Window.h"
 #include "src/Canvas.h"
+#include "src/log.h"
 
 // TODO auto generate the includes below
 

@@ -19,6 +19,12 @@ Rect convertRect(RECT const & rect)
 	return Rect(rect.left, rect.top, rect.right, rect.bottom);
 }
 
+RECT convertRect(Rect const & rect)
+{
+	RECT result = { rect.left, rect.top, rect.right, rect.bottom };
+	return result;
+}
+
 Point convertPoint(POINT const & point)
 {
     return Point(point.x,point.y);
@@ -28,6 +34,11 @@ POINT convertPoint(Point const & point)
 {
     POINT p = {point.x,point.y};
     return p;
+}
+
+WDims sizeToWDims(SIZE size)
+{
+    return WDims(size.cx,size.cy);
 }
 
 WDims lParamToWDims(LPARAM lParam)
@@ -200,12 +211,12 @@ UserEvent toUserEvent(UINT message, LPARAM lParam)
 
 #define MTE(msg,et) case msg: type = et; break
 
-MouseEvent toMouseEvent(UINT message, WPARAM wParam)
+MouseEvent toMouseEvent(UINT message, WPARAM wParam, bool firstEnter)
 {
 	MouseEvent result = {};
 	switch(message) {
 	    case WM_MOUSEMOVE:
-            result.type = et_mousemove;
+            result.type = firstEnter ? et_mouseenter : et_mousemove;
             if( wParam & MK_LBUTTON ) {
                 result.button = mb_left;
             } else
@@ -215,6 +226,9 @@ MouseEvent toMouseEvent(UINT message, WPARAM wParam)
             if( wParam & MK_MBUTTON ) {
                 result.button = mb_middle;
             }
+            break;
+	    case WM_MOUSELEAVE:
+            result.type = et_mouseleave;
             break;
         case WM_LBUTTONDOWN:
             result.type = et_mousedown;
@@ -264,21 +278,49 @@ COLORREF colorWin(RGBColor const & color)
 	return RGB(color.r,color.g,color.b);
 }
 
-std::string errorMessage(DWORD error)
+UINT convertTextAlign(HTextAlign hta, VTextAlign vta)
 {
-	LPVOID lpMsgBuf;
-	FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM,
-        NULL,
-        error,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPTSTR) &lpMsgBuf,
-        0, NULL );
-	std::string result(static_cast<char *>(lpMsgBuf));
-	LocalFree(lpMsgBuf);
-	return result;
+	UINT format = 0;
+	switch( hta ) {
+		case hta_left:
+			format |= DT_LEFT;
+			break;
+		case hta_right:
+			format |= DT_RIGHT;
+			break;
+		case hta_center:
+			format |= DT_CENTER;
+			break;
+	};
+	switch( vta ) {
+		case vta_top:
+			format |= DT_TOP;
+			break;
+		case vta_bottom:
+			format |= DT_BOTTOM;
+			format |= DT_SINGLELINE;
+			break;
+		case vta_center:
+			format |= DT_VCENTER;
+			format |= DT_SINGLELINE;
+			break;
+	};
+    return format;
 }
+
+int convertPenStyle(PenStyle style)
+{
+    switch(style) {
+        case ps_solid: return PS_SOLID;
+        case ps_dash: return PS_DASH;
+        case ps_dot: return PS_DOT;
+        case ps_dashdot: return PS_DASHDOT;
+        case ps_dashdotdot: return PS_DASHDOTDOT;
+        case ps_invisible: return PS_NULL;
+        default: return PS_SOLID;
+    }
+}
+
 
 NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims dim)
 {

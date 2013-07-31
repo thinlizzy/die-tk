@@ -1,6 +1,6 @@
 #include "CommonControlInitializer.h"
 
-#define _WIN32_IE 0x0300
+#define _WIN32_IE 0x0400
 #include <windows.h>
 #include <commctrl.h>
 

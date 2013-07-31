@@ -1,8 +1,10 @@
-#define _WIN32_IE 0x0300
+#define _WIN32_IE 0x0400
 #include "TableViewWin32.h"
 #include "../components/ImageListWin32.h"
 #include "../../controls/base/ItemProperties.h"
 #include "../../log.h"
+#include "../CallbackUtils.h"
+#include "../ConvertersWin32.h"
 
 #ifndef MAX_TABLEVIEW_ITEM_CHARS
 #define MAX_TABLEVIEW_ITEM_CHARS 261
@@ -10,20 +12,22 @@
 
 namespace tk {
 
-// callbacks here
-    
+ControlCallbackMap<TableView::DrawItem> cbDrawItem;
+ControlCallbackMap<TableView::ItemEvent> cbClickItem;
+        
 TableViewImpl::TableViewImpl(Window & parent, ControlParams const & params):
 //	NativeControlImpl(parent,params,WC_LISTVIEW,LVS_REPORT | LVS_EX_SUBITEMIMAGES),
 	NativeControlImpl(parent,params,WC_LISTVIEW,LVS_REPORT),
     colCount(0),
     rowCount(0)
 {
-    ListView_SetExtendedListViewStyle(hWnd,LVS_EX_SUBITEMIMAGES);
+    ListView_SetExtendedListViewStyle(hWnd,LVS_EX_GRIDLINES | LVS_EX_SUBITEMIMAGES);
 }
 
 TableViewImpl::~TableViewImpl()
 {
-    // remove callbacks
+    removeFromCb(this,cbDrawItem);
+    removeFromCb(this,cbClickItem);
 }
 
 
@@ -165,8 +169,8 @@ void TableViewImpl::setRows(int r)
     } else
     if( r < rowCount ) {
         int rowsDeleted = 0;
-        for( int i = r; i < rowCount; ++i ) {
-            if( ListView_DeleteItem(hWnd,i) == FALSE ) {
+        for( int i = r; i <= rowCount; ++i ) {
+            if( ListView_DeleteItem(hWnd,r) == FALSE ) {
                 log::error("ListView_DeleteItem returned FALSE for hWnd ",hWnd);        
             } else {
                 ++rowsDeleted;
@@ -213,6 +217,16 @@ ItemProperties TableViewImpl::item(int c, int r) const
     return result;
 }
 
+TableView::ItemPos TableViewImpl::getItemPos(Point point) const
+{
+    LVHITTESTINFO info;
+    info.pt = convertPoint(point);
+    info.flags = LVHT_ONITEM;    
+    info.iItem = -1;
+    ListView_SubItemHitTest(hWnd,&info);
+    return TableView::ItemPos{info.iSubItem,info.iItem};
+}
+
 int TableViewImpl::newRow(ItemProperties itemProp)
 {
     int r = rowCount;
@@ -237,6 +251,77 @@ optional<ImageList> TableViewImpl::getImageList()
     if( ! imageListImpl ) return optional<ImageList>();
             
     return ImageList(imageListImpl);
+}
+
+void TableViewImpl::setExtendedStyleFlag(long flag, bool value)
+{
+    auto style = ListView_GetExtendedListViewStyle(hWnd);
+    if( value ) {
+        style |= flag;
+    } else {
+        style &= ~flag;
+    }
+    ListView_SetExtendedListViewStyle(hWnd,style);
+}
+
+void TableViewImpl::setGridLines(bool drawGrid)
+{
+    setExtendedStyleFlag(LVS_EX_GRIDLINES, drawGrid);
+}
+
+void TableViewImpl::setRowSelect(bool rowSelect)
+{
+    setExtendedStyleFlag(LVS_EX_FULLROWSELECT, rowSelect);
+}
+
+TableView::DrawItem TableViewImpl::onDrawItem(TableView::DrawItem callback)
+{
+    return setCallback(this,cbDrawItem,callback);
+}
+
+TableView::ItemEvent TableViewImpl::onClickItem(TableView::ItemEvent callback)
+{
+    return setCallback(this,cbClickItem,callback);
+}
+
+optional<LRESULT> TableViewImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
+{
+    if( message == WM_NOTIFY ) {
+        switch(notification) {
+            case NM_CUSTOMDRAW: {
+                auto it = cbDrawItem.find(this);
+                if( it != cbDrawItem.end() ) {
+                    auto lplvcd = reinterpret_cast<LPNMLVCUSTOMDRAW>(lParam);
+                    NMCUSTOMDRAW & nmcd = lplvcd->nmcd;
+                    switch(nmcd.dwDrawStage) {
+                        case CDDS_PREPAINT:
+                            return CDRF_NOTIFYITEMDRAW;
+                        case CDDS_ITEMPREPAINT:
+                            return CDRF_NOTIFYSUBITEMDRAW;
+                        case CDDS_SUBITEM | CDDS_ITEMPREPAINT: {
+                            CanvasImpl canvas(nmcd.hdc);
+
+                            RECT winRect;
+                            auto pRect = &winRect;
+                            if( ListView_GetSubItemRect(hWnd,nmcd.dwItemSpec,lplvcd->iSubItem,LVIR_BOUNDS,pRect) == 0 ) {
+                                log::error("ListView_GetSubItemRect error");
+                            }
+                            auto rect = convertRect(winRect);
+
+                            bool itemWasDrawn = it->second(TableView::ItemPos{lplvcd->iSubItem,nmcd.dwItemSpec},canvas,rect);
+                            if( itemWasDrawn ) return CDRF_SKIPDEFAULT;
+                        } break;
+                    }
+                }
+            } break;
+            case NM_CLICK: {
+                auto lpnmitem = reinterpret_cast<LPNMITEMACTIVATE>(lParam);
+                if( findExec(this,cbClickItem,TableView::ItemPos{lpnmitem->iSubItem,lpnmitem->iItem}) ) return 0;
+            } break;
+        }
+    }
+    
+    return NativeControlImpl::processNotification(message,notification,wParam,lParam);
 }
 
 }

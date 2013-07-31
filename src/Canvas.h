@@ -31,6 +31,7 @@ public:
 	virtual void drawImage(ImageRef ih, Rect destrect) = 0;
 
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) = 0;
+    virtual WDims measureText(die::NativeString const & text) = 0;
 };
 
 }

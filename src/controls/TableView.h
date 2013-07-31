@@ -2,6 +2,7 @@
 #define TABLE_VIEW_H_jff43ufdgnvcbcvjvn23
 
 #include <initializer_list>
+#include <ostream>
 
 #include "../Control.h"
 #include "../components/ImageList.h"
@@ -15,6 +16,11 @@ class TableView: public Control {
 public:
     TableView() = default;
 	TableView(Window & parent, ControlParams const & params);
+    
+    struct ItemPos {
+        int c;
+        int r;
+    };
 
     int rows() const;
     int columns() const;
@@ -26,20 +32,41 @@ public:
     ColumnProperties column(int c) const;
 
     void addRow(std::initializer_list<ItemProperties> items);
+    void addRow(std::initializer_list<die::NativeString> items);
     
     void setRows(int r);
     void deleteRow(int r);
     
     void setItem(int c, int r, ItemProperties itemProp);
+    void setItem(ItemPos pos, ItemProperties itemProp);
     ItemProperties item(int c, int r) const;
+    ItemProperties item(ItemPos pos) const;
+    
+    ItemPos getItemPos(Point point) const;
     
     void setImageList(ImageList & imageList);
     void removeImageList();
     optional<ImageList> getImageList();
+    
+    void setGridLines(bool drawGrid);
+    void setRowSelect(bool rowSelect);
 
-    // TODO define callbacks
-    using Control::onMouse;
+    typedef std::function<bool(ItemPos, Canvas &, Rect)> DrawItem;
+    typedef std::function<void(ItemPos)> ItemEvent;
+
+    DrawItem onDrawItem(DrawItem callback);
+    ItemEvent onClickItem(ItemEvent callback);
+    // TODO define other callbacks
+private:
+    template<typename T>
+    void doAddRow(std::initializer_list<T> items);
 };
+
+inline std::ostream & operator<<(std::ostream & os, TableView::ItemPos const & itemPos)
+{
+    os << '(' << itemPos.c << ',' << itemPos.r << ')';
+    return os;
+}
 
 }
 

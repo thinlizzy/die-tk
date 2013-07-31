@@ -18,6 +18,7 @@ class NativeControlImpl {
 private:
    	Cursor cursor;
    	RGBColor backgroundColor;
+    bool trackingMouse;
 protected:
 	Rect rect_;
 	CanvasImplWin canvasImpl;
@@ -64,12 +65,14 @@ public:
 
 	Point screenToClient(Point const & point) const;
 
-    // most used callbacks
 	HandleMouseEvent onMouse(HandleMouseEvent callback);
+
 	ProcessKeyEvent onKey(ProcessKeyEvent callback);
 	ProcessKeypress onKeypress(ProcessKeypress callback);
-    // seldom used callbacks
+
 	HandlePaint onPaint(HandlePaint callback);
+private:
+    optional<LRESULT> doMouseEvent(UINT message, WPARAM wParam, LPARAM lParam, bool firstEnter);
 };
 
 }

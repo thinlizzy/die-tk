@@ -7,6 +7,7 @@
 namespace tk {
 
 class ImageListImpl;
+class Canvas;
     
 class ImageList {
 public:
@@ -22,11 +23,12 @@ public:
     Index add(ImageRef ih);
     void replace(ImageRef ih, Index index);
     void remove(Index index);
+    void clear();
+    
+    void drawInto(Canvas & canvas, Index index, Point pos);
 
     WDims dims() const;
     int count() const;
-
-    void clear();
 };
 
 }

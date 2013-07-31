@@ -31,6 +31,11 @@ CanvasImpl::~CanvasImpl()
     restoreObjects();
 }
 
+HDC CanvasImpl::getHDC() const
+{
+    return dc;
+}
+
 void CanvasImpl::restoreObjects()
 {
 	if( dc == 0 ) return;
@@ -50,7 +55,7 @@ void CanvasImpl::restoreObjects()
 
 void CanvasImpl::setPen(Pen const & pen)
 {
-	HPEN hpen = CreatePen(pen.style,pen.width,colorWin(pen.color));
+	HPEN hpen = CreatePen(convertPenStyle(pen.style),pen.width,colorWin(pen.color));
 	HPEN hpenold = (HPEN) SelectObject(dc,hpen);
 	if( hpenOrig == 0 ) {
 	    hpenOrig = hpenold;
@@ -89,7 +94,6 @@ void CanvasImpl::clearTranslate()
 {
 	SetViewportOrgEx(dc,0,0,0);
 }
-
 
 
 
@@ -165,7 +169,6 @@ void CanvasImpl::drawImage(Point dest, unsigned char const buffer[], BITMAPINFO 
 void CanvasImpl::drawImage(Rect const & destrect, unsigned char const buffer[], BITMAPINFO * info)
 {
 	auto & bHead = info->bmiHeader;
-	// auto dims = destrect.openDims();
 	auto dims = destrect.dims();
 	SetDIBitsToDevice(dc,destrect.left,destrect.top,dims.width,dims.height,
                    0,0,0,bHead.biHeight,buffer,info,DIB_RGB_COLORS);
@@ -182,45 +185,19 @@ void CanvasImpl::drawImage(Point start, unsigned char const buffer[], ImageType 
 	drawImage(Rect::closed(start,dest), &img.imageBuffer[0], &img.info);
 }
 
-static RECT convertRect(Rect const & rect)
-{
-	RECT result = { rect.left, rect.top, rect.right, rect.bottom };
-	return result;
-}
-
 void CanvasImpl::textRect(Rect const & rect, die::NativeString const & text, TextParams const & params)
 {
 	RECT winRect = convertRect(rect);
-	// set colors
 	SetTextColor(dc,colorWin(params.textColor));
 	SetBkColor(dc,colorWin(params.backgroundColor));
-	// set alignment
-	UINT format = 0;
-	switch( params.h_align ) {
-		case hta_left:
-			format |= DT_LEFT;
-			break;
-		case hta_right:
-			format |= DT_RIGHT;
-			break;
-		case hta_center:
-			format |= DT_CENTER;
-			break;
-	};
-	switch( params.v_align ) {
-		case vta_top:
-			format |= DT_TOP;
-			break;
-		case vta_bottom:
-			format |= DT_BOTTOM;
-			format |= DT_SINGLELINE;
-			break;
-		case vta_center:
-			format |= DT_VCENTER;
-			format |= DT_SINGLELINE;
-			break;
-	};
-	DrawText(dc,text.wstr.c_str(),text.wstr.size(),&winRect,format);
+	DrawText(dc,text.wstr.c_str(),text.wstr.size(),&winRect,convertTextAlign(params.h_align,params.v_align));
+}
+
+WDims CanvasImpl::measureText(die::NativeString const & text)
+{
+    SIZE size;
+    GetTextExtentPoint32(dc,text.wstr.c_str(),text.wstr.size(),&size);
+    return sizeToWDims(size);
 }
 
 
@@ -257,7 +234,6 @@ void CanvasImplWin::releaseDC()
 	ReleaseDC(hWnd,dc);
 	dc = 0;
 }
-
 
 
 }

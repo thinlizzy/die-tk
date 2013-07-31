@@ -10,15 +10,17 @@
 
 namespace tk {
 
-Rect convertRect(RECT const & rect);
+WDims sizeToWDims(SIZE size);
 WDims lParamToWDims(LPARAM lParam);
 LPARAM WDimsToLParam(WDims dims);
 Point lParamToPoint(LPARAM lParam);
 Point convertPoint(POINT const & point);
 POINT convertPoint(Point const & point);
+Rect convertRect(RECT const & rect);
+RECT convertRect(Rect const & rect);
 
 UserEvent toUserEvent(UINT message, LPARAM lParam);
-MouseEvent toMouseEvent(UINT message, WPARAM wParam);
+MouseEvent toMouseEvent(UINT message, WPARAM wParam, bool firstEnter);
 KeyEvent toKeyEvent(UINT message, WPARAM wParam);
 
 WindowKey fromWindowsKey(WPARAM wParam);
@@ -26,8 +28,11 @@ WPARAM toWindowsKey(WindowKey key);
 
 COLORREF colorWin(RGBColor const & color);
 
+UINT convertTextAlign(HTextAlign hta, VTextAlign vta);
+int convertPenStyle(PenStyle style);
+
 std::string windowsMessageToString(UINT message);
-std::string errorMessage(DWORD error);
+
 
 struct NativeBitmap {
     BITMAPINFO info;

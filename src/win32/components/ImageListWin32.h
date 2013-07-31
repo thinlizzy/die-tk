@@ -7,6 +7,8 @@
 #include "../../components/ImageList.h"
 
 namespace tk {
+    
+class CanvasImpl;
 
 class ImageListImpl: private CommonControlInitializer<0> {
     HIMAGELIST himl;
@@ -18,12 +20,13 @@ public:
     ImageList::Index add(ImageRef ih);
     void replace(ImageRef ih, ImageList::Index index);
     void remove(ImageList::Index index);
+    void clear();
+
+    void drawInto(CanvasImpl & canvas, ImageList::Index index, Point pos);
 
     WDims dims() const;
     int count() const;
 
-    void clear();
-    
     HIMAGELIST getHiml() const;
 };
 

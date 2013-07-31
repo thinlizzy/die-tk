@@ -15,7 +15,6 @@ public:
 	using Control::getText;
 	using Control::setText;
 
-    using Control::onMouse;
     using Control::onKey;
     using Control::onKeypress;
 };

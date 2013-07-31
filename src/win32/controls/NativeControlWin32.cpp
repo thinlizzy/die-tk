@@ -3,6 +3,7 @@
 #include "../ResourceManager.h"
 #include "../CallbackUtils.h"
 
+#include "../../log.h"
 #include "../../trace.h"
 #include <stdexcept>
 
@@ -26,7 +27,8 @@ DWORD scrollbarToWinStyle(Scrollbar sb)
 
 NativeControlImpl::NativeControlImpl():
     cursor(cur_default),
-    backgroundColor(RGBColor())
+    backgroundColor(RGBColor()),
+    trackingMouse(false)
 {
 }
 
@@ -46,8 +48,7 @@ NativeControlImpl::NativeControlImpl(Window & parent, ControlParams const & para
         GetModuleHandle(NULL), NULL
     );
     if( hWnd == NULL ) {
-        auto error = errorMessage(GetLastError());
-        throw std::runtime_error(error);
+        throw std::runtime_error(log::nativeErrorString());
     }
 }
 
@@ -218,7 +219,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
                 result = 0;
                 SetCursor(resourceManager.cursors[cursor]);
             }
-            break;
+        break;
         case WM_ERASEBKGND:
             if( backgroundColor != RGBColor() ) {
                 result = 0;
@@ -228,7 +229,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
                 scoped::Brush brush(CreateSolidBrush(colorWin(backgroundColor)));
                 FillRect(hdc, &rc, brush.get());
             }
-            break;
+        break;
             
         case WM_PAINT: {
             GETCB(cbPaint,on_paint);
@@ -237,7 +238,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
             auto rect = convertRect(sps.ps.rcPaint);
             on_paint(canvas,rect);
             return 0;
-            } break;
+        } break;
 
         case WM_KEYDOWN:
         case WM_KEYUP:{
@@ -247,7 +248,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
             if( key == k_NONE ) return 0;
 
             wParam = toWindowsKey(key);
-            } break;
+        } break;
 
         case WM_CHAR:{
             GETCB(cbKeypress,on_keypress);
@@ -255,7 +256,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
             if( key == 0 ) return 0;
 
             wParam = key;
-            } break;
+        } break;
 
         case WM_LBUTTONDOWN:
         case WM_LBUTTONUP:
@@ -263,15 +264,34 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
         case WM_RBUTTONUP:
         case WM_MBUTTONDOWN:
         case WM_MBUTTONUP:
-        case WM_MOUSEMOVE:{
-            GETCB(cbMouse,on_mouse);
-            auto p = lParamToPoint(lParam);
-            auto mouseEvent = toMouseEvent(message,wParam);
-            on_mouse(mouseEvent,p);
-            return 0;
-            } break;
+            return doMouseEvent(message,wParam,lParam,false);
+        case WM_MOUSEMOVE:
+            return doMouseEvent(message,wParam,lParam,! trackingMouse);
+        case WM_MOUSELEAVE:
+            trackingMouse = false;
+            return doMouseEvent(message,wParam,lParam,false);
     }
     return result;
+}
+
+optional<LRESULT> NativeControlImpl::doMouseEvent(UINT message, WPARAM wParam, LPARAM lParam, bool firstEnter)
+{
+    GETCB(cbMouse,on_mouse);
+    if( firstEnter ) {
+        // track mouse event to get a mouse leave message
+        trackingMouse = true;
+        TRACKMOUSEEVENT tme;
+        tme.cbSize = sizeof(tme);
+        tme.dwFlags = TME_LEAVE;
+        tme.hwndTrack = hWnd;
+        if( TrackMouseEvent(&tme) == 0 ) {
+            log::error("TrackMouseEvent() failed for hWnd ",hWnd);
+        }
+    }
+    auto p = lParamToPoint(lParam);
+    auto mouseEvent = toMouseEvent(message,wParam,firstEnter);
+    on_mouse(mouseEvent,p);
+    return 0;
 }
 
 optional<LRESULT> NativeControlImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)

@@ -21,7 +21,6 @@ public:
 	void setVisibleItems(int numItems);
 	int visibleItems() const;
     
-    using Control::onMouse;
     HandleOperation onChange(HandleOperation callback);
     // TODO on dropdown open
     // TODO on dropdown close

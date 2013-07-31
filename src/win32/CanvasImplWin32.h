@@ -16,6 +16,8 @@ public:
 	explicit CanvasImpl(HDC dc);
 	CanvasImpl(CanvasImpl && temp);
 	virtual ~CanvasImpl();
+    
+    HDC getHDC() const;
 
 	virtual void setPen(Pen const & pen);
 	virtual void setBrush(Brush const & brush);
@@ -43,6 +45,7 @@ public:
     void drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim, WDims dest);
 
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params);
+    virtual WDims measureText(die::NativeString const & text);
 
 	void restoreObjects();
 };
@@ -51,7 +54,6 @@ class CanvasImplWin : public CanvasImpl {
 	HWND hWnd;
 public:
     CanvasImplWin();
-	explicit CanvasImplWin(HWND hWnd);
 	CanvasImplWin(CanvasImplWin && temp);
 	virtual ~CanvasImplWin();
 

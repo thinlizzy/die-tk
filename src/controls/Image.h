@@ -13,8 +13,6 @@ public:
 	void setImage(unsigned char const buffer[], void * header);
 
 	void setAutosize(bool autosize);
-    
-    using Control::onMouse;
 };
 
 }

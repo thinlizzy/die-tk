@@ -26,6 +26,20 @@ void error(T argument, V... rest)
     error(rest...);
 }
     
+template<typename T> 
+void info(T argument)
+{
+    std::cerr << argument 
+            << std::endl;
+}
+    
+template<typename T, typename... V> 
+void info(T argument, V... rest)
+{
+    std::cerr << argument;
+    info(rest...);
+}
+    
 }    
 }
 

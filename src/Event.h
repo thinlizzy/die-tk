@@ -14,8 +14,11 @@ enum KeyEventType {
 };
 
 enum MouseEventType {
-	et_mousemove = 1,
-	et_mousedown, et_mouseup,
+    et_mouseenter = 1,
+	et_mousemove,
+    et_mouseleave,
+	et_mousedown, 
+    et_mouseup,
 };
 
 enum MouseButton {

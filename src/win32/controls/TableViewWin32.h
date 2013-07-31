@@ -5,6 +5,7 @@
 #include "../CommonControlInitializer.h"
 #include "../../controls/base/ColumnProperties.h"
 #include "../../controls/base/ItemProperties.h"
+#include "../../controls/TableView.h"
 #include <commctrl.h>
 
 namespace tk {
@@ -31,13 +32,24 @@ public:
     void setItem(int c, int r, ItemProperties itemProp);
     ItemProperties item(int c, int r) const;
     
+    TableView::ItemPos getItemPos(Point point) const;
+    
     int newRow(ItemProperties itemProp);
     
     void setImageList(ImageList & imageList);
     void removeImageList();
     optional<ImageList> getImageList();
+    
+    void setGridLines(bool drawGrid);
+    void setRowSelect(bool rowSelect);
+    
+    TableView::DrawItem onDrawItem(TableView::DrawItem callback);
+    TableView::ItemEvent onClickItem(TableView::ItemEvent callback);
 private:
+    virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);
+    
     bool addItem(int r, ItemProperties itemProp);
+    void setExtendedStyleFlag(long flag, bool value);
 };
 
 }
