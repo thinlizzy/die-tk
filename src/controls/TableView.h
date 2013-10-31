@@ -16,6 +16,7 @@ class TableView: public Control {
 public:
     TableView() = default;
 	TableView(Window & parent, ControlParams const & params);
+    TableView clone() const;
     
     struct ItemPos {
         int c;
@@ -60,6 +61,9 @@ public:
 private:
     template<typename T>
     void doAddRow(std::initializer_list<T> items);
+
+    using Control::getText;
+    using Control::setText;
 };
 
 inline std::ostream & operator<<(std::ostream & os, TableView::ItemPos const & itemPos)

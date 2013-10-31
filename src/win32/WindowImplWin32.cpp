@@ -114,6 +114,17 @@ WindowImpl::~WindowImpl()
     removeFromCb(this,cbUserEvent);
 }
 
+WindowImpl * WindowImpl::clone() const
+{
+    if( state_ == ws_destroyed ) return 0;
+    
+    return new WindowImpl(WindowParams()
+            .start(rect().pos())
+            .dims(rect().dims())
+            .text(getText())
+            .states(state_)
+    );
+}
 
 void WindowImpl::setRect(Rect rect)
 {
@@ -165,6 +176,13 @@ void WindowImpl::registerControl(std::shared_ptr<NativeControlImpl> control)
     resourceManager.registerControl(control);
 }
 
+void WindowImpl::unregisterControl(std::shared_ptr<NativeControlImpl> control)
+{
+    if( controls.erase(control->hWnd) > 0 ) {
+        resourceManager.unregisterControl(control);
+        DestroyWindow(control->hWnd);
+    }
+}
 
 // callbacks & messages
 

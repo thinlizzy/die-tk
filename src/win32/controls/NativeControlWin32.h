@@ -25,16 +25,17 @@ protected:
 
 	NativeControlImpl();
     
-	scoped::DC getDC();
+	scoped::DC getDC() const;
 	SIZE getTextDims();
 public:
 	HWND hWnd;
 
-	NativeControlImpl(Window & parent, ControlParams const & params, wchar_t const classname[], DWORD style);
+	NativeControlImpl(HWND parentHwnd, ControlParams const & params, wchar_t const classname[], DWORD style);
     NativeControlImpl(NativeControlImpl const &) = delete;
-    NativeControlImpl & operator=(NativeControlImpl const &) = delete;
-    
+    NativeControlImpl & operator=(NativeControlImpl const &) = delete;    
 	virtual ~NativeControlImpl() = 0;
+    virtual NativeControlImpl * clone() const = 0;
+    
 	virtual optional<LRESULT> processMessage(UINT message, WPARAM & wParam, LPARAM & lParam);
     virtual optional<LRESULT> processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam);
 
@@ -64,6 +65,10 @@ public:
 	void setBackground(RGBColor const & color);
 
 	Point screenToClient(Point const & point) const;
+    
+    HWND getParentHwnd() const;
+    
+    ControlParams getControlData() const;
 
 	HandleMouseEvent onMouse(HandleMouseEvent callback);
 

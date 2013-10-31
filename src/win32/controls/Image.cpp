@@ -7,6 +7,7 @@
 namespace tk {
 
 CONSTRUCTOR_IMPL(Image);
+CLONE_IMPL(Image);
     
 void Image::setImage(unsigned char const buffer[], void * header)
 {

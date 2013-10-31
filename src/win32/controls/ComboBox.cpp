@@ -7,6 +7,7 @@
 namespace tk {
 
 CONSTRUCTOR_IMPL(ComboBox);
+CLONE_IMPL(ComboBox);
 
 void ComboBox::addStrings(std::initializer_list<die::NativeString> strings)
 {

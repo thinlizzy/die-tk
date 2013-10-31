@@ -8,7 +8,9 @@ namespace tk {
 class LabelImpl: public NativeControlImpl {
 	bool autosize;
 public:
-	LabelImpl(Window & parent, ControlParams const & params);
+	LabelImpl(HWND parentHwnd, ControlParams const & params);
+
+    virtual LabelImpl * clone() const;
 
 	void setAutosize(bool autosize);
 private:

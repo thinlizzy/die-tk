@@ -9,11 +9,9 @@ class Label: public Control {
 public:
     Label() = default;
     Label(Window & parent, ControlParams const & params = ControlParams());
+    Label clone() const;
     
 	void setAutosize(bool autosize);
-    
-	using Control::getText;
-	using Control::setText;
 };
 
 }

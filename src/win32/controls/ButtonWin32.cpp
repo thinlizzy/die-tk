@@ -2,8 +2,8 @@
 
 namespace tk {
 
-ButtonImpl::ButtonImpl(Window & parent, ControlParams const & params):
-	ButtonBaseImpl(parent,params,BS_PUSHBUTTON)
+ButtonImpl::ButtonImpl(HWND parentHwnd, ControlParams const & params):
+	ButtonBaseImpl(parentHwnd,params,BS_PUSHBUTTON)
 {
 	if( ! params.text_.empty() ) {
 		setText(params.text_);
@@ -12,6 +12,11 @@ ButtonImpl::ButtonImpl(Window & parent, ControlParams const & params):
 			NativeControlImpl::setDims(dims);
 		}
 	}
+}
+
+ButtonImpl * ButtonImpl::clone() const
+{
+    return new ButtonImpl(getParentHwnd(),getControlData());
 }
 
 WDims ButtonImpl::getDimsByText(WDims dims)

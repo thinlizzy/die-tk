@@ -7,7 +7,9 @@ namespace tk {
 
 class PaintBoxImpl: public NativeControlImpl {
 public:
-	PaintBoxImpl(Window & parent, ControlParams const & params);
+	PaintBoxImpl(HWND parentHwnd, ControlParams const & params);
+    
+    virtual PaintBoxImpl * clone() const;
 };
 
 }

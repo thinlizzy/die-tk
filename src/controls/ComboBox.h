@@ -10,6 +10,7 @@ class ComboBox: public Control {
 public:
     ComboBox() = default;
     ComboBox(Window & parent, ControlParams const & params = ControlParams());
+    ComboBox clone() const;
     
 	void addString(die::NativeString const & str);
     void addStrings(std::initializer_list<die::NativeString> strings);

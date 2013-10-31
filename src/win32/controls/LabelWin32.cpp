@@ -2,14 +2,19 @@
 
 namespace tk {
 
-LabelImpl::LabelImpl(Window & parent, ControlParams const & params):
-	NativeControlImpl(parent,params,L"STATIC",SS_CENTER),
+LabelImpl::LabelImpl(HWND parentHwnd, ControlParams const & params):
+	NativeControlImpl(parentHwnd,params,L"STATIC",SS_CENTER),
 	autosize(params.autosize_)
 {
 	setText(params.text_);
     if( autosize ) {
         doAutosize();
     }
+}
+
+LabelImpl * LabelImpl::clone() const
+{
+    return new LabelImpl(getParentHwnd(),getControlData().autosize(autosize));
 }
 
 void LabelImpl::setAutosize(bool autosize)

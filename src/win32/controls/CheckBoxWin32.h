@@ -10,7 +10,9 @@ class CheckBoxImpl: public ButtonBaseImpl {
 	bool autosize;
 	WDims getDimsByText();
 public:
-	CheckBoxImpl(Window & parent, ControlParams const & params);
+	CheckBoxImpl(HWND parentHwnd, ControlParams const & params);
+
+    virtual CheckBoxImpl * clone() const;
 
 	virtual void setText(die::NativeString const & text);
     

@@ -33,6 +33,7 @@ public:
 
 	WindowParams & addState(WindowState value) { initialState |= value; return *this; }
 	WindowParams & removeState(WindowState value) { initialState &= ~value; return *this; }
+	WindowParams & states(int value) { initialState = value; return *this; }
 
 	bool isDefaultPos() const { return start_ == WindowParams::defaultPos(); }
 	bool isDefaultDims() const { return dims_ == WindowParams::defaultDims(); }

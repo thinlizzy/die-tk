@@ -12,9 +12,11 @@ class TreeViewImpl: public NativeControlImpl, private CommonControlInitializer<I
     std::shared_ptr<ItemImpl> rootItemImpl;
     std::shared_ptr<ImageListImpl> imageListImpl;
 public:
-	TreeViewImpl(Window & parent, ControlParams const & params);
+	TreeViewImpl(HWND parentHwnd, ControlParams const & params);
     ~TreeViewImpl();
 
+    virtual TreeViewImpl * clone() const;
+    
     TreeView::Item root() const;
     size_t total() const;
     
@@ -49,6 +51,9 @@ public:
     HTREEITEM firstChild() const;
     HTREEITEM nextSibling() const;
     HTREEITEM parent() const;
+    
+    ItemProperties getProperties() const;
+    HTREEITEM addChild(ItemProperties const & properties);
 };
 
 class IteratorImpl {

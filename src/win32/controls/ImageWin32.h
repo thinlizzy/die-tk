@@ -10,11 +10,15 @@ class ImageImpl: public NativeControlImpl {
 	bool autosize;
 	WDims imageDims;
 public:
-	ImageImpl(Window & parent, ControlParams const & params);
+	ImageImpl(HWND parentHwnd, ControlParams const & params);
+    
+    virtual ImageImpl * clone() const;
 
 	void setImage(unsigned char const buffer[], void * header);
 
 	void setAutosize(bool autosize);
+private:
+    void setImageBitmap();
 };
 
 }

@@ -7,6 +7,7 @@
 namespace tk {
 
 CONSTRUCTOR_IMPL(Label);
+CLONE_IMPL(Label);
 
 void Label::setAutosize(bool autosize)
 {

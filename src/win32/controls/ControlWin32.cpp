@@ -1,26 +1,32 @@
-#include "../../Control.h"
 #include "NativeControlWin32.h"
+#include "../../Control.h"
+#include "../../Window.h"
+#include "../../WindowRef.h"
+#include "../ResourceManager.h"
 
 namespace tk {
-
+    
 Rect Control::rect() const
 {
     return impl->rect();
 }
 
-void Control::setPos(Point pos)
+Control & Control::setPos(Point pos)
 {
     impl->setPos(pos);
+    return *this;
 }
 
-void Control::setDims(WDims dims)
+Control & Control::setDims(WDims dims)
 {
     impl->setDims(dims);
+    return *this;
 }
 
-void Control::setRect(Rect rect)
+Control & Control::setRect(Rect rect)
 {
     impl->setRect(rect);
+    return *this;
 }
 
 void Control::bringToFront()
@@ -98,11 +104,16 @@ die::NativeString Control::getText() const
     return impl->getText();
 }
 
-void Control::setText(die::NativeString const & text)
+Control & Control::setText(die::NativeString const & text)
 {
     impl->setText(text);
+    return *this;
 }
 
+WindowRef Control::getParent() const
+{
+    return WindowRef(resourceManager.findWindow(impl->getParentHwnd()));
+}
 
 HandleMouseEvent Control::onMouse(HandleMouseEvent callback)
 {

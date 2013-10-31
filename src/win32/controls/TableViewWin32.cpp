@@ -5,6 +5,7 @@
 #include "../../log.h"
 #include "../CallbackUtils.h"
 #include "../ConvertersWin32.h"
+#include "../../util/make_unique.h"
 
 #ifndef MAX_TABLEVIEW_ITEM_CHARS
 #define MAX_TABLEVIEW_ITEM_CHARS 261
@@ -15,9 +16,9 @@ namespace tk {
 ControlCallbackMap<TableView::DrawItem> cbDrawItem;
 ControlCallbackMap<TableView::ItemEvent> cbClickItem;
         
-TableViewImpl::TableViewImpl(Window & parent, ControlParams const & params):
-//	NativeControlImpl(parent,params,WC_LISTVIEW,LVS_REPORT | LVS_EX_SUBITEMIMAGES),
-	NativeControlImpl(parent,params,WC_LISTVIEW,LVS_REPORT),
+TableViewImpl::TableViewImpl(HWND parentHwnd, ControlParams const & params):
+//	NativeControlImpl(parentHwnd,params,WC_LISTVIEW,LVS_REPORT | LVS_EX_SUBITEMIMAGES),
+	NativeControlImpl(parentHwnd,params,WC_LISTVIEW,LVS_REPORT),
     colCount(0),
     rowCount(0)
 {
@@ -30,6 +31,17 @@ TableViewImpl::~TableViewImpl()
     removeFromCb(this,cbClickItem);
 }
 
+TableViewImpl * TableViewImpl::clone() const
+{
+    auto result = make_unique<TableViewImpl>(getParentHwnd(),getControlData());    
+    ListView_SetExtendedListViewStyle(result->hWnd,ListView_GetExtendedListViewStyle(hWnd));
+    result->imageListImpl = imageListImpl;
+    for( int c = 0; c != colCount; ++c ) {
+        result->addColumn(column(c));
+    }
+    result->setRows(rowCount);
+    return result.release();
+}
 
 int alignToWin32(ColumnProperties::Alignment alignment)
 {

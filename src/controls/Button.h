@@ -8,7 +8,8 @@ namespace tk {
 class Button: public ButtonBase {
 public:
     Button() = default;
-    Button(Window & parent, ControlParams const & params = ControlParams());    
+    Button(Window & parent, ControlParams const & params = ControlParams());
+    Button clone() const;
 };
 
 }

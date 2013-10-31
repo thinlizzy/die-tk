@@ -9,19 +9,24 @@
 namespace tk {
 
 class Window;
+class WindowRef;
 class Canvas;
 class NativeControlImpl;
 
-// base class for all widgets including windows
+// base class for all widgets, including windows
 
 class Control {
+    friend class Window;
+    friend class ControlRef;
 public:
     Control() = default;
-    Control(Control const &) = delete;              // TODO delegate to NativeControlImpl->clone()
-    Control & operator=(Control const &) = delete;  // TODO same
+    Control(Control const &) = delete;
+    Control & operator=(Control const &) = delete;
     Control(Control &&) = default;
     Control & operator=(Control &&) = default;
     virtual ~Control() = 0;
+    
+    explicit operator bool() const;
     
 	int x() const;
 	int y() const;
@@ -31,10 +36,13 @@ public:
 	WDims dims() const;
 	Rect rect() const;
 
-	void setPos(Point pos);
-	void setDims(WDims dims);
-	void setRect(Rect rect);
+	Control & setPos(Point pos);
+	Control & setDims(WDims dims);
+	Control & setRect(Rect rect);
 
+	die::NativeString getText() const;
+	Control & setText(die::NativeString const & text);
+    
 	void bringToFront();
 	void sendToBack();
     
@@ -58,15 +66,12 @@ public:
 
 	Point screenToClient(Point const & point) const;
     
-    explicit operator bool() const;
+    WindowRef getParent() const;
     
 	HandleMouseEvent onMouse(HandleMouseEvent callback);     
 protected:
     std::shared_ptr<NativeControlImpl> impl;
 
-	die::NativeString getText() const;
-	void setText(die::NativeString const & text);
-    
     // most used callbacks
 	ProcessKeyEvent onKey(ProcessKeyEvent callback);       // edit, memo
 	ProcessKeypress onKeypress(ProcessKeypress callback);  // edit, memo

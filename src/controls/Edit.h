@@ -9,12 +9,13 @@ class Edit: public Control {
 public:
     Edit() = default;
     Edit(Window & parent, ControlParams const & params = ControlParams());
+    Edit clone() const;
     
 	void setReadOnly(bool readOnly);
+    void setTextAlign(HTextAlign alignment);
     
-	using Control::getText;
-	using Control::setText;
-
+    bool readOnly() const;
+    
     using Control::onKey;
     using Control::onKeypress;
 };

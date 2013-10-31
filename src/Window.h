@@ -16,6 +16,8 @@ public:
 
 	int state();
     
+    void remove(Control & control);
+    
     using Control::onMouse;
     using Control::onPaint;
     using Control::onKey;
@@ -25,6 +27,8 @@ public:
 	HandleEvent onUserEvent(HandleEvent callback);
     
     WindowImpl & getImpl();     // internal use only
+protected:
+    Window(std::shared_ptr<WindowImpl> impl);  // internal use only
 };
 
 }

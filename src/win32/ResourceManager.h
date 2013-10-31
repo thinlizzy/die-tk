@@ -22,6 +22,7 @@ public:
     ResourceManager();
 	void registerWindow(std::shared_ptr<WindowImpl> window);
 	void registerControl(std::shared_ptr<NativeControlImpl> control);
+    void unregisterControl(std::shared_ptr<NativeControlImpl> control);
 	std::shared_ptr<WindowImpl> findWindow(HWND hWnd);
 	std::shared_ptr<NativeControlImpl> findControl(HWND hWnd);
     std::shared_ptr<NativeControlImpl> findControlOrWindow(HWND hWnd);

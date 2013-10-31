@@ -68,6 +68,10 @@ public:
 		temp.h = 0;
 	}
 
+    ~ScopedHandle() {
+		release();
+	}
+    
 	ScopedHandle & operator=(ScopedHandle && temp)
 	{
         h = temp.h;
@@ -83,10 +87,10 @@ public:
 	H get() const {
 		return h;
 	}
-
-	~ScopedHandle() {
-		release();
-	}
+    
+    explicit operator bool() const {
+        return h != 0;
+    }
 private:
 	void release() {
 		if( h == 0 ) return;
@@ -103,6 +107,8 @@ public:
 typedef ScopedHandle<HBITMAP,DeleterObject> Bitmap;
 
 typedef ScopedHandle<HBRUSH,DeleterObject> Brush;
+
+typedef ScopedHandle<HDC,scoped::DeleterObject> TemporaryDC;
 
 }
 

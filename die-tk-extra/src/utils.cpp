@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <image.h>
 
 namespace tk {
     
@@ -12,6 +11,11 @@ ImageList::Index addFile(ImageList & imageList, char const * filename)
 ImageList::Index addFile(ImageList & imageList, std::string const & filename)
 {
     return addFile(imageList,filename.c_str());
+}
+
+void drawImage(Canvas & canvas, img::Image const & image, Point start)
+{
+    canvas.drawImage(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()),start);
 }
 
 }

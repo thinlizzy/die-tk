@@ -7,7 +7,7 @@ namespace tk {
 
 class ButtonBaseImpl: public NativeControlImpl {
 public:
-	ButtonBaseImpl(Window & parent, ControlParams const & params, DWORD style);
+	ButtonBaseImpl(HWND parentHwnd, ControlParams const & params, DWORD style);
     
     virtual ~ButtonBaseImpl();
     

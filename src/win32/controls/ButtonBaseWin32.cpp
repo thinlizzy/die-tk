@@ -5,8 +5,8 @@ namespace tk {
 
 ControlCallbackMap<HandleOperation> cbClick;
 
-ButtonBaseImpl::ButtonBaseImpl(Window & parent, ControlParams const & params, DWORD style):
-    NativeControlImpl(parent,params,L"BUTTON",style)
+ButtonBaseImpl::ButtonBaseImpl(HWND parentHwnd, ControlParams const & params, DWORD style):
+    NativeControlImpl(parentHwnd,params,L"BUTTON",style)
 {}
 
 ButtonBaseImpl::~ButtonBaseImpl()

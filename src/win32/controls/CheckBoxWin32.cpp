@@ -1,14 +1,24 @@
 #include "CheckBoxWin32.h"
 #include <algorithm>
 #include <Windowsx.h>
+#include "../../util/make_unique.h"
 
 namespace tk {
 
-CheckBoxImpl::CheckBoxImpl(Window & parent, ControlParams const & params):
-	ButtonBaseImpl(parent,params,BS_AUTOCHECKBOX),
+CheckBoxImpl::CheckBoxImpl(HWND parentHwnd, ControlParams const & params):
+	ButtonBaseImpl(parentHwnd,params,BS_AUTOCHECKBOX),
 	autosize(params.autosize_)
 {
 	setText(params.text_);
+}
+
+CheckBoxImpl * CheckBoxImpl::clone() const
+{
+    auto result = make_unique<CheckBoxImpl>(getParentHwnd(),getControlData().autosize(autosize));
+    if( checked() ) {
+        result->check(true);
+    }
+    return result.release();
 }
 
 void CheckBoxImpl::setText(die::NativeString const & text)

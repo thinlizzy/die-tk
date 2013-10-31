@@ -26,9 +26,14 @@ public:
 
 PaintBoxClass paintBoxClass;
 
-PaintBoxImpl::PaintBoxImpl(Window & parent, ControlParams const & params):
-	NativeControlImpl(parent,params,paintBoxClass.wc.lpszClassName,0)
+PaintBoxImpl::PaintBoxImpl(HWND parentHwnd, ControlParams const & params):
+	NativeControlImpl(parentHwnd,params,paintBoxClass.wc.lpszClassName,0)
 {
+}
+
+PaintBoxImpl * PaintBoxImpl::clone() const
+{
+    return new PaintBoxImpl(getParentHwnd(),getControlData());
 }
 
 }

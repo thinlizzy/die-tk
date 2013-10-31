@@ -7,6 +7,7 @@
 namespace tk {
 
 CONSTRUCTOR_IMPL(TreeView);
+CLONE_IMPL(TreeView);
 
 TreeView::Item TreeView::root() const
 {

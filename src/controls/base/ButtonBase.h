@@ -9,8 +9,6 @@ class ButtonBase: public Control {
 protected:
     ButtonBase() = default;
 public:
-	using Control::getText;
-	using Control::setText;
     HandleOperation onClick(HandleOperation callback);
 };
 

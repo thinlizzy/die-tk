@@ -1,20 +1,27 @@
 #include "MemoWin32.h"
+#include "../../util/make_unique.h"
 
 namespace tk {
 
- MemoImpl::MemoImpl(Window & parent, ControlParams const & params):
-	NativeControlImpl(parent,params,L"EDIT",ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL)
+ MemoImpl::MemoImpl(HWND parentHwnd, ControlParams const & params):
+	EditImpl(parentHwnd,params,ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL),
+    linesList(*this)
 {
-	if( ! params.text_.empty() ) {
-		setText(params.text_);
-	}
+}
+
+MemoImpl * MemoImpl::clone() const
+{
+    auto result = make_unique<MemoImpl>(getParentHwnd(),getControlData());
+    cloneInto(*result);
+    return result.release();
 }
 
 void MemoImpl::setText(die::NativeString const & text)
 {
     auto p = text.wstr.find('\n');
     if( p == std::string::npos ) {
-        NativeControlImpl::setText(text);
+        EditImpl::setText(text);
+        linesList.update(text);
     } else {
         // replace \n with \r\n
         auto textR = text.wstr.substr(0,p) + L"\r\n";
@@ -26,13 +33,19 @@ void MemoImpl::setText(die::NativeString const & text)
             p = p2;
         }
         textR += text.wstr.substr(p);
-        NativeControlImpl::setText(textR);
+        EditImpl::setText(textR);
+        linesList.update(textR);
     }
 }
 
-void MemoImpl::setReadOnly(bool readOnly)
+NativeControlStringList & MemoImpl::lines()
 {
-    PostMessage(hWnd,EM_SETREADONLY,readOnly,0);
+    return linesList;
+}
+
+void MemoImpl::scrollTo(unsigned lines)
+{
+    PostMessageW(hWnd,EM_LINESCROLL,0,lines);
 }
 
 }

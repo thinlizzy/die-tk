@@ -44,8 +44,7 @@ CbType fetchCallback(NativeControlImpl * const impl, ControlCallbackMap<CbType> 
 template<typename CbType>
 void removeFromCb(NativeControlImpl * impl, ControlCallbackMap<CbType> & map)
 {
-    auto it = map.find(impl);
-    if( it != map.end() ) map.erase(it);    
+    map.erase(impl);
 }
 
 // find and execute a callback ignoring the result type

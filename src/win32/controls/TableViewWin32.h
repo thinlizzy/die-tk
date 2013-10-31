@@ -15,9 +15,11 @@ class TableViewImpl: public NativeControlImpl, private CommonControlInitializer<
     int rowCount;
     std::shared_ptr<ImageListImpl> imageListImpl;
 public:
-	TableViewImpl(Window & parent, ControlParams const & params);
+	TableViewImpl(HWND parentHwnd, ControlParams const & params);
     ~TableViewImpl();
 
+    virtual TableViewImpl * clone() const;
+    
     int rows() const;
     int columns() const;
     

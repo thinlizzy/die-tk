@@ -7,5 +7,6 @@
 namespace tk {
 
 CONSTRUCTOR_IMPL(PaintBox);
+CLONE_IMPL(PaintBox);
 
 }

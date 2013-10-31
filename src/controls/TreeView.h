@@ -23,10 +23,13 @@ public:
     
     TreeView() = default;
 	TreeView(Window & parent, ControlParams const & params);
+    TreeView clone() const;
     
     Item root() const;
     size_t total() const;
     Iterator selected() const;
+
+    using Control::getParent;
     
     Item getParent(Item const & item) const;
 
@@ -92,6 +95,10 @@ public:
     public:
         explicit Iterator(IteratorImpl * iteratorImpl);
     };
+    
+private:
+    using Control::getText;
+    using Control::setText;
 };
 
 }

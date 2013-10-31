@@ -9,8 +9,12 @@ class PaintBox: public Control {
 public:
     PaintBox() = default;
     PaintBox(Window & parent, ControlParams const & params = ControlParams());
+    PaintBox clone() const;
     
     using Control::onPaint;
+private:
+    using Control::getText;
+    using Control::setText;
 };
 
 }

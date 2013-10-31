@@ -33,6 +33,8 @@ public:
 	WindowImpl(WindowParams const & params);
 
 	virtual ~WindowImpl();
+    
+    virtual WindowImpl * clone() const;
 
 	virtual void setDims(WDims dims);
 	virtual void setRect(Rect rect);
@@ -48,6 +50,7 @@ public:
 
 	std::shared_ptr<NativeControlImpl> findControl(HWND handle);
 	void registerControl(std::shared_ptr<NativeControlImpl> control);
+    void unregisterControl(std::shared_ptr<NativeControlImpl> control);
     
 	AllowOperation onClose(AllowOperation callback);
 	ProcessResize onResize(ProcessResize callback);

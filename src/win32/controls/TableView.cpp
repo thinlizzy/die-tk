@@ -7,6 +7,7 @@
 namespace tk {
 
 CONSTRUCTOR_IMPL(TableView);
+CLONE_IMPL(TableView);
 
 int TableView::rows() const
 {

@@ -1,4 +1,6 @@
+#define WINVER 0x0500
 #include "NativeControlWin32.h"
+#include <winuser.h>
 #include "../ConvertersWin32.h"
 #include "../ResourceManager.h"
 #include "../CallbackUtils.h"
@@ -17,12 +19,32 @@ ControlCallbackMap<ProcessKeypress> cbKeypress;
 DWORD scrollbarToWinStyle(Scrollbar sb)
 {
     switch(sb) {
-        case sb_both: return WS_HSCROLL + WS_VSCROLL;
+        case sb_both: return WS_HSCROLL | WS_VSCROLL;
         case sb_horizontal: return WS_HSCROLL;
         case sb_vertical: return WS_VSCROLL;
         default: return 0;
     }
 }
+
+Scrollbar getScrollbarStatus(HWND hWnd)
+{
+    int const state_system_invisible = 0x8000; // STATE_SYSTEM_INVISIBLE is not defined...
+    
+    Scrollbar sb = sb_none;
+    SCROLLBARINFO sbi;
+    sbi.cbSize = sizeof(SCROLLBARINFO);
+    if( GetScrollBarInfo(hWnd,OBJID_HSCROLL,&sbi) ) {
+        if( (sbi.rgstate[0] & state_system_invisible) == 0 ) {
+            sb = sb_horizontal;
+        }
+    }
+    if( GetScrollBarInfo(hWnd,OBJID_VSCROLL,&sbi) ) {
+        if( (sbi.rgstate[0] & state_system_invisible) == 0 ) {
+            sb = sb == sb_none ? sb_vertical : sb_both;
+        }        
+    }
+    return sb;
+}           
 
 
 NativeControlImpl::NativeControlImpl():
@@ -32,18 +54,21 @@ NativeControlImpl::NativeControlImpl():
 {
 }
 
-NativeControlImpl::NativeControlImpl(Window & parent, ControlParams const & params, wchar_t const classname[], DWORD style):
+// parent.getImpl().hWnd
+NativeControlImpl::NativeControlImpl(HWND parentHwnd, ControlParams const & params, wchar_t const classname[], DWORD style):
     cursor(cur_default),
     backgroundColor(RGBColor()),
     rect_(Rect::closed(params.start_,params.dims_))
 {
-    HWND parent_hWnd = parent.getImpl().hWnd;
     hWnd = CreateWindowW(classname, NULL,
-        style | scrollbarToWinStyle(params.scrollbar_) |
-            WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
+        WS_CHILD | WS_CLIPSIBLINGS |
+            style | 
+            (params.visible_ ? WS_VISIBLE : 0) | 
+            scrollbarToWinStyle(params.scrollbar_)
+            ,
         params.start_.x, params.start_.y,
         params.dims_.width, params.dims_.height,
-        parent_hWnd,
+        parentHwnd,
         NULL,
         GetModuleHandle(NULL), NULL
     );
@@ -160,11 +185,12 @@ void NativeControlImpl::repaint()
     InvalidateRect(hWnd,0,true);
 }
 
-scoped::DC NativeControlImpl::getDC()
+scoped::DC NativeControlImpl::getDC() const
 {
     return scoped::DC(hWnd);
 }
 
+// TODO call winapi SetCursor() if mouse is hovering the control
 void NativeControlImpl::setCursor(Cursor cursor)
 {
     this->cursor = cursor;
@@ -180,6 +206,27 @@ Point NativeControlImpl::screenToClient(Point const & point) const
     auto p = convertPoint(point);
     ScreenToClient(hWnd,&p);
     return convertPoint(p);
+}
+
+HWND NativeControlImpl::getParentHwnd() const
+{
+    HWND result = GetParent(hWnd);
+    if( result == NULL ) {
+        log::error("getParentHwnd() failed for hWnd ",hWnd);
+    }
+    return result;
+}
+
+// TODO add cursor, background color and enabled state
+ControlParams NativeControlImpl::getControlData() const
+{
+    return ControlParams()
+            .start(rect().pos())
+            .dims(rect().dims())
+            .text(getText())
+            .visible(visible())
+            .scrollbar(getScrollbarStatus(hWnd));
+    ;
 }
 
 

@@ -12,8 +12,19 @@ Window::Window(WindowParams const & params)
     resourceManager.registerWindow(windowImpl);
 }
 
+Window::Window(std::shared_ptr<WindowImpl> impl)
+{
+    this->impl = impl;
+}
+
 Window::~Window()
 {   
+}
+
+void Window::remove(Control & control)
+{
+    getImpl().unregisterControl(control.impl);
+    control.impl.reset();
 }
 
 WindowImpl & Window::getImpl()

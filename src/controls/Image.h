@@ -9,10 +9,14 @@ class Image: public Control {
 public:
     Image() = default;
     Image(Window & parent, ControlParams const & params = ControlParams());
+    Image clone() const;
     
 	void setImage(unsigned char const buffer[], void * header);
 
 	void setAutosize(bool autosize);
+private:
+    using Control::getText;
+    using Control::setText;
 };
 
 }

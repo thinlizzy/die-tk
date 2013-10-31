@@ -1,4 +1,6 @@
 #include "../WindowImplWin32.h"
+#include "../../WindowRef.h"
+#include "../ResourceManager.h"
 
 namespace {
 
@@ -15,7 +17,7 @@ inline tk::CONTROL_IMPL const & ci(std::shared_ptr<tk::NativeControlImpl> const 
 template<typename C>
 void createAndRegister(std::shared_ptr<tk::NativeControlImpl> & impl, tk::Window & parent, tk::ControlParams const & params)
 {
-    impl = std::static_pointer_cast<tk::NativeControlImpl>(std::make_shared<C>(parent,params));
+    impl = std::static_pointer_cast<tk::NativeControlImpl>(std::make_shared<C>(parent.getImpl().hWnd,params));
     parent.getImpl().registerControl(impl);
 }
 
@@ -27,5 +29,14 @@ void createAndRegister(std::shared_ptr<tk::NativeControlImpl> & impl, tk::Window
 CLASS::CLASS(Window & parent, ControlParams const & params) \
 { \
     createAndRegister<CONTROL_IMPL>(impl,parent,params); \
+}
+
+#define CLONE_IMPL(CLASS) \
+CLASS CLASS::clone() const \
+{ \
+    CLASS result; \
+    result.impl = std::shared_ptr<CONTROL_IMPL>(IMPL.clone()); \
+    resourceManager.findWindow(impl->getParentHwnd())->registerControl(result.impl); \
+    return std::move(result); \
 }
 

@@ -31,7 +31,8 @@ void ResourceManager::processMessages()
 		    handleTopLevelWindowMessages(msg.hwnd,msg.message,msg.wParam,msg.lParam);
 			TRACE_M("AppProc -> CONTROL! hWnd = " << msg.hwnd << " message = " << windowsMessageToString(msg.message));
 			if( native->processMessage(msg.message,msg.wParam,msg.lParam) ) {
-                TRACE_M("AppProc HANDLED -> CONTROL processMessage! hWnd = " << msg.hwnd << " message = " << windowsMessageToString(msg.message));
+                TRACE_M("AppProc HANDLED -> CONTROL processMessage! hWnd = " << msg.hwnd << 
+                        " message = " << windowsMessageToString(msg.message));
             }
 		}
 
@@ -67,9 +68,11 @@ void ResourceManager::handleTopLevelWindowMessages(HWND hWnd, UINT message, WPAR
 		case WM_KEYDOWN:
 		case WM_KEYUP:
 		case WM_CHAR:
-			TRACE_M("handleTopLevelWindowMessages -> child handle = " << hWnd << " message = " << windowsMessageToString(message));
+			TRACE_M("handleTopLevelWindowMessages -> child handle = " << hWnd << 
+                    " message = " << windowsMessageToString(message));
 		    if( auto windowImpl = getTopLevelWindow(hWnd) ) {
-                TRACE_M("handleTopLevelWindowMessages -> PARENT WINDOW! hWnd = " << windowImpl->hWnd << " message = " << windowsMessageToString(message));
+                TRACE_M("handleTopLevelWindowMessages -> PARENT WINDOW! hWnd = " << windowImpl->hWnd << 
+                        " message = " << windowsMessageToString(message));
                 windowImpl->processMessage(message,wParam,lParam);
 		    }
         break;
@@ -83,25 +86,35 @@ std::shared_ptr<NativeControlImpl> ResourceManager::getTopLevelWindow(HWND hWnd)
     return findWindow(parentHWnd);
 }
 
-void ResourceManager::registerWindow(std::shared_ptr<WindowImpl> window) {
+void ResourceManager::registerWindow(std::shared_ptr<WindowImpl> window)
+{
 	windowMap[window->hWnd] = window;
 }
 
-void ResourceManager::registerControl(std::shared_ptr<NativeControlImpl> control) {
+void ResourceManager::registerControl(std::shared_ptr<NativeControlImpl> control)
+{
 	controlMap[control->hWnd] = control;
 }
 
-std::shared_ptr<WindowImpl> ResourceManager::findWindow(HWND hWnd) {
+void ResourceManager::unregisterControl(std::shared_ptr<NativeControlImpl> control)
+{
+    controlMap.erase(control->hWnd);
+}
+
+std::shared_ptr<WindowImpl> ResourceManager::findWindow(HWND hWnd)
+{
 	auto it = windowMap.find(hWnd);
 	return it == windowMap.end() ? nullWindow : it->second;
 }
 
-std::shared_ptr<NativeControlImpl> ResourceManager::findControl(HWND hWnd) {
+std::shared_ptr<NativeControlImpl> ResourceManager::findControl(HWND hWnd)
+{
 	auto it = controlMap.find(hWnd); 
     return it == controlMap.end() ? nullControl : it->second;
 }
 
-std::shared_ptr<NativeControlImpl> ResourceManager::findControlOrWindow(HWND hWnd) {
+std::shared_ptr<NativeControlImpl> ResourceManager::findControlOrWindow(HWND hWnd)
+{
     if( auto result = findWindow(hWnd) ) return result;
     return findControl(hWnd);
 }

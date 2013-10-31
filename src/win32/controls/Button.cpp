@@ -7,5 +7,6 @@
 namespace tk {
     
 CONSTRUCTOR_IMPL(Button);
+CLONE_IMPL(Button);
 
 }

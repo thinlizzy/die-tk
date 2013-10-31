@@ -9,7 +9,9 @@ namespace tk {
 class ButtonImpl: public ButtonBaseImpl {
 	WDims getDimsByText(WDims dims);
 public:
-	ButtonImpl(Window & parent, ControlParams const & params);
+	ButtonImpl(HWND parentHwnd, ControlParams const & params);
+    
+    virtual ButtonImpl * clone() const;
 
 	virtual void setDims(WDims dims);
 };

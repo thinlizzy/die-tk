@@ -13,8 +13,10 @@ class ComboBoxImpl: public NativeControlImpl {
     int nVisibleItems;
     std::vector<die::NativeString> items;
 public:
-	ComboBoxImpl(Window & parent, ControlParams const & params);
+	ComboBoxImpl(HWND parentHwnd, ControlParams const & params);
     virtual ~ComboBoxImpl();
+
+    virtual ComboBoxImpl * clone() const;
 
 	void addString(die::NativeString const & str);
 	die::NativeString getString(int index) const;

@@ -9,6 +9,7 @@ class CheckBox: public ButtonBase {
 public:
     CheckBox() = default;
     CheckBox(Window & parent, ControlParams const & params = ControlParams());    
+    CheckBox clone() const;
 	bool checked() const;
 	void check(bool state);
 	void setAutosize(bool autosize);

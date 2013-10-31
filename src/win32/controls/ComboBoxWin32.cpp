@@ -1,7 +1,7 @@
 #include "ComboBoxWin32.h"
-
 #include "../ScopedObjects.h"
 #include "../CallbackUtils.h"
+#include "../../util/make_unique.h"
 
 namespace tk {
 
@@ -18,8 +18,8 @@ ControlParams chkComboDefaults(ControlParams params)
 	return params;
 }
 
-ComboBoxImpl::ComboBoxImpl(Window & parent, ControlParams const & params):
-    NativeControlImpl(parent,chkComboDefaults(params),L"combobox",CBS_DROPDOWNLIST | WS_VSCROLL | CBS_HASSTRINGS),
+ComboBoxImpl::ComboBoxImpl(HWND parentHwnd, ControlParams const & params):
+    NativeControlImpl(parentHwnd,chkComboDefaults(params),L"combobox",CBS_DROPDOWNLIST | WS_VSCROLL | CBS_HASSTRINGS),
     nVisibleItems(10)
 {
     editBoxHeight = rect_.dims().height;
@@ -29,6 +29,16 @@ ComboBoxImpl::ComboBoxImpl(Window & parent, ControlParams const & params):
 ComboBoxImpl::~ComboBoxImpl()
 {
     removeFromCb(this,cbChange);
+}
+
+ComboBoxImpl * ComboBoxImpl::clone() const
+{
+    auto result = make_unique<ComboBoxImpl>(getParentHwnd(),getControlData());
+    for( auto & item : items ) {
+        result->addString(item);
+    }
+    result->setVisibleItems(visibleItems());
+    return result.release();
 }
 
 void ComboBoxImpl::addString(die::NativeString const & str)

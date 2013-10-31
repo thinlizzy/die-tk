@@ -7,6 +7,7 @@
 namespace tk {
 
 CONSTRUCTOR_IMPL(CheckBox);
+CLONE_IMPL(CheckBox);
     
 bool CheckBox::checked() const
 {
