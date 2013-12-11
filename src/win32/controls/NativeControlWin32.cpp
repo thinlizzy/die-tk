@@ -57,8 +57,7 @@ NativeControlImpl::NativeControlImpl():
 // parent.getImpl().hWnd
 NativeControlImpl::NativeControlImpl(HWND parentHwnd, ControlParams const & params, wchar_t const classname[], DWORD style):
     cursor(cur_default),
-    backgroundColor(RGBColor()),
-    rect_(Rect::closed(params.start_,params.dims_))
+    backgroundColor(RGBColor())
 {
     hWnd = CreateWindowW(classname, NULL,
         WS_CHILD | WS_CLIPSIBLINGS |
@@ -93,24 +92,26 @@ Canvas & NativeControlImpl::canvas()
 
 Rect NativeControlImpl::rect() const
 {
-    return rect_;
+    RECT rc;
+    GetClientRect(hWnd,&rc);
+    MapWindowPoints(hWnd,GetParent(hWnd),(LPPOINT)&rc,2);
+    Rect result = convertRect(rc);    
+    // log::info("rect ",result);
+    return result;
 }
 
 void NativeControlImpl::setPos(Point pos)
 {
     SetWindowPos(hWnd,0,pos.x,pos.y,0,0,SWP_NOSIZE | SWP_NOZORDER);
-    rect_ = rect().move(pos);
 }
 
 void NativeControlImpl::setDims(WDims dims)
 {
     SetWindowPos(hWnd,0,0,0,dims.width,dims.height,SWP_NOMOVE | SWP_NOZORDER);
-    rect_ = rect().resize(dims);
 }
 
 void NativeControlImpl::setRect(Rect rect)
 {
-    rect_ = rect;
     SetWindowPos(hWnd,0,rect.left,rect.top,rect.dims().width,rect.dims().height,SWP_NOZORDER);
 }
 

@@ -5,7 +5,7 @@ namespace tk {
 ImageList::Index addFile(ImageList & imageList, char const * filename)
 {
     img::Image image(filename);
-    return imageList.add(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()));
+    return imageList.add(toImageRef(image));
 }
 
 ImageList::Index addFile(ImageList & imageList, std::string const & filename)
@@ -15,7 +15,12 @@ ImageList::Index addFile(ImageList & imageList, std::string const & filename)
 
 void drawImage(Canvas & canvas, img::Image const & image, Point start)
 {
-    canvas.drawImage(ImageRef::native(image.getWindowSystemHeader(),image.rawBits()),start);
+    canvas.drawImage(toImageRef(image),start);
+}
+
+ImageRef toImageRef(img::Image const & image)
+{
+    return ImageRef::native(image.getWindowSystemHeader(),image.rawBits());
 }
 
 }

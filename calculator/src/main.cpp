@@ -1,10 +1,13 @@
 #include "../../die-tk.h"
 #include "calculator.h"
+#include <fstream>
 
 using namespace std;
 using namespace tk;
 
-// TODO add menu with some options like save history to file or copy number to clipboard or about dialog
+// TODO add menu with copy number to clipboard
+
+bool saveFile(die::NativeString const & filename, die::NativeString const & text);
 
 int main(int argc, char** argv)
 {
@@ -12,6 +15,8 @@ int main(int argc, char** argv)
     int const dist = 10;
     int const dim = 20;
     int const tdist = dist + dim;
+
+    Application app;
         
     Calculator calculator;
     
@@ -35,6 +40,29 @@ int main(int argc, char** argv)
     history.setReadOnly(true);
     history.setTextAlign(hta_right);
 
+    Menu menu;
+    auto fileIt = menu.root().addItem(L"File");
+    fileIt->addItem("Save History")->onClick([&](){
+        auto filenames = calc.selectFile(SelectFile::save,SelectFileParams().
+                            filter("*.txt").title("save history as")
+                        );
+        if( filenames.empty() ) return;
+        
+        if( saveFile(filenames[0],history.getText()) ) {
+            app.showMessage("history file saved successfully");
+        } else {
+            app.showMessage("failed to save history file");                
+        }
+    });
+    auto clipIt = menu.root().addItem(L"Edit");
+    clipIt->addItem("copy");
+    clipIt->addItem("paste");
+    auto helpIt = menu.root().addItem(L"Help");
+    helpIt->addItem("about")->onClick([&](){ app.showMessage("by Diego Martins\njose.diego@gmail.com"); });
+    menu.attach(calc);
+    
+    calc.setDims(calc.dims().addHeight(30)); // to compensate for the menu bar
+    
     vector<Button> numbers;
     vector<Button> operations;
     {
@@ -149,7 +177,6 @@ int main(int argc, char** argv)
     }
     
     
-    Application app;
     // process application messages until closing the calc window
     while( calc.visible() ) {
         app.waitForMessages();
@@ -159,3 +186,12 @@ int main(int argc, char** argv)
     return 0;
 }
 
+bool saveFile(die::NativeString const & filename, die::NativeString const & text)
+{
+    // may not work with unicode filenames. use FileStreamWrapper on fileutils lib, instead
+    std::ofstream file(filename.toUTF8());
+    if( ! file ) return false;
+    
+    auto textStr = text.toUTF8();
+    return file.write(&textStr[0],textStr.size());
+}

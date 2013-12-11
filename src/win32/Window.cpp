@@ -27,6 +27,11 @@ void Window::remove(Control & control)
     control.impl.reset();
 }
 
+std::shared_ptr<WindowImpl> Window::getImplPtr()
+{
+    return std::static_pointer_cast<tk::WindowImpl>(impl);
+}
+
 WindowImpl & Window::getImpl()
 {
     return static_cast<tk::WindowImpl &>(*impl);
@@ -35,6 +40,11 @@ WindowImpl & Window::getImpl()
 int Window::state()
 {
     return getImpl().state();
+}
+
+std::vector<die::NativeString> Window::selectFile(SelectFile operation, SelectFileParams const & params)
+{
+    return getImpl().selectFile(operation,params);
 }
 
 AllowOperation Window::onClose(AllowOperation callback)

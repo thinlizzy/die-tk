@@ -321,15 +321,13 @@ int convertPenStyle(PenStyle style)
     }
 }
 
-
-NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims dim)
+BITMAPINFO createBitmapInfoWithHeight(int height)
 {
-    NativeBitmap result;
-
-	ZeroMemory(&result.info,sizeof(BITMAPINFO));
-	BITMAPINFOHEADER & bHead = result.info.bmiHeader;
+    BITMAPINFO info;
+	ZeroMemory(&info,sizeof(BITMAPINFO));
+	BITMAPINFOHEADER & bHead = info.bmiHeader;
 	bHead.biSize = sizeof(BITMAPINFOHEADER);
-	bHead.biHeight = -dim.height;					// -height to invert the image!!!
+	bHead.biHeight = height;
 	bHead.biPlanes = 1;
 	bHead.biBitCount = 24;
 	bHead.biCompression = BI_RGB;
@@ -338,7 +336,11 @@ NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims
 	bHead.biYPelsPerMeter = 0;
 	bHead.biClrUsed = 0;
 	bHead.biClrImportant = 0;
+    return info;
+}
 
+NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims dim)
+{
 	// ensure alignment (slow) -- The scan lines must be aligned on a DWORD except for RLE-compressed bitmaps.
 	std::vector<unsigned char> alignBuf;
     auto bpp = type == it_gray ? 1 : 3;
@@ -355,10 +357,11 @@ NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims
 		}
 	}
 
-	bHead.biWidth = normDim.width;
+    NativeBitmap result;
+    result.info = createBitmapInfoWithHeight(-dim.height); // -height to invert the image!!!
+	result.info.bmiHeader.biWidth = normDim.width;
 
-	// convert to BGR
-
+	// convert to BGR if required
 	switch(type) {
 		case it_BGR:			// native GDI format
 			result.imageBuffer.swap(alignBuf);
@@ -400,6 +403,22 @@ scoped::Bitmap ihToBitmap(ImageRef ih)
         hBitmap = CreateDIBitmap(GetDC(NULL),&nb.info.bmiHeader,CBM_INIT,ih.buffer,&nb.info,DIB_RGB_COLORS);
     }
     return scoped::Bitmap(hBitmap);
+}
+
+// TODO test with DDBs (and expand/fix it if needed)
+NativeBitmap extractBitmap(HBITMAP hBitmap)
+{
+    BITMAP bitmap;
+    GetObject(hBitmap,sizeof(BITMAP),&bitmap);
+    NativeBitmap result;    
+    result.info = createBitmapInfoWithHeight(bitmap.bmHeight); // -height ?
+	result.info.bmiHeader.biWidth = bitmap.bmWidth;
+    result.imageBuffer.resize(bitmap.bmWidthBytes * bitmap.bmHeight);
+    if( GetDIBits(GetDC(NULL),hBitmap,0,bitmap.bmHeight,result.imageBuffer.data(),&result.info,DIB_RGB_COLORS) == 0 ) {
+        throw std::invalid_argument("couldn't extract the image from the bitmap");
+    }
+    
+    return result;
 }
 
 }

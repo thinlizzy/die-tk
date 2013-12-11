@@ -69,7 +69,7 @@ public:
 	}
 
     ~ScopedHandle() {
-		release();
+		dispose();
 	}
     
 	ScopedHandle & operator=(ScopedHandle && temp)
@@ -80,7 +80,7 @@ public:
 	}
 
 	void reset(H h = 0) {
-		release();
+		dispose();
 		this->h = h;
 	}
 
@@ -88,11 +88,17 @@ public:
 		return h;
 	}
     
+	H release() {
+		H result = h;
+        h = 0;
+        return result;
+	}
+    
     explicit operator bool() const {
         return h != 0;
     }
 private:
-	void release() {
+	void dispose() {
 		if( h == 0 ) return;
 		Deleter()(h);
 		h = 0;

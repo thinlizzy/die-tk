@@ -1,7 +1,6 @@
 #ifndef TREEVIEW_H_hfdh43529jfgjk3432gf0sdj
 #define TREEVIEW_H_hfdh43529jfgjk3432gf0sdj
 
-#include <string>
 #include <iterator>
 #include <memory>
 #include <functional>

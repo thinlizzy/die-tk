@@ -22,7 +22,7 @@ ComboBoxImpl::ComboBoxImpl(HWND parentHwnd, ControlParams const & params):
     NativeControlImpl(parentHwnd,chkComboDefaults(params),L"combobox",CBS_DROPDOWNLIST | WS_VSCROLL | CBS_HASSTRINGS),
     nVisibleItems(10)
 {
-    editBoxHeight = rect_.dims().height;
+    editBoxHeight = params.dims_.height;
     adjustHeight();
 }
 
@@ -99,12 +99,12 @@ int ComboBoxImpl::itemsHeight() const
 
 void ComboBoxImpl::adjustHeight()
 {
-    NativeControlImpl::setDims(rect_.dims().setHeight(editBoxHeight + itemsHeight()));
+    NativeControlImpl::setDims(NativeControlImpl::rect().dims().setHeight(editBoxHeight + itemsHeight()));
 }
 
 Rect ComboBoxImpl::rect() const
 {
-    Rect res = rect_;
+    Rect res = NativeControlImpl::rect();
     res.bottom -= itemsHeight();
     return res;
 }

@@ -43,6 +43,8 @@ NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims
 
 scoped::Bitmap ihToBitmap(ImageRef ih);
 
+NativeBitmap extractBitmap(HBITMAP hBitmap);
+
 }
 
 #endif

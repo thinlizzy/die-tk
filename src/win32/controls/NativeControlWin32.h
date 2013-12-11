@@ -20,7 +20,6 @@ private:
    	RGBColor backgroundColor;
     bool trackingMouse;
 protected:
-	Rect rect_;
 	CanvasImplWin canvasImpl;
 
 	NativeControlImpl();
@@ -53,8 +52,8 @@ public:
 	void disable();
 
 	bool visible() const;
-	void show();
-	void hide();
+	virtual void show();
+	virtual void hide();
 	void bringToFront();
 	void sendToBack();
 
