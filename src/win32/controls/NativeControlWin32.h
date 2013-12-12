@@ -47,6 +47,8 @@ public:
 	virtual die::NativeString getText() const;
 	virtual void setText(die::NativeString const & text);
     
+    virtual ClipboardType copyToClipboard() const;
+    
 	bool enabled() const;
 	void enable();
 	void disable();

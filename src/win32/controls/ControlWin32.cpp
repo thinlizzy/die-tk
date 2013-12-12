@@ -110,6 +110,11 @@ Control & Control::setText(die::NativeString const & text)
     return *this;
 }
 
+ClipboardType Control::copyToClipboard() const
+{
+    return impl->copyToClipboard();
+}
+
 WindowRef Control::getParent() const
 {
     return WindowRef(resourceManager.findWindow(impl->getParentHwnd()));

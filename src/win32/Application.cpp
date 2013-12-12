@@ -8,7 +8,7 @@
 #include "ResourceManager.h"
 #include "ConvertersWin32.h"
 
-#include "../trace.h"
+#include "../log.h"
 
 namespace tk {
 
@@ -72,6 +72,29 @@ Point Application::getCursorPos() const
 void Application::showMessage(die::NativeString const & message)
 {
     MessageBoxW(NULL, message.wstr.c_str(), L"Alert", MB_OK | MB_ICONINFORMATION);
+}
+
+die::NativeString Application::getClipboardText()
+{
+    die::NativeString result;
+    if( ! IsClipboardFormatAvailable(CF_UNICODETEXT) ) return result;
+        
+    if( ! OpenClipboard(NULL) ) {
+        log::error("OpenClipboard failed");
+        return result;
+    }
+    
+    HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
+    if( hglb != NULL ) {
+        auto lptstr = reinterpret_cast<wchar_t *>(GlobalLock(hglb));
+        if( lptstr != NULL ) {
+            result.wstr = lptstr;
+            GlobalUnlock(hglb); 
+        }
+    }
+    
+    CloseClipboard();
+    return result;
 }
 
 }

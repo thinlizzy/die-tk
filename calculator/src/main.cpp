@@ -55,8 +55,15 @@ int main(int argc, char** argv)
         }
     });
     auto clipIt = menu.root().addItem(L"Edit");
-    clipIt->addItem("copy");
-    clipIt->addItem("paste");
+    clipIt->addItem("copy")->onClick([&](){ edit.copyToClipboard(); });
+    clipIt->addItem("paste")->onClick([&](){
+        auto clipText = app.getClipboardText();
+        if( ! clipText.empty() ) {
+            // TODO replace below with a for each on chars and calls to addDigit()
+            history.lines().add(L"PASTED");
+            history.lines().add(clipText);
+        }
+    });
     auto helpIt = menu.root().addItem(L"Help");
     helpIt->addItem("about")->onClick([&](){ app.showMessage("by Diego Martins\njose.diego@gmail.com"); });
     menu.attach(calc);

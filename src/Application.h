@@ -14,9 +14,11 @@ public:
 
     void showConsole();
 
+    void showMessage(die::NativeString const & message);
+    
     Point getCursorPos() const;
     
-    void showMessage(die::NativeString const & message);
+    die::NativeString getClipboardText();
 };
 
 }

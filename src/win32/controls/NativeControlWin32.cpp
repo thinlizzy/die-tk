@@ -160,6 +160,39 @@ void NativeControlImpl::setText(die::NativeString const & text)
     SetWindowTextW(hWnd,text.wstr.c_str());
 }
 
+ClipboardType NativeControlImpl::copyToClipboard() const
+{
+    ClipboardType result = ClipboardType::nothing;
+    auto len = GetWindowTextLengthW(hWnd);
+    if( len == 0 ) return result;
+    
+    if( ! OpenClipboard(hWnd) ) {
+        log::error("OpenClipboard failed for hWnd ",hWnd);
+        return result;
+    }
+    
+    if( EmptyClipboard() ) {
+        HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, (len+1) * sizeof(wchar_t));
+        if( hglbCopy != NULL ) {
+            auto lptstrCopy = reinterpret_cast<wchar_t *>(GlobalLock(hglbCopy));
+            GetWindowTextW(hWnd,lptstrCopy,len+1);
+            GlobalUnlock(hglbCopy); 
+            
+            if( SetClipboardData(CF_UNICODETEXT,hglbCopy) != NULL ) {
+                result = ClipboardType::text;
+            } else {
+                log::error("SetClipboardData failed for hWnd ",hWnd);
+            }
+        }
+    } else {
+        log::error("EmptyClipboard failed for hWnd ",hWnd);
+    }
+    
+    CloseClipboard();
+    return result;
+}
+
+
 die::NativeString NativeControlImpl::getText() const
 {
     auto len = GetWindowTextLengthW(hWnd);
