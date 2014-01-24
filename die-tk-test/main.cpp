@@ -37,6 +37,38 @@ void showWindows()
         return false;
     });
     
+    img::Image image("images/DIEGO1.jpg");
+    img::Image imageBug("images/bug.png");
+    auto imgBugBmp = image::create(image::Params(imageBug.getWindowSystemHeader(),imageBug.rawBits()));
+    auto imgBugExt = image::create(image::Params(imageBug.getWindowSystemHeader(),imageBug.rawBits()).externalBuffer().forceNoTransparent());
+    auto imgRaw = image::create(image::Params(image::Type::BGR,WDims(630,418),image.rawBits()));
+    auto imgRawExt = image::create(image::Params(image::Type::BGR,WDims(630,418),image.rawBits()).externalBuffer());
+    auto imgBugTransp = image::create(image::Params(imageBug.getWindowSystemHeader(),imageBug.rawBits()).transparentIndex(imageBug.getTransparentColor()));
+    img::Image imageX("images/x.png");
+    auto imgX = image::create(image::Params(imageX.getWindowSystemHeader(),imageX.rawBits()));
+    
+    image::Byte rgbbuffer[] = {
+        255,255,255, 255,255,255, 255,255,255, 0,255,255, 255,255,255, 255,255,255, 255,255,255, 
+        255,0,255, 255,255,255, 255,255,255, 0,255,255, 255,255,255, 255,255,255, 255,255,255, 
+        0,255,255, 255,255,255, 255,255,255, 0,255,255, 255,255,255, 255,255,255, 255,255,255, 
+        255,255,0, 255,255,255, 255,255,255, 0,255,255, 255,255,255, 255,255,255, 255,255,255, 
+        0,255,255, 255,255,255, 255,255,255, 255,255,255, 255,255,255, 255,255,255, 255,255,255, 
+        255,0,255, 255,255,255, 255,255,255, 255,255,255, 255,0,0,   255,0,0,     255,0,0,     
+        255,255,0, 255,255,255, 255,255,255, 255,255,255, 255,255,255, 255,255,255, 255,255,255, 
+        255,255,255, 255,255,255, 255,255,255, 255,255,255, 255,255,255, 255,255,255, 255,255,255, 
+    };
+    image::Byte graybuffer[] = {
+           0, 255, 255, 255, 255, 255, 255,   0,
+         255, 200, 200, 200, 200, 200, 200, 255,
+         255, 200, 100, 200, 200, 100, 200, 255,
+         255, 120, 200, 120, 120, 200, 120, 255,
+         255, 120, 200, 120, 120, 200, 120, 255,
+         255, 200, 120, 200, 200, 120, 200, 255,
+         255, 200, 200, 120, 120, 200, 200, 255,
+           0, 255, 255, 255, 255, 255, 255,   0,
+    };
+    auto imgRgb = image::create(image::Params(image::Type::RGB,WDims(7,8),rgbbuffer));
+    auto imgGray = image::create(image::Params(image::Type::gray,WDims(8,8),graybuffer));
     
     Menu menu;
     auto firstItemIt = menu.root().addItem("First Option");
@@ -51,20 +83,43 @@ void showWindows()
     subMenu2->addItem("3");
     subMenu2->addItem("4")->onClick([&](){ app.showMessage("laaaaaaaast item"); });
     firstItemIt->onClick([&](){ app.showMessage("first item"); });
+    
+    img::Image imageGhost("images/ghost0.png");
     auto fourthItemIt = menu.root().addItem("Images");
-    img::Image imageBug("images/bug.png");
-    fourthItemIt->addItem(toImageRef(imageBug));
-    fourthItemIt->addItem(toImageRef(img::Image("images/ghost0.png")));
-    fourthItemIt->addItem(toImageRef(img::Image("images/ladyBugLeft.png")));
+    fourthItemIt->addItem(toImage(imageGhost));
+    fourthItemIt->addItem(toImageExt(img::Image("images/bubble.png")));
+    fourthItemIt->addItem(toImageExt(imageBug));
+    fourthItemIt->addItem(imgBugExt);
+    fourthItemIt->addItem(toImage(img::Image("images/ladyBugLeft.png")));
     menu.attach(window1);
     
     printAllItems(std::cout,menu.root()) << std::endl;
 
-    window1.canvas().setBrush(tk::RGBColor(0,100,0));
-    window1.canvas().setPen(tk::RGBColor(0,100,0));
-    window1.onPaint([&](Canvas & canvas, Rect rect) {
+    window2.canvas().setBrush(tk::RGBColor(0,100,0));
+    window2.canvas().setPen(tk::RGBColor(0,100,0));    
+    window2.onPaint([&](Canvas & canvas, Rect rect) {
         canvas.fillRect(rect);
-        drawImage(canvas,imageBug,Point(20,50));
+        imgRaw->drawInto(canvas,Point(500,480));
+        imgRawExt->drawInto(canvas,Point(600,520));
+        
+        imgBugExt->drawInto(canvas,Point(20,400));
+        imgBugExt->drawInto(canvas,Rect(60,400,110,450));
+        imgBugBmp->drawInto(canvas,Point(20,440));
+        imgBugBmp->drawInto(canvas,Rect(60,460,110,510));
+        imgRgb->drawInto(canvas,Point(20,480));
+        imgGray->drawInto(canvas,Point(20,490));
+        imgRgb->drawInto(canvas,Rect(20,520,75,575));
+        imgGray->drawInto(canvas,Rect(20,580,83,643));
+        
+        imgBugTransp->drawInto(canvas,Rect(120,400,160,432));
+        imgBugTransp->drawInto(canvas,Point(120,400));
+        imgX->drawInto(canvas,Point(120,440));
+        imgX->drawInto(canvas,Rect(130,440,161,471));
+        
+        auto it = menu.root().begin();
+        std::advance(it,3);
+        auto itsub = it->begin();
+        itsub->getProperties().image->drawInto(canvas,Point(165,440));
     });
     
     die::NativeString savedFilename;
@@ -104,8 +159,6 @@ void showWindows()
     });
 
     
-    img::Image image("images/DIEGO1.jpg");
-
     PaintBox paintboxG(window2,ControlParams().start(window2.width()/2,window2.height()/2).dims(100,100));
     paintboxG.setBackground(tk::RGBColor(200,100,0));
 
@@ -241,7 +294,7 @@ void showWindows()
 
     PaintBox imagepb(window1,ControlParams().start(500,500).dims(200,200));
     imagepb.onPaint([&](Canvas & canvas, Rect rect) {
-        canvas.drawImage(toImageRef(image));
+        toImageExt(image)->drawInto(canvas,imagepb.rect().move(Point()));
     });
 
 
@@ -255,7 +308,13 @@ std::ostream & printAllItems(std::ostream & os, tk::MenuItem const & item, int l
 {
     int i = 0;
     for( auto const & menuItem : item ) {
-        os << level << "," << i++ << ") " << menuItem.getProperties().text << " ";
+        os << level << "," << i++ << ") ";
+        auto const & prop = menuItem.getProperties();
+        if( prop.hasImage() ) {
+            os << "image dims " << prop.image->dims() << " ";
+        } else {
+            os << prop.text << " ";
+        }
         printAllItems(os,menuItem,level+1);
     }
     return os;

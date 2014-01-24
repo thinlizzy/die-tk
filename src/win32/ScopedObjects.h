@@ -2,33 +2,11 @@
 #define SCOPED_OBJECTS_H_jf43333333kfg
 
 #include <windows.h>
+#include <utility>
 
 namespace tk {
 
 namespace scoped {
-
-class DC {
-	HWND hWnd;
-public:
-	HDC hdc;
-
-	DC(HWND hWnd):
-		hWnd(hWnd),
-		hdc(GetDC(hWnd))
-	{}
-
-	DC(DC && temp):
-		hWnd(temp.hWnd),
-		hdc(temp.hdc)
-	{
-		temp.hdc = 0;
-	}
-
-	~DC() {
-		if( hdc == 0 ) return;
-		ReleaseDC(hWnd,hdc);
-	}
-};
 
 inline PAINTSTRUCT BeginPaint2(HWND hWnd) { PAINTSTRUCT ps; BeginPaint(hWnd,&ps); return ps; }
 
@@ -56,6 +34,94 @@ public:
 	}
 };
 
+class DC {
+	HWND hWnd;
+public:
+	HDC hdc;
+
+	DC(HWND hWnd):
+		hWnd(hWnd),
+		hdc(GetDC(hWnd))
+	{}
+
+	DC(DC && temp):
+		hWnd(temp.hWnd),
+		hdc(temp.hdc)
+	{
+		temp.hdc = 0;
+	}
+    
+    DC & operator=(DC other)
+    {
+        swap(other);
+        return *this;
+    }
+    
+    void swap(DC & other)
+    {
+        std::swap(hdc,other.hdc);
+        std::swap(hWnd,other.hWnd);
+    }
+
+	~DC() {
+		if( hdc == 0 ) return;
+		ReleaseDC(hWnd,hdc);
+	}
+};
+
+class BitmapDC {
+    HGDIOBJ old;
+public:
+    HDC hdc;
+    HBITMAP hbmp;
+    
+    BitmapDC(HDC hdc_, HBITMAP hbmp):
+        hdc(CreateCompatibleDC(hdc_)),
+        hbmp(hbmp)
+    {
+    }
+    
+    BitmapDC(BitmapDC && other):
+        old(other.old),
+        hdc(other.hdc),
+        hbmp(other.hbmp)
+    {
+        other.hdc = 0;
+    }
+    
+    BitmapDC & operator=(BitmapDC other)
+    {
+        swap(other);
+        return *this;
+    }
+    
+    void swap(BitmapDC & other)
+    {
+        std::swap(hdc,other.hdc);
+        std::swap(hbmp,other.hbmp);
+        std::swap(old,other.old);
+    }
+    
+    // TODO return a guard object to unselect
+    void select()
+    {
+        old = SelectObject(hdc,hbmp);
+    }
+        
+    void unselect()
+    {
+        SelectObject(hdc,old);
+    }
+        
+    virtual ~BitmapDC()
+    {
+        if( hdc == 0 ) return;
+
+        DeleteObject(hbmp);
+        DeleteDC(hdc);    
+    }
+};
+
 template<typename H, typename Deleter>
 class ScopedHandle {
 	H h;
@@ -72,12 +138,16 @@ public:
 		dispose();
 	}
     
-	ScopedHandle & operator=(ScopedHandle && temp)
+	ScopedHandle & operator=(ScopedHandle other)
 	{
-        h = temp.h;
-        temp.h = 0;
-	    return *this;
+        swap(other);
+        return *this;
 	}
+
+    void swap(ScopedHandle & other)
+    {
+        std::swap(h,other.h);
+    }
 
 	void reset(H h = 0) {
 		dispose();
@@ -114,7 +184,12 @@ typedef ScopedHandle<HBITMAP,DeleterObject> Bitmap;
 
 typedef ScopedHandle<HBRUSH,DeleterObject> Brush;
 
-typedef ScopedHandle<HDC,scoped::DeleterObject> TemporaryDC;
+class DeleterCompatDC {
+public:
+    void operator()(HDC hdc) { DeleteDC(hdc); }
+};
+
+typedef ScopedHandle<HDC,scoped::DeleterCompatDC> CompatibleDC;
 
 }
 

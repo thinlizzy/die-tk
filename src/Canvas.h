@@ -27,9 +27,6 @@ public:
 	virtual void rectangle(Rect const & rect) = 0;
 	virtual void fillRect(Rect const & openrect) = 0;
 
-	virtual void drawImage(ImageRef ih, Point start = Point()) = 0;
-	virtual void drawImage(ImageRef ih, Rect destrect) = 0;
-
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) = 0;
     virtual WDims measureText(die::NativeString const & text) = 0;
 };

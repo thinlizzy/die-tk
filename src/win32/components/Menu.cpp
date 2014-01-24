@@ -58,9 +58,9 @@ void MenuItem::setText(die::NativeString const & text)
     itemImpl->setText(text);
 }
 
-void MenuItem::setImage(ImageRef ih)
+void MenuItem::setImage(image::Ptr img)
 {
-    itemImpl->setImage(ih);
+    itemImpl->setImage(img);
 }
 
 MenuItemIterator MenuItem::begin()

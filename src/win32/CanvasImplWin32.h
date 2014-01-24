@@ -36,14 +36,6 @@ public:
 
 	void fillRect(RECT rect);
 
-	virtual void drawImage(ImageRef ih, Point start);
-	virtual void drawImage(ImageRef ih, Rect destrect);
-
-    void drawImage(Point dest, unsigned char const buffer[], BITMAPINFO * info);
-    void drawImage(Rect const & destrect, unsigned char const buffer[], BITMAPINFO * info);
-    void drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim);
-    void drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim, WDims dest);
-
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params);
     virtual WDims measureText(die::NativeString const & text);
 

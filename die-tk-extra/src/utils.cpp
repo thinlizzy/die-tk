@@ -5,7 +5,7 @@ namespace tk {
 ImageList::Index addFile(ImageList & imageList, char const * filename)
 {
     img::Image image(filename);
-    return imageList.add(toImageRef(image));
+    return imageList.add(toImageExt(image));
 }
 
 ImageList::Index addFile(ImageList & imageList, std::string const & filename)
@@ -13,14 +13,14 @@ ImageList::Index addFile(ImageList & imageList, std::string const & filename)
     return addFile(imageList,filename.c_str());
 }
 
-void drawImage(Canvas & canvas, img::Image const & image, Point start)
+image::Ptr toImage(img::Image const & image)
 {
-    canvas.drawImage(toImageRef(image),start);
+    return image::create(image::Params(image.getWindowSystemHeader(),image.rawBits()).transparentIndex(image.getTransparentColor()));
 }
 
-ImageRef toImageRef(img::Image const & image)
+image::Ptr toImageExt(img::Image const & image)
 {
-    return ImageRef::native(image.getWindowSystemHeader(),image.rawBits());
+    return image::create(image::Params(image.getWindowSystemHeader(),image.rawBits()).externalBuffer().forceNoTransparent());
 }
 
 }

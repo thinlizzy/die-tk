@@ -3,6 +3,7 @@
 #include "../ScopedObjects.h"
 #include "../CanvasImplWin32.h"
 #include "../../log.h"
+#include "ImageWin32.h"
 
 namespace tk {
 
@@ -20,20 +21,34 @@ ImageListImpl::~ImageListImpl()
     }
 }
 
-ImageList::Index ImageListImpl::add(ImageRef ih)
+ImageList::Index ImageListImpl::add(image::Ptr img)
 {
-    scoped::Bitmap bmImage(ihToBitmap(ih));
-    int result = ImageList_Add(himl,bmImage.get(),0);
+    auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(img);
+    if( ! imgImpl ) {
+        log::error("invalid image for ImageList::add");
+        return -1;
+    }
+    
+    HBITMAP bmImage = imgImpl->getOrCreateHbitmap();
+    int result = ImageList_Add(himl,bmImage,0);
+    imgImpl->releaseIfCreated(bmImage);    
     if( result == -1 ) {
         log::error("failure to add image into imagelist with hWnd ",himl);
     }
     return result;
 }
 
-void ImageListImpl::replace(ImageRef ih, ImageList::Index index)
+void ImageListImpl::replace(image::Ptr img, ImageList::Index index)
 {
-    scoped::Bitmap bmImage(ihToBitmap(ih));
-    BOOL result = ImageList_Replace(himl,index,bmImage.get(),0);
+    auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(img);    
+    if( ! imgImpl ) {
+        log::error("invalid image for ImageList::replace");
+        return;
+    }
+    
+    HBITMAP bmImage = imgImpl->getOrCreateHbitmap();
+    BOOL result = ImageList_Replace(himl,index,bmImage,0);
+    imgImpl->releaseIfCreated(bmImage);    
     if( result == 0 ) {
         log::error("failure to replace image ",index," into imagelist with hWnd ",himl);
     }

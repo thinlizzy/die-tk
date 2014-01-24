@@ -321,104 +321,23 @@ int convertPenStyle(PenStyle style)
     }
 }
 
-BITMAPINFO createBitmapInfoWithHeight(int height)
+std::ostream & logBitmapInfo(std::ostream & os, BITMAPINFOHEADER const & bh)
 {
-    BITMAPINFO info;
-	ZeroMemory(&info,sizeof(BITMAPINFO));
-	BITMAPINFOHEADER & bHead = info.bmiHeader;
-	bHead.biSize = sizeof(BITMAPINFOHEADER);
-	bHead.biHeight = height;
-	bHead.biPlanes = 1;
-	bHead.biBitCount = 24;
-	bHead.biCompression = BI_RGB;
-	bHead.biSizeImage = 0;
-	bHead.biXPelsPerMeter = 0;
-	bHead.biYPelsPerMeter = 0;
-	bHead.biClrUsed = 0;
-	bHead.biClrImportant = 0;
-    return info;
-}
-
-NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims dim)
-{
-	// ensure alignment (slow) -- The scan lines must be aligned on a DWORD except for RLE-compressed bitmaps.
-	std::vector<unsigned char> alignBuf;
-    auto bpp = type == it_gray ? 1 : 3;
-	WDims normDim;
-	if( dim.width % 4 == 0 ) {
-        normDim = dim;
-	    alignBuf.assign(buffer,buffer+normDim.area()*bpp);
-	} else {
-		auto remainder = 4 - dim.width % 4;
-		normDim.width += remainder;
-		alignBuf.resize(normDim.area()*bpp);
-		for( auto h = 0; h != dim.height; ++h ) {
-			std::copy(&buffer[h*dim.width*bpp],&buffer[(h+1)*dim.width*bpp],&alignBuf[h*normDim.width*bpp]);
-		}
-	}
-
-    NativeBitmap result;
-    result.info = createBitmapInfoWithHeight(-dim.height); // -height to invert the image!!!
-	result.info.bmiHeader.biWidth = normDim.width;
-
-	// convert to BGR if required
-	switch(type) {
-		case it_BGR:			// native GDI format
-			result.imageBuffer.swap(alignBuf);
-			break;
-		case it_RGB:			// we have to swizzle :( slowwww www w w ww w
-			for( unsigned p = 0; p != alignBuf.size(); p += 3 ) {
-				alignBuf[p] = alignBuf[p+2];
-				alignBuf[p+1] = alignBuf[p+1];
-				alignBuf[p+2] = alignBuf[p];
-			}
-			result.imageBuffer.swap(alignBuf);
-			break;
-		case it_gray: {			// we have to expand the component colors :( quite slow
-            std::vector<unsigned char> swizzleBuf;
-			swizzleBuf.resize(normDim.area()*3);
-			for( unsigned p = 0, b = 0; p != swizzleBuf.size(); p += 3, ++b ) {
-				swizzleBuf[p] = alignBuf[b];
-				swizzleBuf[p+1] = alignBuf[b];
-				swizzleBuf[p+2] = alignBuf[b];
-			}
-			result.imageBuffer.swap(swizzleBuf);
-			} break;
-		default:
-			throw std::invalid_argument("unknown image type");
-	}
-
-    return result;
-}
-
-// TODO investigate the use of this on canvas routines
-scoped::Bitmap ihToBitmap(ImageRef ih)
-{
-    HBITMAP hBitmap;
-    if( ih.type == it_native ) {
-        auto bih = reinterpret_cast<BITMAPINFO *>(ih.metadata.nativeHeader);
-        hBitmap = CreateDIBitmap(GetDC(NULL),&bih->bmiHeader,CBM_INIT,ih.buffer,bih,DIB_RGB_COLORS);
-    } else {
-        NativeBitmap nb = convertRawImage(ih.buffer,ih.type,ih.metadata.dimensions);
-        hBitmap = CreateDIBitmap(GetDC(NULL),&nb.info.bmiHeader,CBM_INIT,ih.buffer,&nb.info,DIB_RGB_COLORS);
-    }
-    return scoped::Bitmap(hBitmap);
-}
-
-// TODO test with DDBs (and expand/fix it if needed)
-NativeBitmap extractBitmap(HBITMAP hBitmap)
-{
-    BITMAP bitmap;
-    GetObject(hBitmap,sizeof(BITMAP),&bitmap);
-    NativeBitmap result;    
-    result.info = createBitmapInfoWithHeight(bitmap.bmHeight); // -height ?
-	result.info.bmiHeader.biWidth = bitmap.bmWidth;
-    result.imageBuffer.resize(bitmap.bmWidthBytes * bitmap.bmHeight);
-    if( GetDIBits(GetDC(NULL),hBitmap,0,bitmap.bmHeight,result.imageBuffer.data(),&result.info,DIB_RGB_COLORS) == 0 ) {
-        throw std::invalid_argument("couldn't extract the image from the bitmap");
-    }
-    
-    return result;
+    os 
+            << "biWidth " << bh.biWidth
+            << " biHeight " << bh.biHeight
+            << " biBitCount " << bh.biBitCount
+            << " biPlanes " << bh.biPlanes
+            << " biSize " << bh.biSize
+            << " biSizeImage " << bh.biSizeImage
+            << " biCompression " << bh.biCompression
+            << " biClrImportant " << bh.biClrImportant
+            << " biClrUsed " << bh.biClrUsed
+            << " biXPelsPerMeter " << bh.biXPelsPerMeter
+            << " biYPelsPerMeter " << bh.biYPelsPerMeter
+            ;
+    return os;
 }
 
 }
+

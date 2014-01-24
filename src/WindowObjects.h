@@ -33,10 +33,10 @@ class Point {
 public:
 	int x,y;
 
-	Point():
+	constexpr Point():
 		x(),y()
 	{}
-	Point(int x_, int y_):
+	constexpr Point(int x_, int y_):
 		x(x_), y(y_)
 	{}
 	Point setX(int x) const { return Point(x,y); }
@@ -58,13 +58,13 @@ public:
 	int left,top;
 	int right,bottom;
 
-	Rect():
+	constexpr Rect():
 		left(), top(), right(), bottom()
 	{}
-	Rect(int left_, int top_, int right_, int bottom_):
+	constexpr Rect(int left_, int top_, int right_, int bottom_):
 		left(left_), top(top_), right(right_), bottom(bottom_)
 	{}
-	Rect(Point p1, Point p2):
+	constexpr Rect(Point p1, Point p2):
 		left(p1.x), top(p1.y), right(p2.x), bottom(p2.y)
 	{}
 
@@ -72,12 +72,12 @@ public:
 
 	static Rect closed(Point p, WDims dims) { return open(p,dims+WDims(-1,-1)); }
 
-    int width() const { return right-left+1; }
-    int height() const { return bottom-top+1; }
+    constexpr int width() const { return right-left+1; }
+    constexpr int height() const { return bottom-top+1; }
 
 	Point pos() const { return Point(left,top); }
 	// WDims openDims() const { return WDims(right-left,bottom-top); }
-	WDims dims() const { return WDims(width(),height()); }
+	constexpr WDims dims() const { return WDims(width(),height()); }
 
 	Rect move(Point p) const { return Rect(p.x,p.y,right+p.x-left,bottom+p.y-top); }
 
@@ -171,38 +171,7 @@ struct Pen {
 
 struct Brush {
 	RGBColor color;
-	Brush(RGBColor const & color = RGBColor()): color(color) {}
-};
-
-enum ImageType { it_none, it_native, it_RGB, it_BGR, it_gray, };
-
-class ImageRef {
-public:
-    ImageType type;
-    union Metadata {
-        void * nativeHeader;
-        WDims dimensions;
-        Metadata() {}
-    } metadata;
-    unsigned char const * buffer;
-    
-    ImageRef(ImageType type = it_none):
-        type(type)
-    {}
-
-    static ImageRef native(void * nativeHeader, unsigned char const * buffer) {
-        ImageRef result(it_native);
-        result.buffer = buffer;
-        result.metadata.nativeHeader = nativeHeader;
-        return result;
-    }
-
-    static ImageRef raw(ImageType type, WDims dimensions, unsigned char const * buffer) {
-        ImageRef result(type);
-        result.buffer = buffer;
-        result.metadata.dimensions = dimensions;
-        return result;
-    }
+	constexpr Brush(RGBColor const & color = RGBColor()): color(color) {}
 };
 
 }

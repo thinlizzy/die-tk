@@ -17,14 +17,14 @@ ImageList::ImageList(std::shared_ptr<ImageListImpl> impl):
 ImageList::~ImageList()
 {}
 
-ImageList::Index ImageList::add(ImageRef ih)
+ImageList::Index ImageList::add(image::Ptr img)
 {
-    return impl->add(ih);
+    return impl->add(img);
 }
 
-void ImageList::replace(ImageRef ih, ImageList::Index index)
+void ImageList::replace(image::Ptr img, ImageList::Index index)
 {
-    impl->replace(ih,index);
+    impl->replace(img,index);
 }
 
 void ImageList::remove(ImageList::Index index)

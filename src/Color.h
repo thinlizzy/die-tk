@@ -17,17 +17,17 @@ struct Color_traits<unsigned char> { typedef unsigned long intensity_type; };
 template<typename T>
 struct Color {
 	T r,g,b;
-	Color(): r(),g(),b() {}
-	Color(T r, T g, T b): r(r),g(g),b(b) {}
+	constexpr Color(): r(),g(),b() {}
+	constexpr Color(T r, T g, T b): r(r),g(g),b(b) {}
 	template<typename U>
-	Color(Color<U> const & c): r(c.r), g(c.g), b(c.b) {}
+	constexpr Color(Color<U> const & c): r(c.r), g(c.g), b(c.b) {}
 	Color & operator+=(Color const & c) { r+=c.r; g+=c.g; b+=c.b; return *this; }
 	Color & operator/=(T div) { r/=div; g/=div; b/=div; return *this; }
 	friend bool operator==(Color const & c1, Color const & c2) { return c1.r == c2.r && c1.g == c2.g && c1.b == c2.b; }
 	friend bool operator!=(Color const & c1, Color const & c2) { return ! (c1 == c2); }
 	friend Color operator+(Color const & c1, Color const & c2) { return Color(c1)+=c2; }
 	friend Color operator/(Color const & c, T div) { return Color(c)/=div; }
-	typename Color_traits<T>::intensity_type rgbsum() const { return r+g+b; }
+	constexpr typename Color_traits<T>::intensity_type rgbsum() const { return r+g+b; }
 };
 
 }

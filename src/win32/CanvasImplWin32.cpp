@@ -1,6 +1,7 @@
 #include "CanvasImplWin32.h"
 #include "ConvertersWin32.h"
 #include <algorithm>
+#include "../log.h"
 
 namespace tk {
 
@@ -142,49 +143,6 @@ void CanvasImpl::drawPoly(Points const & polygon)
 }
 
 
-void CanvasImpl::drawImage(ImageRef ih, Point start)
-{
-    if( ih.type == it_native ) {
-        drawImage(start,ih.buffer,reinterpret_cast<BITMAPINFO *>(ih.metadata.nativeHeader));
-    } else {
-        drawImage(start,ih.buffer,ih.type,ih.metadata.dimensions);
-    }
-}
-
-void CanvasImpl::drawImage(ImageRef ih, Rect destRect)
-{
-    if( ih.type == it_native ) {
-        drawImage(destRect,ih.buffer,reinterpret_cast<BITMAPINFO *>(ih.metadata.nativeHeader));
-    } else {
-        drawImage(destRect.pos(),ih.buffer,ih.type,ih.metadata.dimensions,destRect.dims());
-    }
-}
-
-void CanvasImpl::drawImage(Point dest, unsigned char const buffer[], BITMAPINFO * info)
-{
-	auto & bHead = info->bmiHeader;
-	drawImage(Rect::closed(dest,WDims(bHead.biWidth,abs(bHead.biHeight))),buffer,info);
-}
-
-void CanvasImpl::drawImage(Rect const & destrect, unsigned char const buffer[], BITMAPINFO * info)
-{
-	auto & bHead = info->bmiHeader;
-	auto dims = destrect.dims();
-	SetDIBitsToDevice(dc,destrect.left,destrect.top,dims.width,dims.height,
-                   0,0,0,bHead.biHeight,buffer,info,DIB_RGB_COLORS);
-}
-
-void CanvasImpl::drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim)
-{
-    drawImage(start,buffer,type,dim,dim);
-}
-
-void CanvasImpl::drawImage(Point start, unsigned char const buffer[], ImageType type, WDims dim, WDims dest)
-{
-	auto img = convertRawImage(buffer, type, dim);
-	drawImage(Rect::closed(start,dest), &img.imageBuffer[0], &img.info);
-}
-
 void CanvasImpl::textRect(Rect const & rect, die::NativeString const & text, TextParams const & params)
 {
 	RECT winRect = convertRect(rect);
@@ -234,6 +192,5 @@ void CanvasImplWin::releaseDC()
 	ReleaseDC(hWnd,dc);
 	dc = 0;
 }
-
 
 }

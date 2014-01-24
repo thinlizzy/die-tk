@@ -8,16 +8,23 @@
 #include "../../log.h"
 #include "../ConvertersWin32.h"
 #include "../WindowImplWin32.h"
+#include "ImageWin32.h"
 
 namespace tk {
     
 unsigned const menuEndPos = unsigned(-2);
 std::shared_ptr<WindowImpl> nullWindow;
 
+// contains the menus that are attached to windows - to make findWindow() work to update menu and attached window state
 std::unordered_map<HMENU,std::weak_ptr<WindowImpl>> attachedMenus;
 
 UINT lastId = 0;
 std::unordered_map<UINT,HandleOperation> clickMap;
+
+struct ItemData {
+    std::shared_ptr<image::Bitmap> image;  // to hold ownership of menu item images
+};
+std::unordered_map<UINT,ItemData> menuItemData;
 
 void detachExistingMenu(WindowImpl::Components & components)
 {
@@ -56,6 +63,7 @@ void removeCallbacks(HMENU hMenu, unsigned pos)
         log::error("GetMenuItemInfoW returned zero for hMenu ",hMenu);
     } else {
         clickMap.erase(mii.wID);
+        menuItemData.erase(mii.wID);
 
         if( mii.hSubMenu != NULL ) {
             removeCallbacks(mii.hSubMenu);
@@ -71,20 +79,36 @@ void removeCallbacks(HMENU hMenu)
     }
 }
 
-void addNewItem(HMENU hMenu, MenuItemProperties const & properties)
+void insertNewItem(HMENU hMenu, MenuItemProperties const & properties, UINT pos)
 {
     ++lastId;
+    MENUITEMINFOW mii;
+    mii.cbSize = sizeof(MENUITEMINFOW);
+    mii.fMask = MIIM_ID;
+    mii.wID = lastId;
+    
     // add the item on the menu 
-    if( properties.image.type == it_none ) {
-        if( AppendMenuW(hMenu,MF_STRING,lastId,properties.text.wstr.c_str()) == 0 ) {
-            log::error("AppendMenuW returned zero for hMenu ",hMenu);
+    if( ! properties.hasImage() ) {
+        mii.fMask |= MIIM_STRING;
+        mii.dwTypeData = const_cast<wchar_t *>(properties.text.wstr.c_str());
+        if( InsertMenuItemW(hMenu,pos,true,&mii) == 0 ) {
+            log::error("InsertMenuItemW returned zero for hMenu ",hMenu);
         }
     } else {
-        scoped::Bitmap bitmap = ihToBitmap(properties.image);
-        if( AppendMenuW(hMenu,MF_BITMAP,lastId,reinterpret_cast<LPCWSTR>(bitmap.get())) == 0 ) {
-            log::error("AppendMenuW returned zero for hMenu ",hMenu);
+        auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(properties.image);
+        if( ! imgImpl ) {
+            log::error("invalid image for adding a new menu item");
+            return;
+        }
+
+        scoped::Bitmap bmImage(imgImpl->cloneHbitmap());
+        mii.fMask |= MIIM_BITMAP;
+        mii.hbmpItem = bmImage.get();        
+        if( InsertMenuItemW(hMenu,pos,true,&mii) == 0 ) {
+            log::error("InsertMenuItemW returned zero for hMenu ",hMenu);
         } else {
-            bitmap.release(); // avoids bitmap destruction
+            menuItemData[lastId].image = std::make_shared<image::Bitmap>(bmImage.release());
+            // TODO remove that "don't delete" from scoped bd
         }
     }    
 }
@@ -112,7 +136,7 @@ MenuImpl::~MenuImpl()
     detach();
     removeCallbacks(hMenu);
     DestroyMenu(hMenu);
-    // TODO investigate if we need to manually destroy submenus and bitmaps
+    // TODO investigate if we need to manually destroy submenus
 }
 
 MenuItem MenuImpl::root()
@@ -190,7 +214,7 @@ MenuItemProperties MenuItemImpl::getProperties() const
     
     MENUITEMINFOW mii;
     mii.cbSize = sizeof(MENUITEMINFOW);
-    mii.fMask = MIIM_STATE | MIIM_TYPE;
+    mii.fMask = MIIM_STATE | MIIM_TYPE | MIIM_ID;
     mii.dwTypeData = 0;
     if( GetMenuItemInfoW(hMenu,pos,TRUE,&mii) == 0 ) {
         log::error("GetMenuItemInfoW returned zero for hMenu ",hMenu);
@@ -205,9 +229,15 @@ MenuItemProperties MenuItemImpl::getProperties() const
             GetMenuItemInfoW(hMenu,pos,TRUE,&mii);
         } else
         if( mii.fType == MFT_BITMAP ) {
-            NativeBitmap bitmap = extractBitmap(mii.hbmpItem);
-            result.imageBuffer.swap(bitmap.imageBuffer);
-            result.image = ImageRef::native(&bitmap.info,result.imageBuffer.data());
+            auto it = menuItemData.find(mii.wID);
+            if( it == menuItemData.end() || it->second.image->getHbitmap() != mii.hbmpItem ) {
+                log::error("bitmap menu had no image set or different from hbmpItem");
+                auto img = std::make_shared<image::Bitmap>(mii.hbmpItem);
+                menuItemData[mii.wID].image = img;
+                result.image = img;
+            } else {
+                result.image = it->second.image;
+            }
         }
     }
     
@@ -249,17 +279,23 @@ void MenuItemImpl::setText(die::NativeString const & text)
     updateIfTopLevel();
 }
 
-void MenuItemImpl::setImage(ImageRef ih)
+void MenuItemImpl::setImage(image::Ptr img)
 {
-    scoped::Bitmap bitmap = ihToBitmap(ih);
+    auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(img);
+    if( ! imgImpl ) {
+        log::error("invalid image for MenuItem::setImage");
+        return;
+    }
+    
+    scoped::Bitmap bmImage(imgImpl->cloneHbitmap());
     MENUITEMINFOW mii;
     mii.cbSize = sizeof(MENUITEMINFOW);
     mii.fMask = MIIM_BITMAP;
-    mii.hbmpItem = bitmap.get();
+    mii.hbmpItem = bmImage.get();
     if( SetMenuItemInfoW(hMenu,pos,TRUE,&mii) == 0 ) {
         log::error("SetMenuItemInfoW returned zero for hMenu ",hMenu," and pos ",pos," while changing bitmap");
     } else {
-        bitmap.release(); // to avoid bitmap destruction
+        menuItemData[getItemId()].image = std::make_shared<image::Bitmap>(bmImage.release());
     }
     updateIfTopLevel();    
 }
@@ -270,7 +306,6 @@ UINT MenuItemImpl::getItemId() const
     if( result == UINT(-1) ) {
         log::error("GetMenuItemID returned -1 for hMenu ",hMenu," and pos ",pos);
     }
-    
     return result;
 }
 
@@ -354,7 +389,8 @@ MenuItemIterator MenuItemImpl::addItem(MenuItemProperties const & properties)
         nItems = GetMenuItemCount(subMenu);
     }
 
-    addNewItem(subMenu,properties);
+    // addNewItem(subMenu,properties);
+    insertNewItem(subMenu,properties,nItems);
     
     return MenuItemIterator(new MenuItemIteratorImpl(subMenu,nItems));
 }
@@ -404,7 +440,7 @@ void MenuItemImplRoot::setText(die::NativeString const & text)
 {
 }
 
-void MenuItemImplRoot::setImage(ImageRef ih)
+void MenuItemImplRoot::setImage(image::Ptr img)
 {
 }
 
@@ -432,8 +468,9 @@ MenuItemIterator MenuItemImplRoot::addItem(MenuItemProperties const & properties
 {
     int nItems = count();
     
-    addNewItem(hMenu,properties);
-    
+    //addNewItem(hMenu,properties);
+    insertNewItem(hMenu,properties,nItems);
+
     updateTopLevel();    
     
     return MenuItemIterator(new MenuItemIteratorImpl(hMenu,nItems));

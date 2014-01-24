@@ -11,15 +11,16 @@ ImageImpl::ImageImpl(HWND parentHwnd, ControlParams const & params):
 {
 }
 
+// TODO test this (I don't like the NULLs. should be screen DC)
 HBITMAP copyBitmap(HBITMAP srchbitmap, HDC windowDC)
 {
     BITMAP header;
     GetObject(srchbitmap,sizeof(BITMAP),&header);
     
-    scoped::TemporaryDC srccdc = CreateCompatibleDC(NULL);
+    scoped::CompatibleDC srccdc = CreateCompatibleDC(NULL);
     auto lastObject = SelectObject(srccdc.get(),srchbitmap);
     
-    scoped::TemporaryDC destcdc = CreateCompatibleDC(NULL);
+    scoped::CompatibleDC destcdc = CreateCompatibleDC(NULL);
     HBITMAP result = CreateCompatibleBitmap( windowDC, header.bmWidth, header.bmHeight );
     BitBlt( destcdc.get(), 0, 0, header.bmWidth, header.bmHeight, srccdc.get(), 0, 0, SRCCOPY );
     

@@ -10,9 +10,8 @@ namespace tk {
 ImageList::Index addFile(ImageList & imageList, char const * filename);
 ImageList::Index addFile(ImageList & imageList, std::string const & filename);
 
-void drawImage(Canvas & canvas, img::Image const & image, Point start = Point());
-
-ImageRef toImageRef(img::Image const & image);
+image::Ptr toImage(img::Image const & image);
+image::Ptr toImageExt(img::Image const & image); // for quick drawing w/o creating a bitmap
 
 }
 

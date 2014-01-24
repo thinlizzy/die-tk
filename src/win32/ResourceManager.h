@@ -7,6 +7,7 @@
 
 #include "controls/NativeControlWin32.h"
 #include "WindowImplWin32.h"
+#include "ScopedObjects.h"
 
 namespace tk {
 
@@ -15,6 +16,7 @@ class ResourceManager {
 	typedef std::unordered_map<HWND,std::shared_ptr<NativeControlImpl>> ControlMap;
 	WindowMap windowMap;
 	ControlMap controlMap;
+    scoped::DC scrdc;
 
 	void handleTopLevelWindowMessages(HWND hWnd, UINT message, WPARAM & wParam, LPARAM & lParam);
 	std::shared_ptr<NativeControlImpl> getTopLevelWindow(HWND hWnd);
@@ -31,6 +33,8 @@ public:
 
 	LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+    HDC screenDC();
+    
 	HCURSOR cursors[cur_numCursors];
 };
 

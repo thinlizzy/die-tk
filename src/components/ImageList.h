@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "../WindowObjects.h"
+#include "Image.h"
 
 namespace tk {
 
@@ -17,8 +18,8 @@ public:
     explicit ImageList(WDims dims, int capacity = 10);
     ~ImageList();
     
-    Index add(ImageRef ih);
-    void replace(ImageRef ih, Index index);
+    Index add(image::Ptr img);
+    void replace(image::Ptr img, Index index);
     void remove(Index index);
     void clear();
     

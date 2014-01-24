@@ -7,6 +7,7 @@
 #include "ScopedObjects.h"
 #include <string>
 #include <vector>
+#include <ostream>
 
 namespace tk {
 
@@ -34,16 +35,7 @@ int convertPenStyle(PenStyle style);
 std::string windowsMessageToString(UINT message);
 
 
-struct NativeBitmap {
-    BITMAPINFO info;
-	std::vector<unsigned char> imageBuffer;
-};
-
-NativeBitmap convertRawImage(unsigned char const buffer[], ImageType type, WDims dim);
-
-scoped::Bitmap ihToBitmap(ImageRef ih);
-
-NativeBitmap extractBitmap(HBITMAP hBitmap);
+std::ostream & logBitmapInfo(std::ostream & os, BITMAPINFOHEADER const & bh);
 
 }
 

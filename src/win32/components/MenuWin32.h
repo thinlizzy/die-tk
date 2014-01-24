@@ -34,7 +34,7 @@ public:
     
     virtual MenuItemProperties getProperties() const;
     virtual void setText(die::NativeString const & text);
-    virtual void setImage(ImageRef ih);
+    virtual void setImage(image::Ptr img);
     
     virtual HandleOperation onClick(HandleOperation callback);
     
@@ -65,7 +65,7 @@ public:
     
     virtual MenuItemProperties getProperties() const;
     virtual void setText(die::NativeString const & text);
-    virtual void setImage(ImageRef ih);
+    virtual void setImage(image::Ptr img);
     
     virtual HandleOperation onClick(HandleOperation callback);
     

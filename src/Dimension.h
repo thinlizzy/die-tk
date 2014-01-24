@@ -1,7 +1,7 @@
 #ifndef DIMENSION_H_A81BA61C_1651_4c9f_8EEF_4365745FDEFB
 #define DIMENSION_H_A81BA61C_1651_4c9f_8EEF_4365745FDEFB
 
-#include <cstddef>
+#include <ostream>
 
 namespace tk {
 
@@ -12,12 +12,21 @@ struct basic_dimension {
 	DimType width;		/** width */
 	DimType height;		/** height */
 
-	basic_dimension();
+	constexpr basic_dimension():
+        width(0),
+        height(0)
+    {}
 
-	basic_dimension(T width, T height);
+	constexpr basic_dimension(T width, T height):
+        width(width),
+        height(height)
+    {}
 
 	template<typename U>
-	basic_dimension(basic_dimension<U> const & d);
+	constexpr basic_dimension(basic_dimension<U> const & d):
+        width(d.width),
+        height(d.height)
+    {}
 
 	template<typename U>
 	void assign(basic_dimension<U> const & d);
@@ -44,6 +53,8 @@ struct basic_dimension {
 	basic_dimension & operator*=(T f);
 
 	basic_dimension & operator/=(T f);
+    
+	friend std::ostream & operator<<(std::ostream & os, basic_dimension const & dims) { os << '(' << dims.width << ',' << dims.height << ')'; return os; }
 };
 
 

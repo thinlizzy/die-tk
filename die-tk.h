@@ -9,6 +9,7 @@
 
 #include "src/components/ImageList.h"
 #include "src/components/Menu.h"
+#include "src/components/Image.h"
 
 #include "src/controls/Button.h"
 #include "src/controls/CheckBox.h"

@@ -12,7 +12,8 @@ namespace tk {
 
 ResourceManager resourceManager;
 
-ResourceManager::ResourceManager()
+ResourceManager::ResourceManager():
+    scrdc(NULL)
 {
     cursors[cur_arrow] = LoadCursor(NULL, IDC_ARROW);
     cursors[cur_wait] = LoadCursor(NULL, IDC_WAIT);
@@ -21,6 +22,11 @@ ResourceManager::ResourceManager()
     cursors[cur_edit] = LoadCursor(NULL, IDC_IBEAM);
     cursors[cur_help] = LoadCursor(NULL, IDC_HELP);
     cursors[cur_cross] = LoadCursor(NULL, IDC_CROSS);
+}
+
+HDC ResourceManager::screenDC()
+{
+    return scrdc.hdc;
 }
 
 void ResourceManager::processMessages()

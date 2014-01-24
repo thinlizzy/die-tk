@@ -7,6 +7,7 @@
 #include "../Window.h"
 #include "../WindowRef.h"
 #include "../util/ClonePtr.h"
+#include "Image.h"
 
 namespace tk {
 
@@ -41,20 +42,22 @@ class MenuItemProperties {
 public:
     bool enabled, checked;
     die::NativeString text;
-    ImageRef image;
-    std::vector<unsigned char> imageBuffer; // this buffer backs up ImageRef
+    image::Ptr image;
     
     MenuItemProperties(die::NativeString text = die::NativeString()): 
         enabled(true),
         checked(false),
-        text(text)
+        text(text),
+        image(image::nullImage)
     {}
     
-    MenuItemProperties(ImageRef image): 
+    MenuItemProperties(image::Ptr image): 
         enabled(true),
         checked(false),
         image(image)
     {}
+    
+    bool hasImage() const { return image != image::nullImage; }
 };
 
 class MenuItem {
@@ -63,7 +66,7 @@ class MenuItem {
 public:
     MenuItemProperties getProperties() const;
     void setText(die::NativeString const & text);
-    void setImage(ImageRef ih);
+    void setImage(image::Ptr img);
     
     // TODO enable, check
     

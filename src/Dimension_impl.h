@@ -1,33 +1,3 @@
-/** creates a new Dimension object with 0,0
- */
-template<typename T>
-basic_dimension<T>::basic_dimension():
-	width(0),
-	height(0)
-{}
-
-/** creates a new Dimension object
- * @param width_		the width
- * @param height_		the height
- */
-template<typename T>
-basic_dimension<T>::basic_dimension(DimType width_, DimType height_):
-	width(width_),
-	height(height_)
-{}
-
-/** templated copy constructor using type conversion
-* @param d	the source dimension
-* @note useful for converting int dimensions to size_t dimensions
-*/
-template<typename T>
-template<typename U>
-basic_dimension<T>::basic_dimension(basic_dimension<U> const & d):
-	width(d.width),
-	height(d.height)
-{
-}
-
 /** explicitly converts a dimension type to another, converting the dimension values to DimType
 * @param d	the source dimension
 * @note useful for converting int dimensions to size_t dimensions

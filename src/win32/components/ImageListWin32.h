@@ -17,8 +17,8 @@ public:
     ImageListImpl(WDims dims, int capacity);
     ~ImageListImpl();
 
-    ImageList::Index add(ImageRef ih);
-    void replace(ImageRef ih, ImageList::Index index);
+    ImageList::Index add(image::Ptr img);
+    void replace(image::Ptr img, ImageList::Index index);
     void remove(ImageList::Index index);
     void clear();
 
