@@ -1,24 +1,13 @@
 #include "../../components/Image.h"
 #include "ImageWin32.h"
-#include "../CanvasImplWin32.h"
 #include "../ResourceManager.h"
 #include "../ConvertersWin32.h"
-#include <iostream>
+#include "../../log.h"
 
 namespace tk {
     
 namespace image {
     
-inline HDC getHDC(Canvas & canvas)
-{
-    return static_cast<CanvasImpl &>(canvas).getHDC();
-}
-
-HBITMAP createBitmap(BITMAPINFO * info, Byte const * buffer)
-{
-    return CreateDIBitmap(resourceManager.screenDC(),&info->bmiHeader,CBM_INIT,buffer,info,DIB_RGB_COLORS);
-}
-
 BITMAPINFO createBitmapInfo(int width, int height, int bpp)
 {
     BITMAPINFO info;
@@ -31,6 +20,45 @@ BITMAPINFO createBitmapInfo(int width, int height, int bpp)
 	bHead.biPlanes = 1;
 	bHead.biCompression = BI_RGB;
     return info;
+}
+
+HBITMAP createBitmap(HDC dc, BITMAPINFO * info, Byte const * buffer)
+{
+    HBITMAP result = CreateDIBitmap(dc,&info->bmiHeader,CBM_INIT,buffer,info,DIB_RGB_COLORS);
+    if( result == 0 ) {
+        log::error("error creating bitmap for dc ",dc," and info header ",info->bmiHeader);
+    }
+    return result;
+}
+
+HBITMAP cloneBitmap(HDC dc, HBITMAP hbmp)
+{
+    BITMAPINFO bInfo = {};
+    bInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);    
+    if( GetDIBits(dc,hbmp,0,0,0,&bInfo,DIB_RGB_COLORS) == 0 ) {
+        log::error("GetDIBits failure while getting bmp info for cloning image");
+        return 0;
+    }
+    bInfo.bmiHeader.biCompression = BI_RGB; // overriding bad result from GetDIBits
+    
+    HBITMAP result;
+    HANDLE hDIB = GlobalAlloc(GMEM_MOVEABLE,bInfo.bmiHeader.biSizeImage); 
+    if( hDIB == NULL ) {
+        log::error("GlobalAlloc failed");
+    }
+    Byte * lpbitmap = (Byte *)GlobalLock(hDIB);    
+    if( lpbitmap == NULL ) {
+        log::error("GlobalLock failed");
+    }
+    if( GetDIBits(dc,hbmp,0,bInfo.bmiHeader.biHeight,lpbitmap,&bInfo,DIB_RGB_COLORS) == 0 ) {
+        log::error("GetDIBits failure while getting bits for cloning image");
+        result = 0;
+    } else {
+        result = createBitmap(dc,&bInfo,lpbitmap);
+    }
+    GlobalUnlock(hDIB);    
+    GlobalFree(hDIB);
+    return result;
 }
 
 WDims alignDims(WDims dims)
@@ -163,7 +191,7 @@ HBITMAP External::getOrCreateHbitmap() const
 
 HBITMAP External::cloneHbitmap() const
 {
-    return createBitmap(info,buffer);
+    return createBitmap(resourceManager.screenDC(),info,buffer);
 }
 
 void External::releaseIfCreated(HBITMAP hbmp)
@@ -182,17 +210,15 @@ WDims External::dims() const
     return WDims(bHead.biWidth,abs(bHead.biHeight));
 }
 
-void External::drawInto(Canvas & canvas, Point dest)
+void External::drawInto(HDC hdc, Point dest)
 {
-    auto hdc = getHDC(canvas);
     auto d = dims();
 	SetDIBitsToDevice(hdc,dest.x,dest.y,d.width,d.height,
                    0,0,0,info->bmiHeader.biHeight,buffer,info,DIB_RGB_COLORS);
 }
 
-void External::drawInto(Canvas & canvas, Rect destrect)
+void External::drawInto(HDC hdc, Rect destrect)
 {
-    auto hdc = getHDC(canvas);
     auto d = dims();
     auto destDims = destrect.dims();
     StretchDIBits(hdc,destrect.left,destrect.top,destDims.width,destDims.height,
@@ -211,7 +237,7 @@ ExternalWithHeader::ExternalWithHeader(BITMAPINFO const & info_, Byte const * bu
 // Bitmap 
 
 Bitmap::Bitmap(BITMAPINFO * info, Byte const * buffer):
-    Bitmap(createBitmap(info,buffer))
+    Bitmap(createBitmap(resourceManager.screenDC(),info,buffer))
 {}
 
 Bitmap::Bitmap(HBITMAP hbmp):
@@ -246,25 +272,7 @@ BITMAP Bitmap::getBitmap() const
 
 HBITMAP Bitmap::cloneHbitmap() const
 {
-    BITMAP bitmap = getBitmap();
-    BITMAPINFO bInfo = {};
-    bInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    
-    if( GetDIBits(resourceManager.screenDC(),getHbitmap(),0,bitmap.bmHeight,0,&bInfo,DIB_RGB_COLORS) == 0 ) {
-        // TODO fail
-    }
-    // logBitmapInfo(std::cout, bInfo.bmiHeader) << std::endl;
-    
-    HANDLE hDIB = GlobalAlloc(GMEM_MOVEABLE,bInfo.bmiHeader.biSizeImage); 
-    Byte *lpbitmap = (Byte *)GlobalLock(hDIB);    
-    if( GetDIBits(resourceManager.screenDC(),getHbitmap(),0,bitmap.bmHeight,lpbitmap,&bInfo,DIB_RGB_COLORS) == 0 ) {
-        // TODO fail
-    }
-    
-    HBITMAP result = createBitmap(&bInfo,lpbitmap);
-    GlobalUnlock(hDIB);    
-    GlobalFree(hDIB);
-    return result;
+    return cloneBitmap(resourceManager.screenDC(),getHbitmap());
 }
 
 unsigned Bitmap::bpp() const
@@ -279,18 +287,16 @@ WDims Bitmap::dims() const
     return WDims(bitmap.bmWidth,bitmap.bmHeight);
 }
 
-void Bitmap::drawInto(Canvas & canvas, Point dest)
+void Bitmap::drawInto(HDC hdc, Point dest)
 {
-    auto hdc = getHDC(canvas);
     auto d = dims();
     bd.select();
     BitBlt(hdc,dest.x,dest.y,d.width,d.height,bd.hdc,0,0,SRCCOPY);
     bd.unselect();
 }
 
-void Bitmap::drawInto(Canvas & canvas, Rect destrect)
+void Bitmap::drawInto(HDC hdc, Rect destrect)
 {
-    auto hdc = getHDC(canvas);
     auto d = dims();
     auto destDims = destrect.dims();
     bd.select();
@@ -306,14 +312,13 @@ BitmapAlpha::BitmapAlpha(BITMAPINFO * info, Byte const * buffer):
 {
 }
 
-void BitmapAlpha::drawInto(Canvas & canvas, Point dest)
+void BitmapAlpha::drawInto(HDC hdc, Point dest)
 {
-    drawInto(canvas,Rect::closed(dest,dims()));
+    drawInto(hdc,Rect::closed(dest,dims()));
 }
 
-void BitmapAlpha::drawInto(Canvas & canvas, Rect destrect)
+void BitmapAlpha::drawInto(HDC hdc, Rect destrect)
 {
-    auto hdc = getHDC(canvas);
     auto d = dims();
     auto destDims = destrect.dims();
    
@@ -346,14 +351,13 @@ BitmapPallete::BitmapPallete(BITMAPINFO * info, Byte const * buffer, int transpa
 {
 }
 
-void BitmapPallete::drawInto(Canvas & canvas, Point dest)
+void BitmapPallete::drawInto(HDC hdc, Point dest)
 {
-    drawInto(canvas,Rect::closed(dest,dims()));
+    drawInto(hdc,Rect::closed(dest,dims()));
 }
 
-void BitmapPallete::drawInto(Canvas & canvas, Rect destrect)
+void BitmapPallete::drawInto(HDC hdc, Rect destrect)
 {
-    auto hdc = getHDC(canvas);
     auto d = dims();
     auto destDims = destrect.dims();
     
@@ -365,3 +369,22 @@ void BitmapPallete::drawInto(Canvas & canvas, Rect destrect)
 }
 
 }
+
+std::ostream & operator<<(std::ostream & os, BITMAPINFOHEADER const & bh)
+{
+    os 
+            << "biWidth " << bh.biWidth
+            << " biHeight " << bh.biHeight
+            << " biBitCount " << bh.biBitCount
+            << " biPlanes " << bh.biPlanes
+            << " biSize " << bh.biSize
+            << " biSizeImage " << bh.biSizeImage
+            << " biCompression " << bh.biCompression
+            << " biClrImportant " << bh.biClrImportant
+            << " biClrUsed " << bh.biClrUsed
+            << " biXPelsPerMeter " << bh.biXPelsPerMeter
+            << " biYPelsPerMeter " << bh.biYPelsPerMeter
+            ;
+    return os;
+}
+

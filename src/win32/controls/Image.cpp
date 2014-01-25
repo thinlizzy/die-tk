@@ -9,9 +9,9 @@ namespace tk {
 CONSTRUCTOR_IMPL(Image);
 CLONE_IMPL(Image);
     
-void Image::setImage(unsigned char const buffer[], void * header)
+void Image::setImage(image::Ptr image)
 {
-    IMPL.setImage(buffer,header);
+    IMPL.setImage(image);
 }
 
 void Image::setAutosize(bool autosize)

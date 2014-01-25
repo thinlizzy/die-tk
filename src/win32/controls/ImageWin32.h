@@ -2,11 +2,12 @@
 #define IMAGE_WIN32_H_j3422224fdsfdsfs342432432332sa354h
 
 #include "NativeControlWin32.h"
+#include "../../components/Image.h"
 
 namespace tk {
 
 class ImageImpl: public NativeControlImpl {
-	scoped::Bitmap bitmap;
+	scoped::Bitmap bitmap;  // TODO replace this with an image pointer if implementing getImage()
 	bool autosize;
 	WDims imageDims;
 public:
@@ -14,7 +15,7 @@ public:
     
     virtual ImageImpl * clone() const;
 
-	void setImage(unsigned char const buffer[], void * header);
+	void setImage(image::Ptr image);
 
 	void setAutosize(bool autosize);
 private:

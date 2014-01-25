@@ -4,6 +4,7 @@
 #include "../../components/Image.h"
 #include <windows.h>
 #include "../ScopedObjects.h"
+#include <ostream>
 
 namespace tk {
     
@@ -11,6 +12,9 @@ namespace image {
 
 class ImageImpl: public Image {
 public:
+    virtual void drawInto(HDC dc, Point dest) = 0;
+    virtual void drawInto(HDC dc, Rect destrect) = 0;
+    
     virtual bool isBitmap() const = 0;
     
     virtual HBITMAP getOrCreateHbitmap() const = 0;
@@ -36,8 +40,9 @@ public:
 
     virtual unsigned bpp() const;
     virtual WDims dims() const;
-    virtual void drawInto(Canvas & canvas, Point dest);
-    virtual void drawInto(Canvas & canvas, Rect destrect);
+    
+    virtual void drawInto(HDC dc, Point dest);
+    virtual void drawInto(HDC dc, Rect destrect);
 };
 
 class ExternalWithHeader: public External {
@@ -60,8 +65,9 @@ public:
 
     virtual unsigned bpp() const;
     virtual WDims dims() const;
-    virtual void drawInto(Canvas & canvas, Point dest);
-    virtual void drawInto(Canvas & canvas, Rect destrect);
+    
+    virtual void drawInto(HDC dc, Point dest);
+    virtual void drawInto(HDC dc, Rect destrect);
     
     HBITMAP getHbitmap() const;
 private:
@@ -72,20 +78,24 @@ class BitmapAlpha: public Bitmap {
 public:    
     BitmapAlpha(BITMAPINFO * info, Byte const * buffer);
     
-    virtual void drawInto(Canvas & canvas, Point dest);
-    virtual void drawInto(Canvas & canvas, Rect destrect);
+    virtual void drawInto(HDC dc, Point dest);
+    virtual void drawInto(HDC dc, Rect destrect);
 };
 
 class BitmapPallete: public Bitmap {
 public:    
     BitmapPallete(BITMAPINFO * info, Byte const * buffer, int transparentIndex);
     
-    virtual void drawInto(Canvas & canvas, Point dest);
-    virtual void drawInto(Canvas & canvas, Rect destrect);
+    virtual void drawInto(HDC dc, Point dest);
+    virtual void drawInto(HDC dc, Rect destrect);
 };
 
+HBITMAP cloneBitmap(HDC dc, HBITMAP hbmp);
+
 }
 
 }
+
+std::ostream & operator<<(std::ostream & os, BITMAPINFOHEADER const & bh);
 
 #endif

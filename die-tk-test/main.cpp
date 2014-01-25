@@ -99,27 +99,27 @@ void showWindows()
     window2.canvas().setPen(tk::RGBColor(0,100,0));    
     window2.onPaint([&](Canvas & canvas, Rect rect) {
         canvas.fillRect(rect);
-        imgRaw->drawInto(canvas,Point(500,480));
-        imgRawExt->drawInto(canvas,Point(600,520));
+        canvas.draw(imgRaw,Point(500,480));
+        canvas.draw(imgRawExt,Point(600,520));
         
-        imgBugExt->drawInto(canvas,Point(20,400));
-        imgBugExt->drawInto(canvas,Rect(60,400,110,450));
-        imgBugBmp->drawInto(canvas,Point(20,440));
-        imgBugBmp->drawInto(canvas,Rect(60,460,110,510));
-        imgRgb->drawInto(canvas,Point(20,480));
-        imgGray->drawInto(canvas,Point(20,490));
-        imgRgb->drawInto(canvas,Rect(20,520,75,575));
-        imgGray->drawInto(canvas,Rect(20,580,83,643));
+        canvas.draw(imgBugExt,Point(20,400));
+        canvas.draw(imgBugExt,Rect(60,400,110,450));
+        canvas.draw(imgBugBmp,Point(20,440));
+        canvas.draw(imgBugBmp,Rect(60,460,110,510));
+        canvas.draw(imgRgb,Point(20,480));
+        canvas.draw(imgGray,Point(20,490));
+        canvas.draw(imgRgb,Rect(20,520,75,575));
+        canvas.draw(imgGray,Rect(20,580,83,643));
         
-        imgBugTransp->drawInto(canvas,Rect(120,400,160,432));
-        imgBugTransp->drawInto(canvas,Point(120,400));
-        imgX->drawInto(canvas,Point(120,440));
-        imgX->drawInto(canvas,Rect(130,440,161,471));
+        canvas.draw(imgBugTransp,Rect(120,400,160,432));
+        canvas.draw(imgBugTransp,Point(120,400));
+        canvas.draw(imgX,Point(120,440));
+        canvas.draw(imgX,Rect(130,440,161,471));
         
         auto it = menu.root().begin();
         std::advance(it,3);
         auto itsub = it->begin();
-        itsub->getProperties().image->drawInto(canvas,Point(165,440));
+        canvas.draw(itsub->getProperties().image,Point(165,440));
     });
     
     die::NativeString savedFilename;
@@ -163,7 +163,7 @@ void showWindows()
     paintboxG.setBackground(tk::RGBColor(200,100,0));
 
     Image imageCtl(window2,ControlParams().start(300,100));
-    imageCtl.setImage(image.rawBits(),image.getWindowSystemHeader());
+    imageCtl.setImage(toImage(image));
 
     PaintBox paintboxB(window2,ControlParams().start(280,80).dims(100,100));
     paintboxB.setBackground(tk::RGBColor(0,100,200));
@@ -294,7 +294,7 @@ void showWindows()
 
     PaintBox imagepb(window1,ControlParams().start(500,500).dims(200,200));
     imagepb.onPaint([&](Canvas & canvas, Rect rect) {
-        toImageExt(image)->drawInto(canvas,imagepb.rect().move(Point()));
+        canvas.draw(toImageExt(image),imagepb.rect().move(Point()));
     });
 
 

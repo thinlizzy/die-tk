@@ -2,6 +2,7 @@
 #define CANVAS_H_6CD1490B_F5E5_4985_8494_ADEE0B297978
 
 #include "WindowObjects.h"
+#include "components/Image.h"
 #include <vector>
 #include <NativeString.h>
 
@@ -29,6 +30,9 @@ public:
 
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) = 0;
     virtual WDims measureText(die::NativeString const & text) = 0;
+    
+    virtual void draw(image::Ptr image, Point dest) = 0;
+    virtual void draw(image::Ptr image, Rect destrect) = 0;
 };
 
 }

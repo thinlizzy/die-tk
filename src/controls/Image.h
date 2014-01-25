@@ -2,6 +2,7 @@
 #define IMAGE_H_dssssfas3289fk560ftgjdwtsss
 
 #include "../Control.h"
+#include "../components/Image.h"
 
 namespace tk {
 
@@ -11,7 +12,7 @@ public:
     Image(Window & parent, ControlParams const & params = ControlParams());
     Image clone() const;
     
-	void setImage(unsigned char const buffer[], void * header);
+	void setImage(image::Ptr image);
 
 	void setAutosize(bool autosize);
 private:

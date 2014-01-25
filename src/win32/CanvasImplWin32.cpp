@@ -2,6 +2,7 @@
 #include "ConvertersWin32.h"
 #include <algorithm>
 #include "../log.h"
+#include "components/ImageWin32.h"
 
 namespace tk {
 
@@ -158,6 +159,25 @@ WDims CanvasImpl::measureText(die::NativeString const & text)
     return sizeToWDims(size);
 }
 
+void CanvasImpl::draw(image::Ptr image, Point dest)
+{
+    auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(image);
+    if( ! imgImpl ) {
+        return;
+    }
+    imgImpl->drawInto(dc,dest);
+}
+
+void CanvasImpl::draw(image::Ptr image, Rect destrect)
+{
+    auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(image);
+    if( ! imgImpl ) {
+        return;
+    }
+    imgImpl->drawInto(dc,destrect);    
+}
+    
+// CanvasImplWin
 
 CanvasImplWin::CanvasImplWin():
 	hWnd(0)

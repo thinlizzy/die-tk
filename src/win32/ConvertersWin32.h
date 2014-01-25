@@ -6,8 +6,6 @@
 #include "../Event.h"
 #include "ScopedObjects.h"
 #include <string>
-#include <vector>
-#include <ostream>
 
 namespace tk {
 
@@ -33,9 +31,6 @@ UINT convertTextAlign(HTextAlign hta, VTextAlign vta);
 int convertPenStyle(PenStyle style);
 
 std::string windowsMessageToString(UINT message);
-
-
-std::ostream & logBitmapInfo(std::ostream & os, BITMAPINFOHEADER const & bh);
 
 }
 

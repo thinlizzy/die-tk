@@ -6,8 +6,6 @@
 
 namespace tk {
 
-class Canvas;
-    
 namespace image {
 
 enum class Type { RGB, BGR, gray, }; // TODO add more types
@@ -48,16 +46,13 @@ struct Params {
 class Image {
 public:
     virtual ~Image() {};
-    virtual void drawInto(Canvas & canvas, Point dest) = 0;
-    virtual void drawInto(Canvas & canvas, Rect destrect) = 0;
     virtual unsigned bpp() const = 0;
     virtual WDims dims() const = 0;
+    // TODO getCanvas() to draw into the image (not supported by external images)
 };
 
 class Null: public Image {
 public:    
-    virtual void drawInto(Canvas & canvas, Point dest) {}
-    virtual void drawInto(Canvas & canvas, Rect destrect) {}
     virtual unsigned bpp() const { return 0; };
     virtual WDims dims() const { return WDims(); };
 };

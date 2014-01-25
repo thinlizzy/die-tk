@@ -321,23 +321,5 @@ int convertPenStyle(PenStyle style)
     }
 }
 
-std::ostream & logBitmapInfo(std::ostream & os, BITMAPINFOHEADER const & bh)
-{
-    os 
-            << "biWidth " << bh.biWidth
-            << " biHeight " << bh.biHeight
-            << " biBitCount " << bh.biBitCount
-            << " biPlanes " << bh.biPlanes
-            << " biSize " << bh.biSize
-            << " biSizeImage " << bh.biSizeImage
-            << " biCompression " << bh.biCompression
-            << " biClrImportant " << bh.biClrImportant
-            << " biClrUsed " << bh.biClrUsed
-            << " biXPelsPerMeter " << bh.biXPelsPerMeter
-            << " biYPelsPerMeter " << bh.biYPelsPerMeter
-            ;
-    return os;
-}
-
 }
 
