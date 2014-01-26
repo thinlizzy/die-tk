@@ -30,7 +30,7 @@ BITMAPINFO createBitmapInfo(int width, int height, int bpp)
 
 HBITMAP createBitmap(HDC dc, BITMAPINFO * info, Byte const * buffer)
 {
-    HBITMAP result = CreateDIBitmap(dc,&info->bmiHeader,CBM_INIT,buffer,info,DIB_RGB_COLORS);
+    HBITMAP result = CreateDIBitmap(dc,&info->bmiHeader,buffer == 0 ? 0 : CBM_INIT,buffer,info,DIB_RGB_COLORS);
     if( result == 0 ) {
         log::error("error creating bitmap for dc ",dc," and info header ",info->bmiHeader);
     }
@@ -112,7 +112,7 @@ std::vector<Byte> grayToBgr(WDims dims, Byte const * buffer)
 
 bool transparent(Params const & params)
 {
-    if( ! params.tryTransparent_ ) return false;
+    if( ! params.tryTransparent_ || params.buffer_ == 0 ) return false;
     
     if( params.nativeHeader_ ) {
         auto info = reinterpret_cast<BITMAPINFO *>(params.nativeHeader_);
@@ -150,24 +150,28 @@ std::shared_ptr<Image> create(Params const & params)
             }
         } else {
             auto info = createBitmapInfo(params.dimensions_.width,params.dimensions_.height,24);
-            switch(params.type_) {
-                case Type::BGR:
-                    if( params.externalBuffer_ ) {
-                        return std::make_shared<ExternalWithHeader>(info,params.buffer_);
-                    } else {
-                        return std::make_shared<Bitmap>(&info,params.buffer_);
-                    }
-                break;
-                case Type::RGB: {
-                    info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
-                    auto swizzleBuf = rgbToBgr(params.dimensions_,params.buffer_);
-                    return std::make_shared<Bitmap>(&info,&swizzleBuf[0]);
-                } break;
-                case Type::gray: {
-                    info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
-                    auto swizzleBuf = grayToBgr(params.dimensions_,params.buffer_);
-                    return std::make_shared<Bitmap>(&info,&swizzleBuf[0]);                
-                } break;
+            if( params.buffer_ == 0 ) {
+                return std::make_shared<Bitmap>(&info,nullptr);
+            } else {
+                switch(params.type_) {
+                    case Type::BGR:
+                        if( params.externalBuffer_ ) {
+                            return std::make_shared<ExternalWithHeader>(info,params.buffer_);
+                        } else {
+                            return std::make_shared<Bitmap>(&info,params.buffer_);
+                        }
+                    break;
+                    case Type::RGB: {
+                        info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
+                        auto swizzleBuf = rgbToBgr(params.dimensions_,params.buffer_);
+                        return std::make_shared<Bitmap>(&info,&swizzleBuf[0]);
+                    } break;
+                    case Type::gray: {
+                        info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
+                        auto swizzleBuf = grayToBgr(params.dimensions_,params.buffer_);
+                        return std::make_shared<Bitmap>(&info,&swizzleBuf[0]);                
+                    } break;
+                }
             }
         }
     }
