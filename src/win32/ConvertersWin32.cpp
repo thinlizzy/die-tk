@@ -25,6 +25,12 @@ RECT convertRect(Rect const & rect)
 	return result;
 }
 
+RECT convertOpenRect(Rect const & rect)
+{
+	RECT result = { rect.left, rect.top, rect.right+1, rect.bottom+1 };
+	return result;
+}
+
 Point convertPoint(POINT const & point)
 {
     return Point(point.x,point.y);

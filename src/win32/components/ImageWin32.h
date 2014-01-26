@@ -2,9 +2,10 @@
 #define IMAGE_WIN32_H_DIE_TK_2014_01_19_11_01
 
 #include "../../components/Image.h"
-#include <windows.h>
 #include "../ScopedObjects.h"
+#include "../CanvasImplWin32.h"
 #include <ostream>
+#include <windows.h>
 
 namespace tk {
     
@@ -40,6 +41,10 @@ public:
 
     virtual unsigned bpp() const;
     virtual WDims dims() const;
+
+    virtual Canvas & beginDraw();
+    virtual Canvas & canvas();
+    virtual void endDraw();
     
     virtual void drawInto(HDC dc, Point dest);
     virtual void drawInto(HDC dc, Rect destrect);
@@ -54,6 +59,7 @@ public:
 class Bitmap: public ImageImpl {
 protected:
     tk::scoped::BitmapDC bd;
+    tk::CanvasImpl canvasImpl;
 public:
     Bitmap(BITMAPINFO * info, Byte const * buffer);
     explicit Bitmap(HBITMAP hbmp);
@@ -65,6 +71,10 @@ public:
 
     virtual unsigned bpp() const;
     virtual WDims dims() const;
+
+    virtual Canvas & beginDraw();
+    virtual Canvas & canvas();
+    virtual void endDraw();
     
     virtual void drawInto(HDC dc, Point dest);
     virtual void drawInto(HDC dc, Rect destrect);

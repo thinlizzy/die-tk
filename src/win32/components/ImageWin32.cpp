@@ -3,10 +3,16 @@
 #include "../ResourceManager.h"
 #include "../ConvertersWin32.h"
 #include "../../log.h"
+#include "../../NullCanvas.h"
 
 namespace tk {
     
 namespace image {
+    
+Canvas & Null::canvas()
+{
+    return nullCanvas;
+}
     
 BITMAPINFO createBitmapInfo(int width, int height, int bpp)
 {
@@ -210,6 +216,20 @@ WDims External::dims() const
     return WDims(bHead.biWidth,abs(bHead.biHeight));
 }
 
+Canvas & External::beginDraw() 
+{ 
+    return nullCanvas; 
+}
+
+Canvas & External::canvas() 
+{ 
+    return nullCanvas; 
+}
+
+void External::endDraw()
+{
+}
+
 void External::drawInto(HDC hdc, Point dest)
 {
     auto d = dims();
@@ -241,7 +261,8 @@ Bitmap::Bitmap(BITMAPINFO * info, Byte const * buffer):
 {}
 
 Bitmap::Bitmap(HBITMAP hbmp):
-    bd(resourceManager.screenDC(),hbmp)
+    bd(resourceManager.screenDC(),hbmp),
+    canvasImpl(bd.hdc)
 {}
 
 bool Bitmap::isBitmap() const
@@ -285,6 +306,22 @@ WDims Bitmap::dims() const
 {
     BITMAP bitmap = getBitmap();
     return WDims(bitmap.bmWidth,bitmap.bmHeight);
+}
+
+Canvas & Bitmap::beginDraw() 
+{ 
+    bd.select();
+    return canvas();
+}
+
+Canvas & Bitmap::canvas() 
+{ 
+    return canvasImpl;
+}
+
+void Bitmap::endDraw()
+{
+    bd.unselect();
 }
 
 void Bitmap::drawInto(HDC hdc, Point dest)

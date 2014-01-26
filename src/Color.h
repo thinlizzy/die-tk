@@ -1,6 +1,8 @@
 #ifndef COLOR_H_3B31924C_0E44_411c_8E83_5EB755219EAD
 #define COLOR_H_3B31924C_0E44_411c_8E83_5EB755219EAD
 
+#include <ostream>
+
 // Color //
 
 namespace tk {
@@ -28,6 +30,11 @@ struct Color {
 	friend Color operator+(Color const & c1, Color const & c2) { return Color(c1)+=c2; }
 	friend Color operator/(Color const & c, T div) { return Color(c)/=div; }
 	constexpr typename Color_traits<T>::intensity_type rgbsum() const { return r+g+b; }
+    
+	friend std::ostream & operator<<(std::ostream & os, Color const & c) { 
+        os << '(' << std::hex << int(c.r) << ',' << int(c.g) << ',' << int(c.b) << std::dec << ')'; 
+        return os; 
+    }
 };
 
 }

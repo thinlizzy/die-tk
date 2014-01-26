@@ -71,6 +71,8 @@ public:
 	static Rect open(Point p, WDims dims) { return Rect(p.x,p.y,p.x+dims.width,p.y+dims.height); }
 
 	static Rect closed(Point p, WDims dims) { return open(p,dims+WDims(-1,-1)); }
+    
+	static Rect square(Point p, int size) { return open(p,WDims(size-1,size-1)); }
 
     constexpr int width() const { return right-left+1; }
     constexpr int height() const { return bottom-top+1; }

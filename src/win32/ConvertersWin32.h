@@ -17,6 +17,7 @@ Point convertPoint(POINT const & point);
 POINT convertPoint(Point const & point);
 Rect convertRect(RECT const & rect);
 RECT convertRect(Rect const & rect);
+RECT convertOpenRect(Rect const & rect);
 
 UserEvent toUserEvent(UINT message, LPARAM lParam);
 MouseEvent toMouseEvent(UINT message, WPARAM wParam, bool firstEnter);

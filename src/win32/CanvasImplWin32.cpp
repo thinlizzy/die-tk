@@ -121,11 +121,13 @@ void CanvasImpl::rectangle(Rect const & rect)
 
 void CanvasImpl::fillRect(Rect const & rect)
 {
-	Rectangle(dc,rect.left,rect.top,rect.right,rect.bottom);
+    fillRect(convertOpenRect(rect));
 }
 
 void CanvasImpl::fillRect(RECT rect)
 {
+    HBRUSH hbrush = reinterpret_cast<HBRUSH>(GetCurrentObject(dc,OBJ_BRUSH));
+    FillRect(dc,&rect,hbrush);
 	Rectangle(dc,rect.left,rect.top,rect.right,rect.bottom);
 }
 

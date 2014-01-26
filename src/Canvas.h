@@ -35,6 +35,7 @@ public:
     virtual void draw(image::Ptr image, Rect destrect) = 0;
 };
 
+
 }
 
 

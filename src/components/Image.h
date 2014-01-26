@@ -6,6 +6,8 @@
 
 namespace tk {
 
+class Canvas;
+
 namespace image {
 
 enum class Type { RGB, BGR, gray, }; // TODO add more types
@@ -48,13 +50,18 @@ public:
     virtual ~Image() {};
     virtual unsigned bpp() const = 0;
     virtual WDims dims() const = 0;
-    // TODO getCanvas() to draw into the image (not supported by external images)
+    virtual Canvas & beginDraw() = 0;
+    virtual Canvas & canvas() = 0;
+    virtual void endDraw() = 0;
 };
 
 class Null: public Image {
 public:    
-    virtual unsigned bpp() const { return 0; };
-    virtual WDims dims() const { return WDims(); };
+    virtual unsigned bpp() const { return 0; }
+    virtual WDims dims() const { return WDims(); }
+    virtual Canvas & beginDraw() { return canvas(); }
+    virtual Canvas & canvas();
+    virtual void endDraw() {}
 };
 
 extern std::shared_ptr<Null> nullImage;
