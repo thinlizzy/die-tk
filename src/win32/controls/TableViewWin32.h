@@ -35,6 +35,10 @@ public:
     ItemProperties item(int c, int r) const;
     
     TableView::ItemPos getItemPos(Point point) const;
+    TableView::ItemPos selectedItem() const;
+    void selectItem(int c, int r);
+    int selectedRow() const;
+    void selectRow(int r);
     
     int newRow(ItemProperties itemProp);
     

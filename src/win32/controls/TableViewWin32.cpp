@@ -17,8 +17,7 @@ ControlCallbackMap<TableView::DrawItem> cbDrawItem;
 ControlCallbackMap<TableView::ItemEvent> cbClickItem;
         
 TableViewImpl::TableViewImpl(HWND parentHwnd, ControlParams const & params):
-//	NativeControlImpl(parentHwnd,params,WC_LISTVIEW,LVS_REPORT | LVS_EX_SUBITEMIMAGES),
-	NativeControlImpl(parentHwnd,params,WC_LISTVIEW,LVS_REPORT),
+	NativeControlImpl(parentHwnd,params,WC_LISTVIEW,LVS_REPORT | LVS_SHOWSELALWAYS),
     colCount(0),
     rowCount(0)
 {
@@ -237,6 +236,30 @@ TableView::ItemPos TableViewImpl::getItemPos(Point point) const
     info.iItem = -1;
     ListView_SubItemHitTest(hWnd,&info);
     return TableView::ItemPos{info.iSubItem,info.iItem};
+}
+
+TableView::ItemPos TableViewImpl::selectedItem() const
+{
+    TableView::ItemPos result;
+    result.r = selectedRow();
+    result.c = ListView_GetSelectedColumn(hWnd); // not sure
+    return result;
+}
+
+void TableViewImpl::selectItem(int c, int r)
+{
+    selectRow(r);
+    ListView_SetSelectedColumn(hWnd,c); // not sure
+}
+
+int TableViewImpl::selectedRow() const
+{
+    return ListView_GetNextItem(hWnd,-1,LVNI_SELECTED);
+}
+
+void TableViewImpl::selectRow(int r)
+{
+    ListView_SetItemState(hWnd,r,LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
 }
 
 int TableViewImpl::newRow(ItemProperties itemProp)

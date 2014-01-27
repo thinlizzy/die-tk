@@ -74,6 +74,26 @@ auto TableView::getItemPos(Point point) const -> ItemPos
     return IMPL.getItemPos(point);
 }
 
+auto TableView::selectedItem() const -> ItemPos 
+{
+    return IMPL.selectedItem();
+}
+
+void TableView::selectItem(ItemPos pos)
+{
+    IMPL.selectItem(pos.c,pos.r);
+}
+
+int TableView::selectedRow() const
+{
+    return IMPL.selectedRow();
+}
+
+void TableView::selectRow(int r)
+{
+    IMPL.selectRow(r);
+}
+
 void TableView::setImageList(ImageList & imageList)
 {
     IMPL.setImageList(imageList);

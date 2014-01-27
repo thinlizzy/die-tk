@@ -83,10 +83,10 @@ template<typename T>
 basic_dimension<T> const operator*(typename basic_dimension<T>::DimType f, basic_dimension<T> const & d1);
 
 template<typename T, typename U>
-basic_dimension<U> const operator*(basic_dimension<T> const & d1, typename basic_dimension<U>::DimType f);
+constexpr basic_dimension<T> const operator*(basic_dimension<T> const & d1, U f);
 
 template<typename T, typename U>
-basic_dimension<U> const operator*(typename basic_dimension<U>::DimType f, basic_dimension<T> const & d1);
+constexpr basic_dimension<T> const operator*(U f, basic_dimension<T> const & d1);
 
 template<typename T>
 basic_dimension<T> const operator/(basic_dimension<T> const & d1, typename basic_dimension<T>::DimType f);

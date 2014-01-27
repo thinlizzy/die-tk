@@ -74,7 +74,7 @@ void showWindows()
     auto firstItemIt = menu.root().addItem("First Option");
     auto secondItemIt = menu.root().addItem("Second");
     auto thirdItemIt = menu.root().addItem("Third");
-    firstItemIt->setText("Fist");
+    firstItemIt->setText("Fist"_dies);
     secondItemIt->addItem("heh");
     auto subMenu1 = thirdItemIt->addItem("sub menu one");
     auto subMenu2 = thirdItemIt->addItem("sub menu two");
@@ -241,8 +241,8 @@ void showWindows()
 
     TableView tableView(window1,ControlParams().start(810,100).dims(300,200));
     tableView.addColumn(ColumnProperties("column 1",100));
-    tableView.addColumn(ColumnProperties("column 2"));
-    tableView.addColumn(ColumnProperties("column 3"));
+    tableView.addColumn("column 2"_dies);
+    tableView.addColumn("column 3"_dies);
     tableView.setColumn(1,ColumnProperties("second",30));
 
     auto colProp = tableView.column(2);
@@ -251,9 +251,19 @@ void showWindows()
     tableView.setImageList(imageList);
     tableView.addColumn(ColumnProperties("col image",100,1));
     tableView.addRow({die::NativeString("test")});
-    tableView.addRow({die::NativeString("1"),die::NativeString("2"),die::NativeString("3")});
+    tableView.addRow({"1"_dies,"2"_dies,"3"_dies});
     tableView.addRow({ItemProperties().setText("image").setImageIndex(1)});
     tableView.setItem(3,0,ItemProperties().setText("changed").setImageIndex(0));
+
+    std::cout << "tableView selected row before " << tableView.selectedRow();
+    tableView.setRowSelect(true);
+    tableView.selectRow(1);
+    std::cout << " after " << tableView.selectedRow() << std::endl;
+    
+    Button checkSelected(window1,ControlParams().start(tableView.pos().addY(-20)).text("check selected"_dies).autosize());
+    checkSelected.onClick([&](){
+        std::cout << "selected row " << tableView.selectedRow() << std::endl;
+    });
 
     Label tvLabelRows(window1,ControlParams().text("set rows").start(tableView.rect().posDown(2)).autosize());
     Edit tvEditRows(window1,ControlParams().start(tvLabelRows.rect().posRight(2)).dims(30,20));

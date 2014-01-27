@@ -185,21 +185,19 @@ basic_dimension<T> const operator*(typename basic_dimension<T>::DimType f, basic
 
 
 /** @return dimension scaled: (a,b) * s == (a*s,b*s)
-* @note parameter f defines the type of resulting basic_dimension object
 */
 template<typename T, typename U>
-basic_dimension<U> const operator*(basic_dimension<T> const & d1, typename basic_dimension<U>::DimType f)
+constexpr basic_dimension<T> const operator*(basic_dimension<T> const & d1, U f)
 {
-	return basic_dimension<U>(d1)*=f;
+	return basic_dimension<T>(d1.width*f,d1.height*f);
 }
 
 /** @return dimension scaled: s * (a,b) == (a*s,b*s)
-* @note parameter f defines the type of resulting basic_dimension object
 */
 template<typename T, typename U>
-basic_dimension<U> const operator*(typename basic_dimension<U>::DimType f, basic_dimension<T> const & d1)
+constexpr basic_dimension<T> const operator*(U f, basic_dimension<T> const & d1)
 {
-	return basic_dimension<U>(d1)*=f;
+	return d1 * f;
 }
 
 /** @return dimension scaled: (a,b) / f == (a/f,b/f)

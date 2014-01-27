@@ -45,13 +45,18 @@ public:
     
     ItemPos getItemPos(Point point) const;
     
+    ItemPos selectedItem() const;
+    void selectItem(ItemPos pos);
+    int selectedRow() const;
+    void selectRow(int r);
+    
     void setImageList(ImageList & imageList);
     void removeImageList();
     optional<ImageList> getImageList();
     
     void setGridLines(bool drawGrid);
     void setRowSelect(bool rowSelect);
-
+    
     typedef std::function<bool(ItemPos, Canvas &, Rect)> DrawItem;
     typedef std::function<void(ItemPos)> ItemEvent;
 
