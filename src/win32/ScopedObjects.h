@@ -102,7 +102,6 @@ public:
         std::swap(old,other.old);
     }
     
-    // TODO return a guard object to unselect
     void select()
     {
         old = SelectObject(hdc,hbmp);

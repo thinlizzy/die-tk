@@ -24,16 +24,11 @@ ImageListImpl::~ImageListImpl()
 ImageList::Index ImageListImpl::add(image::Ptr img)
 {
     auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(img);
-    if( ! imgImpl ) {
-        log::error("invalid image for ImageList::add");
-        return -1;
-    }
-    
     HBITMAP bmImage = imgImpl->getOrCreateHbitmap();
     int result = ImageList_Add(himl,bmImage,0);
     imgImpl->releaseIfCreated(bmImage);    
     if( result == -1 ) {
-        log::error("failure to add image into imagelist with hWnd ",himl);
+        log::error("failure to add image with HBITMAP ",bmImage," into imagelist with hWnd ",himl);
     }
     return result;
 }
@@ -41,16 +36,11 @@ ImageList::Index ImageListImpl::add(image::Ptr img)
 void ImageListImpl::replace(image::Ptr img, ImageList::Index index)
 {
     auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(img);    
-    if( ! imgImpl ) {
-        log::error("invalid image for ImageList::replace");
-        return;
-    }
-    
     HBITMAP bmImage = imgImpl->getOrCreateHbitmap();
     BOOL result = ImageList_Replace(himl,index,bmImage,0);
     imgImpl->releaseIfCreated(bmImage);    
     if( result == 0 ) {
-        log::error("failure to replace image ",index," into imagelist with hWnd ",himl);
+        log::error("failure to replace image ",index," with HBITMAP ",bmImage," into imagelist with hWnd ",himl);
     }
 }
 

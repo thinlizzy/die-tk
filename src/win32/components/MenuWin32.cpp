@@ -96,19 +96,13 @@ void insertNewItem(HMENU hMenu, MenuItemProperties const & properties, UINT pos)
         }
     } else {
         auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(properties.image);
-        if( ! imgImpl ) {
-            log::error("invalid image for adding a new menu item");
-            return;
-        }
-
         scoped::Bitmap bmImage(imgImpl->cloneHbitmap());
         mii.fMask |= MIIM_BITMAP;
         mii.hbmpItem = bmImage.get();        
         if( InsertMenuItemW(hMenu,pos,true,&mii) == 0 ) {
-            log::error("InsertMenuItemW returned zero for hMenu ",hMenu);
+            log::error("InsertMenuItemW returned zero for hMenu ",hMenu," while adding image with HBITMAP ",mii.hbmpItem);
         } else {
             menuItemData[lastId].image = std::make_shared<image::Bitmap>(bmImage.release());
-            // TODO remove that "don't delete" from scoped bd
         }
     }    
 }
@@ -282,18 +276,13 @@ void MenuItemImpl::setText(die::NativeString const & text)
 void MenuItemImpl::setImage(image::Ptr img)
 {
     auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(img);
-    if( ! imgImpl ) {
-        log::error("invalid image for MenuItem::setImage");
-        return;
-    }
-    
     scoped::Bitmap bmImage(imgImpl->cloneHbitmap());
     MENUITEMINFOW mii;
     mii.cbSize = sizeof(MENUITEMINFOW);
     mii.fMask = MIIM_BITMAP;
     mii.hbmpItem = bmImage.get();
     if( SetMenuItemInfoW(hMenu,pos,TRUE,&mii) == 0 ) {
-        log::error("SetMenuItemInfoW returned zero for hMenu ",hMenu," and pos ",pos," while changing bitmap");
+        log::error("SetMenuItemInfoW returned zero for hMenu ",hMenu," and pos ",pos," while changing bitmap with HBITMAP ",mii.hbmpItem);
     } else {
         menuItemData[getItemId()].image = std::make_shared<image::Bitmap>(bmImage.release());
     }

@@ -139,8 +139,8 @@ void showWindows()
             std::cout << "selected file " << savedFilename << std::endl;
         }
     });
-    button1.onMouse([](MouseEvent evt, Point pt) {
-        std::cout << "clicked me with " << evt.type << " at " << pt << std::endl;
+    button1.onMouseDown([](MouseEvent evt, Point pt) {
+        std::cout << "clicked me with " << evt.button << " at " << pt << std::endl;
     });
     
     Button buttonLF(window1,ControlParams().text("load file").start(button1.pos().addY(20)));
@@ -167,9 +167,15 @@ void showWindows()
     
     PaintBox paintboxG(window2,ControlParams().start(window2.width()/2,window2.height()/2).dims(100,100));
     paintboxG.setBackground(tk::RGBColor(200,100,0));
-
-    Image imageCtl(window2,ControlParams().start(300,100));
-    imageCtl.setImage(toImage(image));
+    paintboxG.onMouseEnter([](Point pt) {
+       std::cout << "entered on paintboxG at " << pt << std::endl;
+    });
+    paintboxG.onMouseOver([](Point pt) {
+       std::cout << "moving over paintboxG at " << pt << std::endl;
+    });
+    paintboxG.onMouseLeave([](Point pt) {
+       std::cout << "exited from paintboxG at " << pt << std::endl;
+    });
 
     PaintBox paintboxB(window2,ControlParams().start(280,80).dims(100,100));
     paintboxB.setBackground(tk::RGBColor(0,100,200));
@@ -179,6 +185,9 @@ void showWindows()
 
     paintboxG.bringToFront();      // that one is hidden by the image control
     paintboxB.bringToFront();      // that is partially hidden
+
+    Image imageCtl(window2,ControlParams().start(300,100));
+    imageCtl.setImage(toImage(image));
 
     buttonRight.bringToFront();
 

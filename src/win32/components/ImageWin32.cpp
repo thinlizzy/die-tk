@@ -13,7 +13,9 @@ Canvas & Null::canvas()
 {
     return nullCanvas;
 }
-    
+
+Ptr nullImage = std::make_shared<Null>();
+
 BITMAPINFO createBitmapInfo(int width, int height, int bpp)
 {
     BITMAPINFO info;
@@ -124,8 +126,6 @@ bool transparent(Params const & params)
     
     return false;
 }
-
-std::shared_ptr<Null> nullImage = std::make_shared<Null>();
 
 std::shared_ptr<Image> create(Params const & params)
 {

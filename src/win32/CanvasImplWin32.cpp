@@ -164,18 +164,12 @@ WDims CanvasImpl::measureText(die::NativeString const & text)
 void CanvasImpl::draw(image::Ptr image, Point dest)
 {
     auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(image);
-    if( ! imgImpl ) {
-        return;
-    }
     imgImpl->drawInto(dc,dest);
 }
 
 void CanvasImpl::draw(image::Ptr image, Rect destrect)
 {
     auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(image);
-    if( ! imgImpl ) {
-        return;
-    }
     imgImpl->drawInto(dc,destrect);    
 }
     

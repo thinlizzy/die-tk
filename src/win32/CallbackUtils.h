@@ -1,13 +1,11 @@
 #ifndef CALLBACK_UTILS_H_jf435389fgshh45bdjz3428238fdsj
 #define CALLBACK_UTILS_H_jf435389fgshh45bdjz3428238fdsj
 
-#include <unordered_map>
 #include "controls/NativeControlWin32.h"
+#include "ControlCallbackMap.h"
 
 namespace tk {
 
-template<typename T> using ControlCallbackMap = std::unordered_map<NativeControlImpl *, T>; 
-    
 template<typename CbType>
 CbType setCallback(NativeControlImpl * const impl, ControlCallbackMap<CbType> & map, CbType callback)
 {

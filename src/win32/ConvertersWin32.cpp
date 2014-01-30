@@ -215,49 +215,20 @@ UserEvent toUserEvent(UINT message, LPARAM lParam)
 		reinterpret_cast<void *>(lParam) );
 }
 
-#define MTE(msg,et) case msg: type = et; break
-
-MouseEvent toMouseEvent(UINT message, WPARAM wParam, bool firstEnter)
+MouseEvent toMouseEvent(UINT message, WPARAM wParam)
 {
 	MouseEvent result = {};
 	switch(message) {
-	    case WM_MOUSEMOVE:
-            result.type = firstEnter ? et_mouseenter : et_mousemove;
-            if( wParam & MK_LBUTTON ) {
-                result.button = mb_left;
-            } else
-            if( wParam & MK_RBUTTON ) {
-                result.button = mb_right;
-            } else
-            if( wParam & MK_MBUTTON ) {
-                result.button = mb_middle;
-            }
-            break;
-	    case WM_MOUSELEAVE:
-            result.type = et_mouseleave;
-            break;
         case WM_LBUTTONDOWN:
-            result.type = et_mousedown;
-            result.button = mb_left;
-            break;
         case WM_LBUTTONUP:
-            result.type = et_mouseup;
             result.button = mb_left;
             break;
         case WM_RBUTTONDOWN:
-            result.type = et_mousedown;
-            result.button = mb_right;
-            break;
         case WM_RBUTTONUP:
-            result.type = et_mouseup;
             result.button = mb_right;
             break;
         case WM_MBUTTONDOWN:
-            result.type = et_mousedown;
-            result.button = mb_middle;
-            break;
         case WM_MBUTTONUP:
-            result.type = et_mouseup;
             result.button = mb_middle;
             break;
         default:
@@ -267,16 +238,6 @@ MouseEvent toMouseEvent(UINT message, WPARAM wParam, bool firstEnter)
     result.controlPressed = wParam & MK_CONTROL;
     result.shiftPressed = wParam & MK_SHIFT;
 	return result;
-}
-
-KeyEvent toKeyEvent(UINT message, WPARAM wParam)
-{
-	auto type = KeyEventType();
-	switch(message) {
-		MTE(WM_KEYDOWN,et_keydown);
-		MTE(WM_KEYUP,et_keyup);
-	}
-	return KeyEvent(type,fromWindowsKey(wParam));
 }
 
 COLORREF colorWin(RGBColor const & color)

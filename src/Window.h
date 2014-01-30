@@ -22,9 +22,9 @@ public:
     
     std::vector<die::NativeString> selectFile(SelectFile operation, SelectFileParams const & params = SelectFileParams());
     
-    using Control::onMouse;
     using Control::onPaint;
-    using Control::onKey;
+    using Control::onKeyDown;
+    using Control::onKeyUp;
     using Control::onKeypress;
 	AllowOperation onClose(AllowOperation callback);
 	ProcessResize onResize(ProcessResize callback);

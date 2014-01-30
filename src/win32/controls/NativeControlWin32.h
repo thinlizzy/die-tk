@@ -10,6 +10,7 @@
 #include "../ScopedObjects.h"
 #include "../CanvasImplWin32.h"
 #include "../../util/optional.h"
+#include "../ControlCallbackMap.h"
 #include <NativeString.h>
 
 namespace tk {
@@ -18,6 +19,7 @@ class NativeControlImpl {
 private:
    	Cursor cursor;
    	RGBColor backgroundColor;
+    scoped::Brush backgroundBrush;
     bool trackingMouse;
 protected:
 	CanvasImplWin canvasImpl;
@@ -71,14 +73,20 @@ public:
     
     ControlParams getControlData() const;
 
-	HandleMouseEvent onMouse(HandleMouseEvent callback);
+    HandleMouseButton onMouseDown(HandleMouseButton callback);
+    HandleMouseButton onMouseUp(HandleMouseButton callback);
+    HandleMouseMove onMouseEnter(HandleMouseMove callback);
+    HandleMouseMove onMouseOver(HandleMouseMove callback);
+    HandleMouseMove onMouseLeave(HandleMouseMove callback);
 
-	ProcessKeyEvent onKey(ProcessKeyEvent callback);
+	ProcessKeyEvent onKeyDown(ProcessKeyEvent callback);
+	ProcessKeyEvent onKeyUp(ProcessKeyEvent callback);
 	ProcessKeypress onKeypress(ProcessKeypress callback);
 
 	HandlePaint onPaint(HandlePaint callback);
 private:
-    optional<LRESULT> doMouseEvent(UINT message, WPARAM wParam, LPARAM lParam, bool firstEnter);
+    optional<LRESULT> doMouseButton(ControlCallbackMap<HandleMouseButton> & callbacks, UINT message, WPARAM wParam, LPARAM lParam);
+    optional<LRESULT> doMouseMove(ControlCallbackMap<HandleMouseMove> & callbacks, LPARAM lParam);
 };
 
 }

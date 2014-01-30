@@ -55,18 +55,9 @@ public:
     virtual void endDraw() = 0;
 };
 
-class Null: public Image {
-public:    
-    virtual unsigned bpp() const { return 0; }
-    virtual WDims dims() const { return WDims(); }
-    virtual Canvas & beginDraw() { return canvas(); }
-    virtual Canvas & canvas();
-    virtual void endDraw() {}
-};
-
-extern std::shared_ptr<Null> nullImage;
-
 typedef std::shared_ptr<Image> Ptr;
+
+extern Ptr nullImage;
 
 Ptr create(Params const & params);
 

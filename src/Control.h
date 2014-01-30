@@ -74,12 +74,17 @@ public:
 
     WindowRef getParent() const;
 
-    HandleMouseEvent onMouse(HandleMouseEvent callback);
+    HandleMouseButton onMouseDown(HandleMouseButton callback);
+    HandleMouseButton onMouseUp(HandleMouseButton callback);
+    HandleMouseMove onMouseEnter(HandleMouseMove callback);
+    HandleMouseMove onMouseOver(HandleMouseMove callback);
+    HandleMouseMove onMouseLeave(HandleMouseMove callback);
 protected:
     std::shared_ptr<NativeControlImpl> impl;
 
     // most used callbacks
-    ProcessKeyEvent onKey(ProcessKeyEvent callback); // edit, memo
+    ProcessKeyEvent onKeyDown(ProcessKeyEvent callback); // edit, memo
+    ProcessKeyEvent onKeyUp(ProcessKeyEvent callback); // edit, memo
     ProcessKeypress onKeypress(ProcessKeypress callback); // edit, memo
     // seldom used callbacks
     HandlePaint onPaint(HandlePaint callback); // window and paintbox

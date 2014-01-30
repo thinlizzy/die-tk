@@ -19,7 +19,8 @@ public:
     
     void scrollTo(unsigned lines);
     
-    using Control::onKey;
+    using Control::onKeyDown;
+    using Control::onKeyUp;
     using Control::onKeypress;
 };
 

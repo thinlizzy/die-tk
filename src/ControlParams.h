@@ -3,6 +3,7 @@
 
 #include "WindowObjects.h"
 #include <NativeString.h>
+#include "util/optional.h"
 
 namespace tk {
 
@@ -12,14 +13,16 @@ public:
 	Point start_;
 	WDims dims_;
     bool visible_;
-    
 	Scrollbar scrollbar_;
 	bool autosize_;
+    optional<RGBColor> backgroundColor_;
+    Cursor cursor_;
 
 	ControlParams():
         visible_(true),
-        scrollbar_(sb_none),
-        autosize_(false)
+        scrollbar_(Scrollbar::none),
+        autosize_(false),
+        cursor_(Cursor::defaultCursor)
     {
     }
 
@@ -29,10 +32,10 @@ public:
 	ControlParams & dims(WDims value) { dims_ = value; return *this; }
 	ControlParams & dims(int width, int height) { dims_ = WDims(width,height); return *this; }
 	ControlParams & visible(bool value = true) { visible_ = value; return *this; }
-
 	ControlParams & scrollbar(Scrollbar value) { scrollbar_ = value; return *this; }
 	ControlParams & autosize(bool value = true) { autosize_ = value; return *this; }
-	// TODO review params (add cursor and background)
+	ControlParams & backgroundColor(RGBColor value) { backgroundColor_ = value; return *this; }
+	ControlParams & cursor(Cursor value) { cursor_ = value; return *this; }
 };
 
 }

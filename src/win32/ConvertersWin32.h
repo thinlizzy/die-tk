@@ -20,8 +20,7 @@ RECT convertRect(Rect const & rect);
 RECT convertOpenRect(Rect const & rect);
 
 UserEvent toUserEvent(UINT message, LPARAM lParam);
-MouseEvent toMouseEvent(UINT message, WPARAM wParam, bool firstEnter);
-KeyEvent toKeyEvent(UINT message, WPARAM wParam);
+MouseEvent toMouseEvent(UINT message, WPARAM wParam);
 
 WindowKey fromWindowsKey(WPARAM wParam);
 WPARAM toWindowsKey(WindowKey key);

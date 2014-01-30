@@ -12,16 +12,17 @@
 namespace tk {
 
 ControlCallbackMap<HandlePaint> cbPaint;
-ControlCallbackMap<HandleMouseEvent> cbMouse;
-ControlCallbackMap<ProcessKeyEvent> cbKey;
+ControlCallbackMap<HandleMouseButton> cbMouseDown,cbMouseUp;
+ControlCallbackMap<HandleMouseMove> cbMouseEnter,cbMouseOver,cbMouseLeave;
+ControlCallbackMap<ProcessKeyEvent> cbKeyDown,cbKeyUp;
 ControlCallbackMap<ProcessKeypress> cbKeypress;
 
 DWORD scrollbarToWinStyle(Scrollbar sb)
 {
     switch(sb) {
-        case sb_both: return WS_HSCROLL | WS_VSCROLL;
-        case sb_horizontal: return WS_HSCROLL;
-        case sb_vertical: return WS_VSCROLL;
+        case Scrollbar::both: return WS_HSCROLL | WS_VSCROLL;
+        case Scrollbar::horizontal: return WS_HSCROLL;
+        case Scrollbar::vertical: return WS_VSCROLL;
         default: return 0;
     }
 }
@@ -30,17 +31,17 @@ Scrollbar getScrollbarStatus(HWND hWnd)
 {
     int const state_system_invisible = 0x8000; // STATE_SYSTEM_INVISIBLE is not defined...
     
-    Scrollbar sb = sb_none;
+    Scrollbar sb = Scrollbar::none;
     SCROLLBARINFO sbi;
     sbi.cbSize = sizeof(SCROLLBARINFO);
     if( GetScrollBarInfo(hWnd,OBJID_HSCROLL,&sbi) ) {
         if( (sbi.rgstate[0] & state_system_invisible) == 0 ) {
-            sb = sb_horizontal;
+            sb = Scrollbar::horizontal;
         }
     }
     if( GetScrollBarInfo(hWnd,OBJID_VSCROLL,&sbi) ) {
         if( (sbi.rgstate[0] & state_system_invisible) == 0 ) {
-            sb = sb == sb_none ? sb_vertical : sb_both;
+            sb = sb == Scrollbar::none ? Scrollbar::vertical : Scrollbar::both;
         }        
     }
     return sb;
@@ -48,16 +49,14 @@ Scrollbar getScrollbarStatus(HWND hWnd)
 
 
 NativeControlImpl::NativeControlImpl():
-    cursor(cur_default),
-    backgroundColor(RGBColor()),
+    cursor(Cursor::defaultCursor),
     trackingMouse(false)
 {
 }
 
 // parent.getImpl().hWnd
 NativeControlImpl::NativeControlImpl(HWND parentHwnd, ControlParams const & params, wchar_t const classname[], DWORD style):
-    cursor(cur_default),
-    backgroundColor(RGBColor())
+    cursor(params.cursor_)
 {
     hWnd = CreateWindowW(classname, NULL,
         WS_CHILD | WS_CLIPSIBLINGS |
@@ -74,13 +73,22 @@ NativeControlImpl::NativeControlImpl(HWND parentHwnd, ControlParams const & para
     if( hWnd == NULL ) {
         throw std::runtime_error(log::nativeErrorString());
     }
+    
+    if( params.backgroundColor_ ) {
+        setBackground(*params.backgroundColor_);
+    }
 }
 
 NativeControlImpl::~NativeControlImpl()
 {
     removeFromCb(this,cbPaint);
-    removeFromCb(this,cbMouse);
-    removeFromCb(this,cbKey);
+    removeFromCb(this,cbMouseDown);
+    removeFromCb(this,cbMouseUp);
+    removeFromCb(this,cbMouseEnter);
+    removeFromCb(this,cbMouseOver);
+    removeFromCb(this,cbMouseLeave);
+    removeFromCb(this,cbKeyDown);
+    removeFromCb(this,cbKeyUp);
     removeFromCb(this,cbKeypress);
 }
 
@@ -96,7 +104,6 @@ Rect NativeControlImpl::rect() const
     GetClientRect(hWnd,&rc);
     MapWindowPoints(hWnd,GetParent(hWnd),(LPPOINT)&rc,2);
     Rect result = convertRect(rc);    
-    // log::info("rect ",result);
     return result;
 }
 
@@ -233,6 +240,7 @@ void NativeControlImpl::setCursor(Cursor cursor)
 void NativeControlImpl::setBackground(RGBColor const & color)
 {
     this->backgroundColor = color;
+    backgroundBrush.reset(CreateSolidBrush(colorWin(backgroundColor)));
 }
 
 Point NativeControlImpl::screenToClient(Point const & point) const
@@ -251,29 +259,59 @@ HWND NativeControlImpl::getParentHwnd() const
     return result;
 }
 
-// TODO add cursor, background color and enabled state
+// TODO add enabled state
 ControlParams NativeControlImpl::getControlData() const
 {
-    return ControlParams()
+    ControlParams result = ControlParams()
             .start(rect().pos())
             .dims(rect().dims())
             .text(getText())
             .visible(visible())
-            .scrollbar(getScrollbarStatus(hWnd));
+            .scrollbar(getScrollbarStatus(hWnd))
+            .cursor(cursor)
     ;
+    if( backgroundBrush ) {
+        result.backgroundColor(backgroundColor);
+    }
+    return result;
 }
 
 
 // callbacks & messages
 
-HandleMouseEvent NativeControlImpl::onMouse(HandleMouseEvent callback)
+HandleMouseButton NativeControlImpl::onMouseDown(HandleMouseButton callback)
 {
-    return setCallback(this,cbMouse,callback);
+    return setCallback(this,cbMouseDown,callback);
 }
 
-ProcessKeyEvent NativeControlImpl::onKey(ProcessKeyEvent callback)
+HandleMouseButton NativeControlImpl::onMouseUp(HandleMouseButton callback)
 {
-    return setCallback(this,cbKey,callback);
+    return setCallback(this,cbMouseUp,callback);
+}
+
+HandleMouseMove NativeControlImpl::onMouseEnter(HandleMouseMove callback)
+{
+    return setCallback(this,cbMouseEnter,callback);
+}
+
+HandleMouseMove NativeControlImpl::onMouseOver(HandleMouseMove callback)
+{
+    return setCallback(this,cbMouseOver,callback);
+}
+
+HandleMouseMove NativeControlImpl::onMouseLeave(HandleMouseMove callback)
+{
+    return setCallback(this,cbMouseLeave,callback);
+}
+
+ProcessKeyEvent NativeControlImpl::onKeyDown(ProcessKeyEvent callback)
+{
+    return setCallback(this,cbKeyDown,callback);
+}
+
+ProcessKeyEvent NativeControlImpl::onKeyUp(ProcessKeyEvent callback)
+{
+    return setCallback(this,cbKeyUp,callback);
 }
 
 ProcessKeypress NativeControlImpl::onKeypress(ProcessKeypress callback)
@@ -286,7 +324,6 @@ HandlePaint NativeControlImpl::onPaint(HandlePaint callback)
     return setCallback(this,cbPaint,callback);
 }
 
-
 #define GETCB(mapname,varname) \
     auto varname = fetchCallback(this,mapname); \
     if( varname == nullptr ) return optional<LRESULT>(); 
@@ -296,19 +333,18 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
     optional<LRESULT> result;
     switch(message) {
         case WM_SETCURSOR:
-            if( cursor != cur_default ) {
+            if( cursor != Cursor::defaultCursor ) {
                 result = 0;
-                SetCursor(resourceManager.cursors[cursor]);
+                SetCursor(resourceManager.cursors[int(cursor)]);
             }
         break;
         case WM_ERASEBKGND:
-            if( backgroundColor != RGBColor() ) {
+            if( backgroundBrush ) {
                 result = 0;
                 HDC hdc = (HDC) wParam;
                 RECT rc;
                 GetClientRect(hWnd, &rc);
-                scoped::Brush brush(CreateSolidBrush(colorWin(backgroundColor)));
-                FillRect(hdc, &rc, brush.get());
+                FillRect(hdc, &rc, backgroundBrush.get());
             }
         break;
             
@@ -320,12 +356,17 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
             on_paint(canvas,rect);
             return 0;
         } break;
+        
+        case WM_KEYDOWN: {
+            GETCB(cbKeyDown,on_key_down);
+            WindowKey key = on_key_down(fromWindowsKey(wParam));
+            if( key == k_NONE ) return 0;
 
-        case WM_KEYDOWN:
-        case WM_KEYUP:{
-            GETCB(cbKey,on_key);
-            auto keyEvent = toKeyEvent(message,wParam);
-            WindowKey key = on_key(keyEvent);
+            wParam = toWindowsKey(key);
+        } break;
+        case WM_KEYUP: {
+            GETCB(cbKeyUp,on_key_up);
+            WindowKey key = on_key_up(fromWindowsKey(wParam));
             if( key == k_NONE ) return 0;
 
             wParam = toWindowsKey(key);
@@ -340,38 +381,51 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
         } break;
 
         case WM_LBUTTONDOWN:
-        case WM_LBUTTONUP:
         case WM_RBUTTONDOWN:
+        case WM_MBUTTONDOWN: 
+            return doMouseButton(cbMouseDown,message,wParam,lParam);
+        case WM_LBUTTONUP:
         case WM_RBUTTONUP:
-        case WM_MBUTTONDOWN:
-        case WM_MBUTTONUP:
-            return doMouseEvent(message,wParam,lParam,false);
+        case WM_MBUTTONUP: 
+            return doMouseButton(cbMouseUp,message,wParam,lParam);
+            
         case WM_MOUSEMOVE:
-            return doMouseEvent(message,wParam,lParam,! trackingMouse);
-        case WM_MOUSELEAVE:
+            if( trackingMouse ) return doMouseMove(cbMouseOver,lParam);
+                
+            trackingMouse = true;
+            {
+                TRACKMOUSEEVENT tme;
+                tme.cbSize = sizeof(tme);
+                tme.dwFlags = TME_LEAVE;
+                tme.hwndTrack = hWnd;
+                if( TrackMouseEvent(&tme) == 0 ) {
+                    log::error("TrackMouseEvent() failed for hWnd ",hWnd);
+                }
+            }
+            return doMouseMove(cbMouseEnter,lParam);
+                
+        case WM_MOUSELEAVE: 
             trackingMouse = false;
-            return doMouseEvent(message,wParam,lParam,false);
+            return doMouseMove(cbMouseLeave,lParam);
     }
     return result;
 }
 
-optional<LRESULT> NativeControlImpl::doMouseEvent(UINT message, WPARAM wParam, LPARAM lParam, bool firstEnter)
+optional<LRESULT> NativeControlImpl::doMouseButton(ControlCallbackMap<HandleMouseButton> & callbacks, 
+        UINT message, WPARAM wParam, LPARAM lParam)
 {
-    GETCB(cbMouse,on_mouse);
-    if( firstEnter ) {
-        // track mouse event to get a mouse leave message
-        trackingMouse = true;
-        TRACKMOUSEEVENT tme;
-        tme.cbSize = sizeof(tme);
-        tme.dwFlags = TME_LEAVE;
-        tme.hwndTrack = hWnd;
-        if( TrackMouseEvent(&tme) == 0 ) {
-            log::error("TrackMouseEvent() failed for hWnd ",hWnd);
-        }
-    }
+    GETCB(callbacks,callback);
     auto p = lParamToPoint(lParam);
-    auto mouseEvent = toMouseEvent(message,wParam,firstEnter);
-    on_mouse(mouseEvent,p);
+    auto mouseEvent = toMouseEvent(message,wParam);
+    callback(mouseEvent,p);
+    return 0;
+}
+
+optional<LRESULT> NativeControlImpl::doMouseMove(ControlCallbackMap<HandleMouseMove> & callbacks, LPARAM lParam)
+{
+    GETCB(callbacks,callback);
+    auto p = lParamToPoint(lParam);
+    callback(p);
     return 0;
 }
 

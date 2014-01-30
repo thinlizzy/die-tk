@@ -15,13 +15,13 @@ ResourceManager resourceManager;
 ResourceManager::ResourceManager():
     scrdc(NULL)
 {
-    cursors[cur_arrow] = LoadCursor(NULL, IDC_ARROW);
-    cursors[cur_wait] = LoadCursor(NULL, IDC_WAIT);
-    cursors[cur_smallwait] = LoadCursor(NULL, IDC_APPSTARTING);
-    cursors[cur_hand] = LoadCursor(NULL, IDC_HAND);
-    cursors[cur_edit] = LoadCursor(NULL, IDC_IBEAM);
-    cursors[cur_help] = LoadCursor(NULL, IDC_HELP);
-    cursors[cur_cross] = LoadCursor(NULL, IDC_CROSS);
+    cursors[int(Cursor::arrow)] = LoadCursor(NULL, IDC_ARROW);
+    cursors[int(Cursor::wait)] = LoadCursor(NULL, IDC_WAIT);
+    cursors[int(Cursor::smallwait)] = LoadCursor(NULL, IDC_APPSTARTING);
+    cursors[int(Cursor::hand)] = LoadCursor(NULL, IDC_HAND);
+    cursors[int(Cursor::edit)] = LoadCursor(NULL, IDC_IBEAM);
+    cursors[int(Cursor::help)] = LoadCursor(NULL, IDC_HELP);
+    cursors[int(Cursor::cross)] = LoadCursor(NULL, IDC_CROSS);
 }
 
 HDC ResourceManager::screenDC()

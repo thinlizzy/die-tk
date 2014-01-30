@@ -33,10 +33,6 @@ void ImageImpl::setImage(image::Ptr image)
 	}
 
     auto imgImpl = std::dynamic_pointer_cast<image::ImageImpl>(image);
-    if( ! imgImpl ) {
-        log::error("invalid image for setting the image content");
-        return;
-    }
 	bitmap.reset(imgImpl->cloneHbitmap());
     setImageBitmap();
 }

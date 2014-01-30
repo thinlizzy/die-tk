@@ -120,14 +120,39 @@ WindowRef Control::getParent() const
     return WindowRef(resourceManager.findWindow(impl->getParentHwnd()));
 }
 
-HandleMouseEvent Control::onMouse(HandleMouseEvent callback)
+HandleMouseButton Control::onMouseDown(HandleMouseButton callback)
 {
-    return impl->onMouse(callback);
+    return impl->onMouseDown(callback);
 }
 
-ProcessKeyEvent Control::onKey(ProcessKeyEvent callback)
+HandleMouseButton Control::onMouseUp(HandleMouseButton callback)
 {
-    return impl->onKey(callback);
+    return impl->onMouseUp(callback);
+}
+
+HandleMouseMove Control::onMouseEnter(HandleMouseMove callback)
+{
+    return impl->onMouseEnter(callback);
+}
+
+HandleMouseMove Control::onMouseOver(HandleMouseMove callback)
+{
+    return impl->onMouseOver(callback);
+}
+
+HandleMouseMove Control::onMouseLeave(HandleMouseMove callback)
+{
+    return impl->onMouseLeave(callback);
+}
+
+ProcessKeyEvent Control::onKeyDown(ProcessKeyEvent callback)
+{
+    return impl->onKeyDown(callback);
+}
+
+ProcessKeyEvent Control::onKeyUp(ProcessKeyEvent callback)
+{
+    return impl->onKeyUp(callback);
 }
 
 ProcessKeypress Control::onKeypress(ProcessKeypress callback)

@@ -23,7 +23,23 @@ public:
     
     virtual HBITMAP cloneHbitmap() const = 0;
 };
-   
+
+class Null: public ImageImpl {
+public:
+    void drawInto(HDC dc, Point dest) override {}
+    void drawInto(HDC dc, Rect destrect) override {}
+    bool isBitmap() const override { return false; }
+    HBITMAP getOrCreateHbitmap() const override { return 0; }
+    void releaseIfCreated(HBITMAP hbmp) override {}
+    HBITMAP cloneHbitmap() const override { return 0; }
+    
+    unsigned bpp() const override { return 0; }
+    WDims dims() const override { return WDims(); }
+    Canvas & beginDraw() override { return canvas(); }
+    Canvas & canvas() override ;
+    void endDraw() override {}
+};
+
 // handles images with externally owned buffers
 class External: public ImageImpl {
 protected:

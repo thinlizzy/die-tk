@@ -9,21 +9,13 @@ namespace tk {
 
 enum WindowState { ws_destroyed=1, ws_visible=2, ws_minimized=4, ws_maximized=8, };
 
-enum WindowKey {
-	k_NONE, k_ESCAPE, k_SPACE, k_BACK, k_BACKSPACE=k_BACK, k_RETURN, k_ENTER=k_RETURN, k_TAB,
-	k_INSERT, k_DELETE, k_HOME, k_END, k_PAGEUP, k_PAGEDOWN, k_PGUP=k_PAGEUP, k_PGDN=k_PAGEDOWN,
-	k_UP, k_DOWN, k_LEFT, k_RIGHT, k_SHIFT, k_CONTROL,
-	k_A, k_B, k_C, k_D, k_E, k_F, k_G, k_H, k_I, k_J, k_K, k_L, k_M,
-	k_N, k_O, k_P, k_Q, k_R, k_S, k_T, k_U, k_V, k_W, k_X, k_Y, k_Z,
+enum class Cursor {
+    defaultCursor = -1,
+    arrow, wait, smallwait, hand, edit, help, cross,
+    numCursors,
 };
 
-enum Cursor {
-    cur_default = -1,
-    cur_arrow, cur_wait, cur_smallwait, cur_hand, cur_edit, cur_help, cur_cross,
-    cur_numCursors,
-};
-
-enum Scrollbar { sb_none, sb_horizontal, sb_vertical, sb_both, };
+enum class Scrollbar { none, horizontal, vertical, both, };
 
 typedef basic_dimension<int> WDims;
 

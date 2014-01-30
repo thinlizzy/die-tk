@@ -35,7 +35,7 @@ public:
 
     HDC screenDC();
     
-	HCURSOR cursors[cur_numCursors];
+	HCURSOR cursors[int(Cursor::numCursors)];
 };
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
