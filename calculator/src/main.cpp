@@ -41,31 +41,31 @@ int main(int argc, char** argv)
     history.setTextAlign(hta_right);
 
     Menu menu;
-    auto fileIt = menu.root().addItem(L"File");
+    auto fileIt = menu.root().addItem("File"_dies);
     fileIt->addItem("Save History")->onClick([&](){
-        auto filenames = calc.selectFile(SelectFile::save,SelectFileParams().
+        auto filenames = calc.selectFileForSave(SelectFileParams().
                             filter("*.txt").title("save history as")
                         );
         if( filenames.empty() ) return;
         
-        if( saveFile(filenames[0],history.getText()) ) {
+        if( saveFile(filenames,history.getText()) ) {
             app.showMessage("history file saved successfully");
         } else {
             app.showMessage("failed to save history file");                
         }
     });
-    auto clipIt = menu.root().addItem(L"Edit");
-    clipIt->addItem("copy")->onClick([&](){ edit.copyToClipboard(); });
-    clipIt->addItem("paste")->onClick([&](){
+    auto clipIt = menu.root().addItem("Edit"_dies);
+    clipIt->addItem("copy"_dies)->onClick([&](){ edit.copyToClipboard(); });
+    clipIt->addItem("paste"_dies)->onClick([&](){
         auto clipText = app.getClipboardText();
         if( ! clipText.empty() ) {
             // TODO replace below with a for each on chars and calls to addDigit()
-            history.lines().add(L"PASTED");
+            history.lines().add("PASTED"_dies);
             history.lines().add(clipText);
         }
     });
-    auto helpIt = menu.root().addItem(L"Help");
-    helpIt->addItem("about")->onClick([&](){ app.showMessage("by Diego Martins\njose.diego@gmail.com"); });
+    auto helpIt = menu.root().addItem("Help"_dies);
+    helpIt->addItem("about"_dies)->onClick([&](){ app.showMessage("by Diego Martins\njose.diego@gmail.com"_dies); });
     menu.attach(calc);
     
     calc.setDims(calc.dims().addHeight(30)); // to compensate for the menu bar

@@ -20,7 +20,9 @@ public:
     
     void remove(Control & control);
     
-    std::vector<die::NativeString> selectFile(SelectFile operation, SelectFileParams const & params = SelectFileParams());
+    die::NativeString selectFile(SelectFileParams const & params = SelectFileParams());
+    std::vector<die::NativeString> selectFiles(SelectFileParams const & params = SelectFileParams());
+    die::NativeString selectFileForSave(SelectFileParams const & params = SelectFileParams());
     
     using Control::onPaint;
     using Control::onKeyDown;

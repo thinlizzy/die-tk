@@ -19,4 +19,14 @@ void Image::setAutosize(bool autosize)
     IMPL.setAutosize(autosize);    
 }
 
+Canvas & Image::beginDraw()
+{
+    return IMPL.beginDraw();
+}
+
+void Image::endDraw()
+{
+    IMPL.endDraw();
+}
+
 }

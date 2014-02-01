@@ -15,9 +15,9 @@ public:
 	void setImage(image::Ptr image);
 
 	void setAutosize(bool autosize);
-private:
-    using Control::getText;
-    using Control::setText;
+    
+    Canvas & beginDraw();
+    void endDraw();
 };
 
 }

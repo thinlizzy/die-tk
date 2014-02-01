@@ -22,7 +22,7 @@ UINT lastId = 0;
 std::unordered_map<UINT,HandleOperation> clickMap;
 
 struct ItemData {
-    std::shared_ptr<image::Bitmap> image;  // to hold ownership of menu item images
+    image::BitmapPtr image;  // to hold ownership of menu item images
 };
 std::unordered_map<UINT,ItemData> menuItemData;
 

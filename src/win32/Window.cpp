@@ -42,9 +42,19 @@ int Window::state()
     return getImpl().state();
 }
 
-std::vector<die::NativeString> Window::selectFile(SelectFile operation, SelectFileParams const & params)
+die::NativeString Window::selectFile(SelectFileParams const & params)
 {
-    return getImpl().selectFile(operation,params);
+    return getImpl().selectFile(params);
+}
+
+std::vector<die::NativeString> Window::selectFiles(SelectFileParams const & params)
+{
+    return getImpl().selectFiles(params);    
+}
+
+die::NativeString Window::selectFileForSave(SelectFileParams const & params)
+{
+    return getImpl().selectFileForSave(params);    
 }
 
 AllowOperation Window::onClose(AllowOperation callback)

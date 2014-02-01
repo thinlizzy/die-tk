@@ -1,25 +1,29 @@
 #ifndef IMAGE_WIN32_H_j3422224fdsfdsfs342432432332sa354h
 #define IMAGE_WIN32_H_j3422224fdsfdsfs342432432332sa354h
 
-#include "NativeControlWin32.h"
+#include "PaintBoxWin32.h"
 #include "../../components/Image.h"
+#include "../components/ImageWin32.h"
 
 namespace tk {
 
-class ImageImpl: public NativeControlImpl {
-	scoped::Bitmap bitmap;  // TODO replace this with an image pointer if implementing getImage()
+class ImageImpl: public PaintBoxImpl {
 	bool autosize;
-	WDims imageDims;
+	image::Ptr image;
 public:
 	ImageImpl(HWND parentHwnd, ControlParams const & params);
     
-    virtual ImageImpl * clone() const;
+    ImageImpl * clone() const override;
 
 	void setImage(image::Ptr image);
 
 	void setAutosize(bool autosize);
+    
+    Canvas & beginDraw();
+    void endDraw();
 private:
-    void setImageBitmap();
+    bool hasImage() const;
+    void handlePaint(Canvas & canvas, Rect rect);
 };
 
 }

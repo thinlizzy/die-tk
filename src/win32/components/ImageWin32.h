@@ -116,6 +116,11 @@ public:
     virtual void drawInto(HDC dc, Rect destrect);
 };
 
+typedef std::shared_ptr<Bitmap> BitmapPtr;
+
+inline BitmapPtr createBitmap(HBITMAP hbmp) { return std::make_shared<Bitmap>(hbmp); }
+inline BitmapPtr cloneBitmap(std::shared_ptr<ImageImpl> image) { return createBitmap(image->cloneHbitmap()); }
+
 HBITMAP cloneBitmap(HDC dc, HBITMAP hbmp);
 
 }

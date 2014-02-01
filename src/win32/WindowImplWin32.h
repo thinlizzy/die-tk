@@ -49,7 +49,9 @@ public:
 
 	int state() const;
 
-    std::vector<die::NativeString> selectFile(SelectFile operation, SelectFileParams const & params = SelectFileParams());
+    die::NativeString selectFile(SelectFileParams const & params = SelectFileParams());
+    std::vector<die::NativeString> selectFiles(SelectFileParams const & params = SelectFileParams());
+    die::NativeString selectFileForSave(SelectFileParams const & params = SelectFileParams());
     
 	virtual void show();
 	virtual void hide();
@@ -63,6 +65,9 @@ public:
 	AllowOperation onClose(AllowOperation callback);
 	ProcessResize onResize(ProcessResize callback);
 	HandleEvent onUserEvent(HandleEvent callback);
+private:
+    typedef WINBOOL WINAPI OpenSaveFunc(LPOPENFILENAMEW);
+    std::vector<die::NativeString> selectFiles(SelectFileParams const & params, OpenSaveFunc * operation, DWORD flags);
 };
 
 }

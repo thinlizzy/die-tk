@@ -131,11 +131,11 @@ void showWindows()
     die::NativeString savedFilename;
     Button button1(window1,ControlParams().text("save file").start(20,20));
     button1.onClick([&]() {
-        auto files = window1.selectFile(SelectFile::save);
-        if( files.empty() ) {
+        auto file = window1.selectFileForSave();
+        if( file.empty() ) {
             std::cout << "selected no files" << std::endl;
         } else {
-            savedFilename = files[0];
+            savedFilename = file;
             std::cout << "selected file " << savedFilename << std::endl;
         }
     });
@@ -145,12 +145,11 @@ void showWindows()
     
     Button buttonLF(window1,ControlParams().text("load file").start(button1.pos().addY(20)));
     buttonLF.onClick([&]() {
-        auto files = window1.selectFile(SelectFile::load,SelectFileParams()
+        auto files = window1.selectFiles(SelectFileParams()
             .title("new title to load file")
             .showHidden()
             .path("C:\\")
             .filename(savedFilename)
-            .multiSelect()
             .filter("*.txt")
             .filter("*.h","C++ header file")
             .filter("*.cpp","C++ source file")
@@ -165,8 +164,29 @@ void showWindows()
     });
 
     
-    PaintBox paintboxG(window2,ControlParams().start(window2.width()/2,window2.height()/2).dims(100,100));
-    paintboxG.setBackground(tk::RGBColor(200,100,0));
+    PaintBox paintboxB(window2,ControlParams().start(280,80).dims(100,100));
+    paintboxB.setBackground(tk::RGBColor(0,100,200));
+
+    Button buttonLeft(window2,ControlParams().text("left!").start(260,130));
+    Button buttonRight(window2,ControlParams().text("right!").start(900,130));
+
+    paintboxB.bringToFront();      // that is partially hidden
+
+    Image imageCtl(window2,ControlParams().start(300,100).autosize());
+    imageCtl.setImage(toImage(image));
+    imageCtl.bringToFront();
+    /*
+    imageCtl.onMouseOver([](Point pt) {
+       std::cout << "moving over image at " << pt << std::endl;
+    });
+     */
+    auto & ic = imageCtl.beginDraw();
+    ic.textRect(Rect::closed(Point(250,130),WDims(100,20)),"DIEGO"_dies,TextParams().color(RGBColor(255,0,0)));
+    ic.textRect(Rect::closed(Point(390,130),WDims(100,20)),"EDUARDO"_dies);
+    imageCtl.endDraw();
+
+    PaintBox paintboxG(window2,ControlParams().start(imageCtl.rect().right-90,window2.height()/2).dims(100,100));
+    paintboxG.setBackground(tk::RGBColor(50,255,0));
     paintboxG.onMouseEnter([](Point pt) {
        std::cout << "entered on paintboxG at " << pt << std::endl;
     });
@@ -177,17 +197,6 @@ void showWindows()
        std::cout << "exited from paintboxG at " << pt << std::endl;
     });
 
-    PaintBox paintboxB(window2,ControlParams().start(280,80).dims(100,100));
-    paintboxB.setBackground(tk::RGBColor(0,100,200));
-
-    Button buttonLeft(window2,ControlParams().text("left!").start(260,130));
-    Button buttonRight(window2,ControlParams().text("right!").start(900,130));
-
-    paintboxG.bringToFront();      // that one is hidden by the image control
-    paintboxB.bringToFront();      // that is partially hidden
-
-    Image imageCtl(window2,ControlParams().start(300,100));
-    imageCtl.setImage(toImage(image));
 
     buttonRight.bringToFront();
 
