@@ -19,22 +19,21 @@ public:
     
     HDC getHDC() const;
 
-	virtual void setPen(Pen const & pen);
-	virtual void setBrush(Brush const & brush);
-
 	virtual void translate(Point p);
 	virtual void clearTranslate();
 	virtual void addClipRect(Rect const & openrect);
 	virtual void clearClipping();
 
 	virtual void plot(Point p, RGBColor const & color);
-	virtual void drawLine(Point p1, Point p2);
-	virtual void drawPoly(Points const & polygon);
+	virtual void drawLine(Point p1, Point p2, Pen const & pen);
+	virtual void drawPoly(Points const & polygon, Pen const & pen);
 
-	virtual void rectangle(Rect const & rect);
-	virtual void fillRect(Rect const & openrect);
+	virtual void rectangle(Rect const & rect, Pen const & pen);
+	virtual void fillRect(Rect const & openrect, Brush const & brush);
 
-	void fillRect(RECT rect);
+    // TODO use some sort of caching on pens and brushes
+	void setPen(Pen const & pen);
+	void setBrush(Brush const & brush);
 
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params);
     virtual WDims measureText(die::NativeString const & text);

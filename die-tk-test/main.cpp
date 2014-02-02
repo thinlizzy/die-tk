@@ -96,15 +96,13 @@ void showWindows()
     printAllItems(std::cout,menu.root()) << std::endl;
 
     auto & bugCanvas = imgBugBmp->beginDraw();
-    bugCanvas.setPen(tk::RGBColor(200,0,0));
-    bugCanvas.drawLine(Point(2,2),Point(30,30));
-    bugCanvas.drawLine(Point(30,2),Point(2,30));
+    auto pen = Pen(tk::RGBColor(200,0,0));
+    bugCanvas.drawLine(Point(2,2),Point(30,30),pen);
+    bugCanvas.drawLine(Point(30,2),Point(2,30),pen);
     imgBugBmp->endDraw();
     
-    window2.canvas().setBrush(tk::RGBColor(0,100,0));
-    window2.canvas().setPen(tk::RGBColor(0,100,0));    
     window2.onPaint([&](Canvas & canvas, Rect rect) {
-        canvas.fillRect(rect);
+        canvas.fillRect(rect,tk::RGBColor(0,100,0));
         canvas.draw(imgRaw,Point(500,480));
         canvas.draw(imgRawExt,Point(600,520));
         

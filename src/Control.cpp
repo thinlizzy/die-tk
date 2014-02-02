@@ -48,9 +48,7 @@ void Control::setVisible(bool visible)
 void Control::clear(RGBColor const & color)
 {
     auto & canvas1 = canvas();
-    canvas1.setBrush(color);
-	canvas1.setPen(color);
-	canvas1.fillRect(Rect::closed(Point(0,0),dims()));
+	canvas1.fillRect(Rect::closed(Point(0,0),dims()),color);
 }
 
 

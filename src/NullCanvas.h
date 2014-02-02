@@ -6,26 +6,23 @@
 namespace tk {
 
 class NullCanvas: public Canvas {
-	virtual void setPen(Pen const & pen) {}
-	virtual void setBrush(Brush const & brush) {}
+	void translate(Point p) override {}
+	void clearTranslate() override {}
+	void addClipRect(Rect const & openrect) override {}
+	void clearClipping() override {}
 
-	virtual void translate(Point p) {}
-	virtual void clearTranslate() {}
-	virtual void addClipRect(Rect const & openrect) {}
-	virtual void clearClipping() {}
+	void plot(Point p, RGBColor const & color) override {}
+	void drawLine(Point p1, Point p2, Pen const & pen) override {}
+	void drawPoly(Points const & polygon, Pen const & pen) override {}
 
-	virtual void plot(Point p, RGBColor const & color) {}
-	virtual void drawLine(Point p1, Point p2) {}
-	virtual void drawPoly(Points const & polygon) {}
+	void rectangle(Rect const & rect, Pen const & pen) override {}
+	void fillRect(Rect const & openrect, Brush const & brush) override {}
 
-	virtual void rectangle(Rect const & rect) {}
-	virtual void fillRect(Rect const & openrect) {}
-
-	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) {}
-    virtual WDims measureText(die::NativeString const & text) { return WDims(); }
+	void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) override {}
+    WDims measureText(die::NativeString const & text) override { return WDims(); }
     
-    virtual void draw(image::Ptr image, Point dest) {}
-    virtual void draw(image::Ptr image, Rect destrect) {}
+    void draw(image::Ptr image, Point dest) override {}
+    void draw(image::Ptr image, Rect destrect) override {}
 };
 
 extern NullCanvas nullCanvas;

@@ -13,8 +13,6 @@ typedef std::vector<Point> Points;
 class Canvas {
 public:
 	virtual ~Canvas() {}
-	virtual void setPen(Pen const & pen) = 0;
-	virtual void setBrush(Brush const & brush) = 0;
 
 	virtual void translate(Point p) = 0;
 	virtual void clearTranslate() = 0;
@@ -22,11 +20,11 @@ public:
 	virtual void clearClipping() = 0;
 
 	virtual void plot(Point p, RGBColor const & color) = 0;
-	virtual void drawLine(Point p1, Point p2) = 0;
-	virtual void drawPoly(Points const & polygon) = 0;
+	virtual void drawLine(Point p1, Point p2, Pen const & pen) = 0;
+	virtual void drawPoly(Points const & polygon, Pen const & pen) = 0;
 
-	virtual void rectangle(Rect const & rect) = 0;
-	virtual void fillRect(Rect const & openrect) = 0;
+	virtual void rectangle(Rect const & rect, Pen const & pen) = 0;
+	virtual void fillRect(Rect const & openrect, Brush const & brush) = 0;
 
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) = 0;
     virtual WDims measureText(die::NativeString const & text) = 0;

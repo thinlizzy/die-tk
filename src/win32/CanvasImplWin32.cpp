@@ -104,14 +104,16 @@ void CanvasImpl::plot(Point p1, RGBColor const & color)
 	SetPixel(dc,p1.x,p1.y,colorWin(color));
 }
 
-void CanvasImpl::drawLine(Point p1, Point p2)
+void CanvasImpl::drawLine(Point p1, Point p2, Pen const & pen)
 {
+    setPen(pen);
 	MoveToEx(dc,p1.x,p1.y,NULL);
 	LineTo(dc,p2.x,p2.y);
 }
 
-void CanvasImpl::rectangle(Rect const & rect)
+void CanvasImpl::rectangle(Rect const & rect, Pen const & pen)
 {
+    setPen(pen);
 	MoveToEx(dc,rect.left,rect.top,NULL);
 	LineTo(dc,rect.right,rect.top);
 	LineTo(dc,rect.right,rect.bottom);
@@ -119,17 +121,13 @@ void CanvasImpl::rectangle(Rect const & rect)
 	LineTo(dc,rect.left,rect.top);
 }
 
-void CanvasImpl::fillRect(Rect const & rect)
+void CanvasImpl::fillRect(Rect const & rect, Brush const & brush)
 {
-    fillRect(convertOpenRect(rect));
+    auto cv = convertOpenRect(rect);
+    scoped::Brush hbrush = CreateSolidBrush(colorWin(brush.color));
+    FillRect(dc,&cv,hbrush.get());
 }
-
-void CanvasImpl::fillRect(RECT rect)
-{
-    HBRUSH hbrush = reinterpret_cast<HBRUSH>(GetCurrentObject(dc,OBJ_BRUSH));
-    FillRect(dc,&rect,hbrush);
-}
-
+//     HBRUSH hbrush = reinterpret_cast<HBRUSH>(GetCurrentObject(dc,OBJ_BRUSH));
 
 POINT makeWindowsPointFromGuiPoint(Point point)
 {
@@ -137,8 +135,9 @@ POINT makeWindowsPointFromGuiPoint(Point point)
 	return result;
 }
 
-void CanvasImpl::drawPoly(Points const & polygon)
+void CanvasImpl::drawPoly(Points const & polygon, Pen const & pen)
 {
+    setPen(pen);
 	std::vector<POINT> points(polygon.size());
 	std::transform(polygon.begin(),polygon.end(),points.begin(),&makeWindowsPointFromGuiPoint);
 	Polyline(dc,&points[0],points.size());
