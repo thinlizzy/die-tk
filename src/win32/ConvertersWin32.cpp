@@ -112,6 +112,16 @@ WindowKey fromWindowsKey(WPARAM wParam)
 		case 'X': return k_X;
 		case 'Y': return k_Y;
 		case 'Z': return k_Z;
+		case '1': return k_1;
+		case '2': return k_2;
+		case '3': return k_3;
+		case '4': return k_4;
+		case '5': return k_5;
+		case '6': return k_6;
+		case '7': return k_7;
+		case '8': return k_8;
+		case '9': return k_9;
+		case '0': return k_0;
 
 		default: return k_NONE;
 	}
@@ -161,6 +171,16 @@ WPARAM toWindowsKey(WindowKey key)
 		case k_X: return 'X';
 		case k_Y: return 'Y';
 		case k_Z: return 'Z';
+		case k_1: return '1';
+		case k_2: return '2';
+		case k_3: return '3';
+		case k_4: return '4';
+		case k_5: return '5';
+		case k_6: return '6';
+		case k_7: return '7';
+		case k_8: return '8';
+		case k_9: return '9';
+		case k_0: return '0';
 
 		// review that
 		case k_NONE: return -1;

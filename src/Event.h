@@ -11,6 +11,7 @@ enum WindowKey {
 	k_UP, k_DOWN, k_LEFT, k_RIGHT, k_SHIFT, k_CONTROL,
 	k_A, k_B, k_C, k_D, k_E, k_F, k_G, k_H, k_I, k_J, k_K, k_L, k_M,
 	k_N, k_O, k_P, k_Q, k_R, k_S, k_T, k_U, k_V, k_W, k_X, k_Y, k_Z,
+    k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_0, 
 };
 
 enum MouseButton {
