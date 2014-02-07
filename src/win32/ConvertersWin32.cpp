@@ -83,8 +83,56 @@ WindowKey fromWindowsKey(WPARAM wParam)
 		case VK_DOWN: return k_DOWN;
 		case VK_LEFT: return k_LEFT;
 		case VK_RIGHT: return k_RIGHT;
+        
 		case VK_SHIFT: return k_SHIFT;
-		case VK_CONTROL: return k_CONTROL;
+		case VK_CONTROL: return k_CONTROL;        
+		case VK_MENU: return k_ALT;
+		case VK_PAUSE: return k_PAUSE;
+		case VK_SNAPSHOT: return k_PRINT;
+		case VK_CAPITAL: return k_CAPSLOCK;
+		case VK_NUMLOCK: return k_NUMLOCK;
+		case VK_SCROLL: return k_SCROLLLOCK;
+        
+        case VK_NUMPAD0: k_NUM0;
+        case VK_NUMPAD1: k_NUM1;
+        case VK_NUMPAD2: k_NUM2;
+        case VK_NUMPAD3: k_NUM3;
+        case VK_NUMPAD4: k_NUM4;
+        case VK_NUMPAD5: k_NUM5;
+        case VK_NUMPAD6: k_NUM6;
+        case VK_NUMPAD7: k_NUM7;
+        case VK_NUMPAD8: k_NUM8;
+        case VK_NUMPAD9: k_NUM9;
+        case VK_DECIMAL: k_DECIMAL;
+        case VK_ADD: k_ADD;
+        case VK_SUBTRACT: k_SUBTRACT;
+        case VK_MULTIPLY: k_MULT;
+        case VK_DIVIDE: k_DIVIDE;
+        
+        case VK_OEM_1: k_SEMICOLON;
+        case VK_OEM_COMMA: k_COMMA;
+        case VK_OEM_MINUS: k_DASH;
+        case VK_OEM_PERIOD: k_DOT;
+        case VK_OEM_PLUS: k_EQUALS;
+        case VK_OEM_2: k_SLASH;
+        case VK_OEM_7: k_ACUTE;
+        case VK_OEM_3: k_BACUTE;
+        case VK_OEM_4: k_LBRACKET;
+        case VK_OEM_6: k_RBRACKET;
+        case VK_OEM_5: k_BACKSLASH;
+        
+        case VK_F1: return k_F1;
+        case VK_F2: return k_F2;
+        case VK_F3: return k_F3;
+        case VK_F4: return k_F4;
+        case VK_F5: return k_F5;
+        case VK_F6: return k_F6;
+        case VK_F7: return k_F7;
+        case VK_F8: return k_F8;
+        case VK_F9: return k_F9;
+        case VK_F10: return k_F10;
+        case VK_F11: return k_F11;
+        case VK_F12: return k_F12;
 
 		case 'A': return k_A;
 		case 'B': return k_B;
@@ -144,6 +192,56 @@ WPARAM toWindowsKey(WindowKey key)
 		case k_DOWN: return VK_DOWN;
 		case k_LEFT: return VK_LEFT;
 		case k_RIGHT: return VK_RIGHT;
+
+		case k_SHIFT: return VK_SHIFT;
+		case k_CONTROL: return VK_CONTROL;
+		case k_ALT: return VK_MENU;
+		case k_PAUSE: return VK_PAUSE;
+		case k_PRINT: return VK_SNAPSHOT;
+		case k_CAPSLOCK: return VK_CAPITAL;
+		case k_NUMLOCK: return VK_NUMLOCK;
+		case k_SCROLLLOCK: return VK_SCROLL;
+        
+        case k_NUM0: VK_NUMPAD0;
+        case k_NUM1: VK_NUMPAD1;
+        case k_NUM2: VK_NUMPAD2;
+        case k_NUM3: VK_NUMPAD3;
+        case k_NUM4: VK_NUMPAD4;
+        case k_NUM5: VK_NUMPAD5;
+        case k_NUM6: VK_NUMPAD6;
+        case k_NUM7: VK_NUMPAD7;
+        case k_NUM8: VK_NUMPAD8;
+        case k_NUM9: VK_NUMPAD9;
+        case k_DECIMAL: VK_DECIMAL;
+        case k_ADD: VK_ADD;
+        case k_SUBTRACT: VK_SUBTRACT;
+        case k_MULT: VK_MULTIPLY;
+        case k_DIVIDE: VK_DIVIDE;
+        
+        case k_SEMICOLON: VK_OEM_1;
+        case k_COMMA: VK_OEM_COMMA;
+        case k_DASH: VK_OEM_MINUS;
+        case k_DOT: VK_OEM_PERIOD;
+        case k_EQUALS: VK_OEM_PLUS;
+        case k_SLASH: VK_OEM_2;
+        case k_ACUTE: VK_OEM_7;
+        case k_BACUTE: VK_OEM_3;
+        case k_LBRACKET: VK_OEM_4;
+        case k_RBRACKET: VK_OEM_6;
+        case k_BACKSLASH: VK_OEM_5;
+
+        case k_F1: return VK_F1;
+        case k_F2: return VK_F2;
+        case k_F3: return VK_F3;
+        case k_F4: return VK_F4;
+        case k_F5: return VK_F5;
+        case k_F6: return VK_F6;
+        case k_F7: return VK_F7;
+        case k_F8: return VK_F8;
+        case k_F9: return VK_F9;
+        case k_F10: return VK_F10;
+        case k_F11: return VK_F11;
+        case k_F12: return VK_F12;
 
 		case k_A: return 'A';
 		case k_B: return 'B';
