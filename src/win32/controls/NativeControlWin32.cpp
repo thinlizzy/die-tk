@@ -357,6 +357,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
             return 0;
         } break;
         
+        case WM_SYSKEYDOWN:
         case WM_KEYDOWN: {
             GETCB(cbKeyDown,on_key_down);
             WindowKey key = on_key_down(fromWindowsKey(wParam));
@@ -364,6 +365,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 
             wParam = toWindowsKey(key);
         } break;
+        case WM_SYSKEYUP:
         case WM_KEYUP: {
             GETCB(cbKeyUp,on_key_up);
             WindowKey key = on_key_up(fromWindowsKey(wParam));
