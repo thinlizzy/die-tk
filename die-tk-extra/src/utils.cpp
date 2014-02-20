@@ -15,7 +15,7 @@ ImageList::Index addFile(ImageList & imageList, std::string const & filename)
 
 image::Ptr toImage(img::Image const & image)
 {
-    return image::create(image::Params(image.getWindowSystemHeader(),image.rawBits()).transparentIndex(image.getTransparentColor()));
+    return image::create(image::Params(image.getWindowSystemHeader(),image.rawBits()).transparentIndex(image.getTransparentColorIndex()));
 }
 
 image::Ptr toImageExt(img::Image const & image)

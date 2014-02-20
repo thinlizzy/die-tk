@@ -70,9 +70,12 @@ public:
     constexpr int height() const { return bottom-top+1; }
 
 	Point pos() const { return Point(left,top); }
-	// WDims openDims() const { return WDims(right-left,bottom-top); }
 	constexpr WDims dims() const { return WDims(width(),height()); }
 
+    Rect addX(int x) const { return Rect(left+x,top,right+x,bottom); }
+    Rect addY(int y) const { return Rect(left,top+y,right,bottom+y); }
+    Rect addY(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
+    
 	Rect move(Point p) const { return Rect(p.x,p.y,right+p.x-left,bottom+p.y-top); }
 
 	Rect resize(WDims dims) const { return closed(pos(),dims); }
@@ -80,6 +83,12 @@ public:
     Point posDown(int margin) const { return pos().addY(height() + margin); }
     Point posRight(int margin) const { return pos().addX(width() + margin); }
 
+	bool intersect(Point const & p) const
+	{
+		return left <= p.x && p.x <= right &&
+			top <= p.y && p.y <= bottom;
+	}
+    
 	bool intersect(Rect const & rect) const
 	{
 		if( left <= rect.left ) {
@@ -102,12 +111,6 @@ public:
 		return false;
 	}
 
-	bool intersect(Point const & p) const
-	{
-		return left <= p.x && p.x <= right &&
-			top <= p.y && p.y <= bottom;
-	}
-
 	friend bool operator==(Rect const & r1, Rect const & r2)
 	{
 	    return
@@ -123,6 +126,18 @@ public:
 	    return os;
     }
 };
+
+struct Intersection {
+    WDims dims;
+    Point point1,point2;
+};
+
+inline Intersection getIntersection(Rect const & rect1, Rect const & rect2)
+{
+    // TODO finish it
+    return Intersection();
+}
+
 
 enum HTextAlign { hta_left, hta_right, hta_center };
 enum VTextAlign { vta_top, vta_bottom, vta_center };
