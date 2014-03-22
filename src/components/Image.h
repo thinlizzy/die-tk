@@ -1,7 +1,7 @@
 #ifndef IMAGE_H_DIE_TK_2014_01_18_14_20
 #define IMAGE_H_DIE_TK_2014_01_18_14_20
 
-#include "../WindowObjects.h"
+#include "../objects/Dimension.h"
 #include <memory>
 
 namespace tk {

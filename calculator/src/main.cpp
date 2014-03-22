@@ -5,8 +5,6 @@
 using namespace std;
 using namespace tk;
 
-// TODO add menu with copy number to clipboard
-
 bool saveFile(die::NativeString const & filename, die::NativeString const & text);
 
 int main(int argc, char** argv)
@@ -131,7 +129,7 @@ int main(int argc, char** argv)
                     .setPos(plus.pos().addY(-tdist * 3))
                     .setText("/")
             ));
-        operations.push_back(std::move(plus));
+        operations.push_back(move(plus));
         
         // anonymous button to define the equals
         Button(calc,ControlParams()
@@ -142,7 +140,7 @@ int main(int argc, char** argv)
         .onClick([&edit,&calculator,&history](){
             if( calculator.execute() ) {
                 edit.setText(die::NativeString::toString(calculator.currentNumber));
-                history.lines().add(edit.getText()+"=");
+                history.lines().add(edit.getText() + "=");
                 history.scrollTo(history.lines().count());
             }
         });

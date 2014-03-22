@@ -396,12 +396,12 @@ UINT convertTextAlign(HTextAlign hta, VTextAlign vta)
 int convertPenStyle(PenStyle style)
 {
     switch(style) {
-        case ps_solid: return PS_SOLID;
-        case ps_dash: return PS_DASH;
-        case ps_dot: return PS_DOT;
-        case ps_dashdot: return PS_DASHDOT;
-        case ps_dashdotdot: return PS_DASHDOTDOT;
-        case ps_invisible: return PS_NULL;
+        case PenStyle::solid: return PS_SOLID;
+        case PenStyle::dash: return PS_DASH;
+        case PenStyle::dot: return PS_DOT;
+        case PenStyle::dashdot: return PS_DASHDOT;
+        case PenStyle::dashdotdot: return PS_DASHDOTDOT;
+        case PenStyle::invisible: return PS_NULL;
         default: return PS_SOLID;
     }
 }

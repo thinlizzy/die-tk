@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <NativeString.h>
-#include "WindowObjects.h"
+#include "objects/Point.h"
 
 namespace tk {
 

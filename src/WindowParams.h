@@ -1,6 +1,8 @@
 #ifndef WINDOW_PARAMS_H_gfu43983tgfff45kh03hjg
 #define WINDOW_PARAMS_H_gfu43983tgfff45kh03hjg
 
+#include "objects/Point.h"
+#include "objects/Dimension.h"
 #include "WindowObjects.h"
 #include <limits>
 #include <NativeString.h>

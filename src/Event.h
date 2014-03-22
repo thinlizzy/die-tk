@@ -1,8 +1,6 @@
 #ifndef EVENT_H_f4330glcp282mvg
 #define EVENT_H_f4330glcp282mvg
 
-#include "WindowObjects.h"
-
 namespace tk {
 
 enum WindowKey {

@@ -2,7 +2,11 @@
 #define CONVERTER_FUNCTIONS_TO_WINDOWS_67EA0445_D4A4_48a1_BB65_24F77640F1AAxx
 
 #include <windows.h>
-#include "../WindowObjects.h"
+#include "../objects/Dimension.h"
+#include "../objects/Point.h"
+#include "../objects/Rect.h"
+#include "../objects/Drawing.h"
+#include "../TextParams.h"
 #include "../Event.h"
 #include "ScopedObjects.h"
 #include <string>

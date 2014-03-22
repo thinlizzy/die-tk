@@ -1,7 +1,12 @@
 #ifndef CANVAS_H_6CD1490B_F5E5_4985_8494_ADEE0B297978
 #define CANVAS_H_6CD1490B_F5E5_4985_8494_ADEE0B297978
 
-#include "WindowObjects.h"
+#include "TextParams.h"
+#include "objects/Color.h"
+#include "objects/Dimension.h"
+#include "objects/Point.h"
+#include "objects/Rect.h"
+#include "objects/Drawing.h"
 #include "components/Image.h"
 #include <vector>
 #include <NativeString.h>

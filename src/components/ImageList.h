@@ -2,7 +2,7 @@
 #define IMAGE_LIST_H_l4038vmsh3487gk
 
 #include <memory>
-#include "../WindowObjects.h"
+#include "../objects/Point.h"
 #include "Image.h"
 
 namespace tk {
