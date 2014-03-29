@@ -23,6 +23,7 @@ public:
 	Point addY(int y) const { return Point(x,this->y + y); }
 
 	bool operator==(Point const & p) const { return p.x == x && p.y == y; }
+    bool operator!=(Point const & p) const { return ! operator==(p); }
 	Point & operator+=(Point const & p) { x += p.x;  y += p.y; return *this; }
 	friend Point operator+(Point const & p1, Point const & p2) { return Point(p1)+=p2; }
 	Point & operator-=(Point const & p) { x -= p.x;  y -= p.y; return *this; }

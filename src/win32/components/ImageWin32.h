@@ -36,7 +36,7 @@ public:
     unsigned bpp() const override { return 0; }
     WDims dims() const override { return WDims(); }
     Canvas & beginDraw() override { return canvas(); }
-    Canvas & canvas() override ;
+    Canvas & canvas() override;
     void endDraw() override {}
 };
 

@@ -2,6 +2,7 @@
 #include "src/Window.h"
 #include "src/WindowRef.h"
 #include "src/Canvas.h"
+#include "src/NullCanvas.h"
 #include "src/log.h"
 
 // TODO auto generate the includes below
