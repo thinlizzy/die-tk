@@ -28,6 +28,11 @@ public:
 	friend Point operator+(Point const & p1, Point const & p2) { return Point(p1)+=p2; }
 	Point & operator-=(Point const & p) { x -= p.x;  y -= p.y; return *this; }
 	friend Point operator-(Point const & p1, Point const & p2) { return Point(p1)-=p2; }
+	Point & operator*=(int f) { x *= f;  y *= f; return *this; }
+	friend Point operator*(Point const & p, int f) { return Point(p)*=f; }
+	friend Point operator*(int f, Point const & p) { return Point(p)*=f; }
+	Point & operator/=(int f) { x /= f;  y /= f; return *this; }
+	friend Point operator/(Point const & p, int f) { return Point(p)/=f; }
 
 	friend std::ostream & operator<<(std::ostream & os, Point const & p) { os << '(' << p.x << ',' << p.y << ')'; return os; }
 };

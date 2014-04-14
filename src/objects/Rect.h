@@ -83,6 +83,11 @@ public:
             r1.top == r2.top &&
             r1.bottom == r2.bottom;
 	}
+    
+    friend bool operator!=(Rect const & r1, Rect const & r2)
+    {
+        return ! (r1 == r2);
+    }
 
 	friend std::ostream & operator<<(std::ostream & os, Rect const & rect)
 	{
