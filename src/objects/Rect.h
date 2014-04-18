@@ -38,7 +38,7 @@ public:
 
     Rect addX(int x) const { return Rect(left+x,top,right+x,bottom); }
     Rect addY(int y) const { return Rect(left,top+y,right,bottom+y); }
-    Rect addY(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
+    Rect add(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
     
 	Rect move(Point p) const { return Rect(p.x,p.y,right+p.x-left,bottom+p.y-top); }
 
