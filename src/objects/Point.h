@@ -2,40 +2,49 @@
 #define	POINT_H_DIE_TK_2014_03_22_11_14
 
 #include <ostream>
+#include <cmath>
 
 namespace tk {
 
-// TODO make a basic_point<> template
-    
-class Point {
+template<typename T>    
+class basic_point {
 public:
+    typedef T value_type;
 	int x,y;
 
-	constexpr Point():
+	constexpr basic_point():
 		x(),y()
 	{}
-	constexpr Point(int x_, int y_):
-		x(x_), y(y_)
+	constexpr basic_point(T x, T y):
+		x(x), y(y)
 	{}
-	Point setX(int x) const { return Point(x,y); }
-	Point setY(int y) const { return Point(x,y); }
-	Point addX(int x) const { return Point(this->x + x,y); }
-	Point addY(int y) const { return Point(x,this->y + y); }
+	template<typename U>
+	constexpr explicit basic_point(basic_point<U> const & p):
+		x(p.x), y(p.y)
+    {}
+	basic_point setX(T x) const { return basic_point(x,this->y); }
+	basic_point setY(T y) const { return basic_point(this->x,y); }
+	basic_point addX(T x) const { return basic_point(this->x + x,y); }
+	basic_point addY(T y) const { return basic_point(x,this->y + y); }
 
-	bool operator==(Point const & p) const { return p.x == x && p.y == y; }
-    bool operator!=(Point const & p) const { return ! operator==(p); }
-	Point & operator+=(Point const & p) { x += p.x;  y += p.y; return *this; }
-	friend Point operator+(Point const & p1, Point const & p2) { return Point(p1)+=p2; }
-	Point & operator-=(Point const & p) { x -= p.x;  y -= p.y; return *this; }
-	friend Point operator-(Point const & p1, Point const & p2) { return Point(p1)-=p2; }
-	Point & operator*=(int f) { x *= f;  y *= f; return *this; }
-	friend Point operator*(Point const & p, int f) { return Point(p)*=f; }
-	friend Point operator*(int f, Point const & p) { return Point(p)*=f; }
-	Point & operator/=(int f) { x /= f;  y /= f; return *this; }
-	friend Point operator/(Point const & p, int f) { return Point(p)/=f; }
+	bool operator==(basic_point const & p) const { return p.x == x && p.y == y; }
+    bool operator!=(basic_point const & p) const { return ! operator==(p); }
+	basic_point & operator+=(basic_point const & p) { x += p.x;  y += p.y; return *this; }
+	friend basic_point operator+(basic_point const & p1, basic_point const & p2) { return basic_point(p1)+=p2; }
+	basic_point & operator-=(basic_point const & p) { x -= p.x;  y -= p.y; return *this; }
+	friend basic_point operator-(basic_point const & p1, basic_point const & p2) { return basic_point(p1)-=p2; }
+	basic_point & operator*=(T f) { x *= f;  y *= f; return *this; }
+	friend basic_point operator*(basic_point const & p, T f) { return basic_point(p)*=f; }
+	friend basic_point operator*(T f, basic_point const & p) { return basic_point(p)*=f; }
+	basic_point & operator/=(T f) { x /= f;  y /= f; return *this; }
+	friend basic_point operator/(basic_point const & p, T f) { return basic_point(p)/=f; }
+    
+    constexpr T distance() const { return std::sqrt(x*x+y*y); }
 
-	friend std::ostream & operator<<(std::ostream & os, Point const & p) { os << '(' << p.x << ',' << p.y << ')'; return os; }
+	friend std::ostream & operator<<(std::ostream & os, basic_point const & p) { os << '(' << p.x << ',' << p.y << ')'; return os; }
 };
+
+typedef basic_point<int> Point;
 
 }
 
