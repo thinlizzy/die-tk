@@ -37,10 +37,22 @@ struct basic_dimension {
 
 	std::size_t area() const;
 
-	basic_dimension setWidth(DimType width) const;
-	basic_dimension setHeight(DimType height) const;
-	basic_dimension addWidth(DimType width) const;
-	basic_dimension addHeight(DimType height) const;
+	constexpr basic_dimension setWidth(DimType width) const
+    {
+        return basic_dimension<T>(width, this->height);
+    }
+	constexpr basic_dimension setHeight(DimType height) const
+    {
+        return basic_dimension<T>(this->width, height);
+    }
+	constexpr basic_dimension addWidth(DimType width) const
+    {
+        return basic_dimension<T>(this->width + width, this->height);
+    }
+	constexpr basic_dimension addHeight(DimType height) const
+    {
+        return basic_dimension<T>(this->width, this->height + height);
+    }
 
 	basic_dimension & operator+=(basic_dimension const & d);
 

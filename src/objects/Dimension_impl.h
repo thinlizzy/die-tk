@@ -32,31 +32,6 @@ size_t basic_dimension<T>::area() const
 	return size_t(width)*size_t(height);
 }
 
-template<typename T>
-basic_dimension<T> basic_dimension<T>::setWidth(DimType width) const
-{
-    return basic_dimension<T>(width, this->height);
-}
-
-template<typename T>
-basic_dimension<T> basic_dimension<T>::setHeight(DimType height) const
-{
-    return basic_dimension<T>(this->width, height);
-}
-
-template<typename T>
-basic_dimension<T> basic_dimension<T>::addWidth(DimType width) const
-{
-    return basic_dimension<T>(this->width + width, this->height);
-}
-
-template<typename T>
-basic_dimension<T> basic_dimension<T>::addHeight(DimType height) const
-{
-    return basic_dimension<T>(this->width, this->height + height);
-}
-
-
 /** vector sum (a,b) += (c,d) == (a+c,b+d)
 * @param d	the dimension object to be added
 * @return reference to *this
