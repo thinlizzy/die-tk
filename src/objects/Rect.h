@@ -4,6 +4,7 @@
 #include "Point.h"
 #include "Dimension.h"
 #include <ostream>
+#include <algorithm>
 
 namespace tk {
 
@@ -105,42 +106,18 @@ struct Intersection {
     explicit operator bool() const { return ! dims.empty(); }
 };
 
-inline bool getIntersect(int & dim, int & p, int lim1, int lim2)
-{
-    dim = lim1 - lim2 + 1;
-    if( dim <= 0 ) return false;
-
-    p = lim1 - dim + 1;
-    return true;    
-}
-
-inline bool getIntersectX(Intersection & result, Rect const & rect1, Rect const & rect2)
-{
-    return getIntersect(result.dims.width,result.point.x,rect1.right,rect2.left);
-}
-
-inline bool getIntersectY(Intersection & result, Rect const & rect1, Rect const & rect2)
-{
-    return getIntersect(result.dims.height,result.point.y,rect1.bottom,rect2.top);
-}
-
 inline Intersection getIntersection(Rect const & rect1, Rect const & rect2)
 {
-    Intersection result;
+    int l,r,t,b;
+    l = std::max(rect1.left,rect2.left);
+    r = std::min(rect1.right,rect2.right);
+    if( l > r ) return Intersection();
     
-    if( rect1.left < rect2.left ) {
-        if( ! getIntersectX(result,rect1,rect2) ) return Intersection();
-    } else {
-        if( ! getIntersectX(result,rect2,rect1) ) return Intersection();
-    }
+    t = std::max(rect1.top,rect2.top);
+    b = std::min(rect1.bottom,rect2.bottom);
+    if( t > b ) return Intersection();
     
-    if( rect1.top < rect2.top ) {
-        if( ! getIntersectY(result,rect1,rect2) ) return Intersection();
-    } else {
-        if( ! getIntersectY(result,rect2,rect1) ) return Intersection();
-    }
-    
-    return result;
+    return Intersection{ WDims{r-l+1,b-t+1}, Point{l,t} };
 }
 
 }
