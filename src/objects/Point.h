@@ -10,7 +10,7 @@ template<typename T>
 class basic_point {
 public:
     typedef T value_type;
-	int x,y;
+	T x,y;
 
 	constexpr basic_point():
 		x(),y()
