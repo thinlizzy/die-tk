@@ -119,20 +119,6 @@ bool operator!=(basic_dimension<T> const & d1, basic_dimension<T> const & d2)
 	return ! operator==(d1,d2);
 }
 
-/** @return vector sum of the two operators: (a,b) + (c,d) == (a+c,b+d) */
-template<typename T>
-basic_dimension<T> operator+(basic_dimension<T> const & d1, basic_dimension<T> const & d2)
-{
-	return basic_dimension<T>(d1)+=d2;
-}
-
-/** @return vector difference of the two operators: (a,b) - (c,d) == (a-c,b-d) */
-template<typename T>
-basic_dimension<T> operator-(basic_dimension<T> const & d1, basic_dimension<T> const & d2)
-{
-	return basic_dimension<T>(d1)-=d2;
-}
-
 /** @return vector product of the two operators: (a,b) * (c,d) == (a*c,b*d) */
 template<typename T>
 basic_dimension<T> operator*(basic_dimension<T> const & d1, basic_dimension<T> const & d2)

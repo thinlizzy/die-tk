@@ -25,30 +25,30 @@ public:
 		left(p1.x), top(p1.y), right(p2.x), bottom(p2.y)
 	{}
 
-	static Rect open(Point p, WDims dims) { return Rect(p.x,p.y,p.x+dims.width,p.y+dims.height); }
+	static constexpr Rect open(Point p, WDims dims) { return Rect(p.x,p.y,p.x+dims.width,p.y+dims.height); }
 
-	static Rect closed(Point p, WDims dims) { return open(p,dims+WDims(-1,-1)); }
+	static constexpr Rect closed(Point p, WDims dims) { return open(p,dims+WDims(-1,-1)); }
     
-	static Rect square(Point p, int size) { return open(p,WDims(size-1,size-1)); }
+	static constexpr Rect square(Point p, int size) { return open(p,WDims(size-1,size-1)); }
 
     constexpr int width() const { return right-left+1; }
     constexpr int height() const { return bottom-top+1; }
 
-	Point pos() const { return Point(left,top); }
+	constexpr Point pos() const { return Point(left,top); }
 	constexpr WDims dims() const { return WDims(width(),height()); }
 
-    Rect addX(int x) const { return Rect(left+x,top,right+x,bottom); }
-    Rect addY(int y) const { return Rect(left,top+y,right,bottom+y); }
-    Rect add(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
+    constexpr Rect addX(int x) const { return Rect(left+x,top,right+x,bottom); }
+    constexpr Rect addY(int y) const { return Rect(left,top+y,right,bottom+y); }
+    constexpr Rect add(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
     
-	Rect move(Point p) const { return Rect(p.x,p.y,right+p.x-left,bottom+p.y-top); }
+	constexpr Rect move(Point p) const { return Rect(p.x,p.y,right+p.x-left,bottom+p.y-top); }
 
-	Rect resize(WDims dims) const { return closed(pos(),dims); }
+	constexpr Rect resize(WDims dims) const { return closed(pos(),dims); }
     
-    Point posDown(int margin) const { return pos().addY(height() + margin); }
-    Point posRight(int margin) const { return pos().addX(width() + margin); }
+    constexpr Point posDown(int margin) const { return pos().addY(height() + margin); }
+    constexpr Point posRight(int margin) const { return pos().addX(width() + margin); }
 
-	bool intersect(Point const & p) const
+	constexpr bool intersect(Point const & p) const
 	{
 		return left <= p.x && p.x <= right &&
 			top <= p.y && p.y <= bottom;

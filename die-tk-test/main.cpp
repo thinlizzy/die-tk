@@ -43,7 +43,7 @@ void showWindows()
     auto imgBugExt = image::create(image::Params(imageBug.getWindowSystemHeader(),imageBug.rawBits()).externalBuffer().forceNoTransparent());
     auto imgRaw = image::create(image::Params(image::Type::BGR,WDims(630,418),image.rawBits()));
     auto imgRawExt = image::create(image::Params(image::Type::BGR,WDims(630,418),image.rawBits()).externalBuffer());
-    auto imgBugTransp = image::create(image::Params(imageBug.getWindowSystemHeader(),imageBug.rawBits()).transparentIndex(imageBug.getTransparentColor()));
+    auto imgBugTransp = image::create(image::Params(imageBug.getWindowSystemHeader(),imageBug.rawBits()).transparentIndex(imageBug.getTransparentColorIndex()));
     img::Image imageX("images/x.png");
     auto imgX = image::create(image::Params(imageX.getWindowSystemHeader(),imageX.rawBits()));
     
