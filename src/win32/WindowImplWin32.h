@@ -48,7 +48,9 @@ public:
 	virtual void setRect(Rect rect);
 
 	int state() const;
-
+    
+    void setBorders(bool value);
+    
     die::NativeString selectFile(SelectFileParams const & params = SelectFileParams());
     std::vector<die::NativeString> selectFiles(SelectFileParams const & params = SelectFileParams());
     die::NativeString selectFileForSave(SelectFileParams const & params = SelectFileParams());
@@ -66,6 +68,10 @@ public:
 	ProcessResize onResize(ProcessResize callback);
 	HandleEvent onUserEvent(HandleEvent callback);
 private:
+    WDims windowPayload();
+    WDims componentsPayload();
+    WDims framePayload(DWORD style);
+    
     typedef WINBOOL WINAPI OpenSaveFunc(LPOPENFILENAMEW);
     std::vector<die::NativeString> selectFiles(SelectFileParams const & params, OpenSaveFunc * operation, DWORD flags);
 };

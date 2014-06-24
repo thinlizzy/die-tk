@@ -37,9 +37,19 @@ WindowImpl & Window::getImpl()
     return static_cast<tk::WindowImpl &>(*impl);
 }
 
-int Window::state()
+WindowImpl const & Window::getImpl() const
+{
+    return static_cast<tk::WindowImpl &>(*impl);    
+}
+
+int Window::state() const
 {
     return getImpl().state();
+}
+
+void Window::setBorders(bool value)
+{
+    return getImpl().setBorders(value);
 }
 
 die::NativeString Window::selectFile(SelectFileParams const & params)

@@ -57,6 +57,9 @@ public:
         image(image)
     {}
     
+    MenuItemProperties & setEnabled(bool value) { enabled = value; return *this; }
+    MenuItemProperties & setChecked(bool value) { checked = value; return *this; }
+    
     bool hasImage() const { return image != image::nullImage; }
 };
 
@@ -68,7 +71,13 @@ public:
     void setText(die::NativeString const & text);
     void setImage(image::Ptr img);
     
-    // TODO enable, check
+    void enable() { setEnabled(true); }
+    void disable() { setEnabled(false); }
+    void setEnabled(bool enabled);
+    
+    void check() { setChecked(true); }
+    void uncheck() { setChecked(false); }
+    void setChecked(bool checked);
     
     MenuItemIterator begin();
     MenuItemIterator end();
@@ -94,7 +103,7 @@ class MenuItemIterator: public std::iterator<std::forward_iterator_tag,MenuItem>
     friend class MenuItemImpl;
     friend class MenuItemImplRoot;
 public:
-    MenuItemIterator() = default;
+    MenuItemIterator();
     MenuItemIterator(MenuItemIterator const & it);
     MenuItemIterator & operator=(MenuItemIterator const & it);
     ~MenuItemIterator();

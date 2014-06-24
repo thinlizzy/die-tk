@@ -16,9 +16,13 @@ public:
     Window(WindowParams const & params = WindowParams());
 	virtual ~Window();
 
-	int state();
+	int state() const;
     
     void remove(Control & control);
+    
+    void addBorders() { setBorders(true); }
+    void removeBorders() { setBorders(false); }
+    void setBorders(bool value);
     
     die::NativeString selectFile(SelectFileParams const & params = SelectFileParams());
     std::vector<die::NativeString> selectFiles(SelectFileParams const & params = SelectFileParams());
@@ -34,6 +38,7 @@ public:
     
     // internal use only
     WindowImpl & getImpl();     
+    WindowImpl const & getImpl() const;
     std::shared_ptr<WindowImpl> getImplPtr();
 protected:
     Window(std::shared_ptr<WindowImpl> impl);  // internal use only

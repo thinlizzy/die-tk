@@ -66,8 +66,6 @@ int main(int argc, char** argv)
     helpIt->addItem("about"_dies)->onClick([&](){ app.showMessage("by Diego Martins\njose.diego@gmail.com"_dies); });
     menu.attach(calc);
     
-    calc.setDims(calc.dims().addHeight(30)); // to compensate for the menu bar
-    
     vector<Button> numbers;
     vector<Button> operations;
     {

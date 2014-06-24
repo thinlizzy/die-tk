@@ -84,8 +84,17 @@ void insertNewItem(HMENU hMenu, MenuItemProperties const & properties, UINT pos)
     ++lastId;
     MENUITEMINFOW mii;
     mii.cbSize = sizeof(MENUITEMINFOW);
-    mii.fMask = MIIM_ID;
+    mii.fMask = MIIM_ID | MIIM_STATE;
     mii.wID = lastId;
+    
+    // enable and check
+    mii.fState = 0;
+    if( properties.checked ) {
+        mii.fState |= MFS_CHECKED;
+    }
+    if( ! properties.enabled ) {
+        mii.fState |= MFS_DISABLED;
+    }
     
     // add the item on the menu 
     if( ! properties.hasImage() ) {
@@ -149,24 +158,28 @@ optional<LRESULT> MenuImpl::processNotification(UINT message, UINT notification,
 
 void MenuImpl::attach(std::shared_ptr<WindowImpl> window)
 {
+    auto windowDims = window->rect().dims();
     if( SetMenu(window->hWnd,hMenu) == 0 ) {
         log::error("SetMenu returned zero for hWnd ",window->hWnd," with hMenu ",hMenu);
         return;
     }
     
     detachExistingMenu(window->components);
-    
-    window->components.insert(std::static_pointer_cast<MenuImpl>(shared_from_this()));
-    
+    window->components.insert(shared_from_this());
     attachedMenus[hMenu] = std::weak_ptr<WindowImpl>(window);
+    window->setDims(windowDims);
 }
 
 void MenuImpl::detach()
 {
-    auto window = findAndUnregister();
+    auto window = findWindow(hMenu);
     if( window ) {
-        // remove from the window registered components as well
-        window->components.erase(std::static_pointer_cast<MenuImpl>(shared_from_this()));    
+        auto windowDims = window->rect().dims();
+        unregister(window);        
+        window->components.erase(shared_from_this()); // remove from the window registered components as well
+        window->setDims(windowDims);
+    } else {
+        unregister(window);        
     }
 }
 
@@ -177,12 +190,18 @@ WindowRef MenuImpl::getAttachedWindow()
 
 void MenuImpl::unregister()
 {
-    findAndUnregister();
+    auto window = findWindow(hMenu);
+    unregister(window);
 }
 
-std::shared_ptr<WindowImpl> MenuImpl::findAndUnregister()
+WDims MenuImpl::payload()
 {
-    auto window = findWindow(hMenu);
+    // TODO font may be an issue. use findWindow(hMenu) if that is the case
+    return WDims(0,19);
+}
+
+void MenuImpl::unregister(std::shared_ptr<WindowImpl> window)
+{
     if( window ) {
         if( SetMenu(window->hWnd,0) == 0 ) {
             log::error("SetMenu returned zero for hWnd ",window->hWnd," while removing a menu");
@@ -190,8 +209,6 @@ std::shared_ptr<WindowImpl> MenuImpl::findAndUnregister()
     }
 
     attachedMenus.erase(hMenu);
-    
-    return window;
 }
 
 // MenuItemImpl
@@ -287,6 +304,38 @@ void MenuItemImpl::setImage(image::Ptr img)
         menuItemData[getItemId()].image = std::make_shared<image::Bitmap>(bmImage.release());
     }
     updateIfTopLevel();    
+}
+
+void MenuItemImpl::setState(bool flag, UINT flagValue)
+{
+    MENUITEMINFOW mii;
+    mii.cbSize = sizeof(MENUITEMINFOW);
+    mii.fMask = MIIM_STATE;
+    if( GetMenuItemInfoW(hMenu,pos,TRUE,&mii) == 0 ) {
+        log::error("GetMenuItemInfoW returned zero for hMenu ",hMenu);
+        return;
+    } 
+    
+    if( flag ) {
+        mii.fState |= flagValue;
+    } else {
+        mii.fState &= ~flagValue;
+    }
+    
+    if( SetMenuItemInfoW(hMenu,pos,TRUE,&mii) == 0 ) {
+        log::error("SetMenuItemInfoW returned zero for hMenu ",hMenu," and pos ",pos," while setting flags");
+    }
+    updateIfTopLevel();
+}
+
+void MenuItemImpl::setEnabled(bool enabled)
+{
+    setState(!enabled,MFS_DISABLED);
+}
+
+void MenuItemImpl::setChecked(bool checked)
+{
+    setState(checked,MFS_CHECKED);
 }
 
 UINT MenuItemImpl::getItemId() const

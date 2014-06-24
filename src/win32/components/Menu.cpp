@@ -63,6 +63,16 @@ void MenuItem::setImage(image::Ptr img)
     itemImpl->setImage(img);
 }
 
+void MenuItem::setEnabled(bool enabled)
+{
+    itemImpl->setEnabled(enabled);
+}
+
+void MenuItem::setChecked(bool checked)
+{
+    itemImpl->setChecked(checked);
+}
+
 MenuItemIterator MenuItem::begin()
 {
     return itemImpl->begin();
@@ -124,6 +134,10 @@ MenuItemIterator & MenuItemIterator::operator=(MenuItemIterator const & it)
 {
     iteratorImpl = it.iteratorImpl;
     return *this;
+}
+
+MenuItemIterator::MenuItemIterator()
+{
 }
 
 MenuItemIterator::~MenuItemIterator()

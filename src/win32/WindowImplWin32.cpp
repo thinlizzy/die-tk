@@ -42,8 +42,6 @@ WindowClass WindowImpl::windowClass;
 
 
 
-tk::WDims windowPayload(8,27);
-
 DWORD stateToWinStyle(int state)
 {
 	DWORD result = 0;
@@ -76,7 +74,7 @@ WindowImpl::WindowImpl(WindowParams const & params):
 	if( params.isDefaultDims() ) {
 		dims.width = dims.height = CW_USEDEFAULT;
 	} else {
-		dims = params.dims_ + windowPayload;
+		dims = params.dims_ + framePayload(DWORD(-1));  // TODO use a standard payload
 	}
 
 	hWnd = createWindow(Point(x,y),dims,params.text_.wstr.c_str(),windowClass.wc.lpszClassName,stateToWinStyle(params.initialState));
@@ -127,19 +125,59 @@ WindowImpl * WindowImpl::clone() const
     );
 }
 
+WDims WindowImpl::componentsPayload()
+{
+    WDims result;
+    for( auto & component : components ) {
+        result += component->payload();
+    }
+    
+    return result;
+}
+
+WDims WindowImpl::framePayload(DWORD style)
+{
+    WDims result;
+    if( style & WS_CAPTION ) result.height += 19;      // TODO get title bar size
+    if( style & WS_BORDER ) result += WDims(4,4);      // TODO get border size
+    if( style & WS_THICKFRAME ) result += WDims(4,4);  // TODO get thick frame size
+    return result;
+}
+
+WDims WindowImpl::windowPayload()
+{
+    return framePayload(GetWindowLong(hWnd,GWL_STYLE)) + componentsPayload();
+}
+
 void WindowImpl::setRect(Rect rect)
 {
-    rect = rect.resize(rect.dims() + windowPayload);
+    rect = rect.resize(rect.dims() + windowPayload());
     NativeControlImpl::setRect(rect);	
 }
 
 void WindowImpl::setDims(WDims dims)
 {
-	dims += windowPayload;
+	dims += windowPayload();
     NativeControlImpl::setDims(dims);
 }
 
 int WindowImpl::state() const { return state_; }
+
+void WindowImpl::setBorders(bool value)
+{
+    auto dims = rect().dims();
+    DWORD style = GetWindowLong(hWnd,GWL_STYLE);
+    if( value ) {
+        style |= WS_BORDER | WS_CAPTION | WS_THICKFRAME;
+    } else {
+        style &= ~(WS_BORDER | WS_CAPTION | WS_THICKFRAME);
+    }
+    SetWindowLong(hWnd,GWL_STYLE,style);
+//    SetWindowPos(hWnd,0,0,0,0,0,SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+//    setDims(dims);
+    dims += componentsPayload() + framePayload(style);
+    SetWindowPos(hWnd,0,0,0,dims.width,dims.height,SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+}
 
 std::wstring ofnFilters(std::vector<SelectFileParams::Filter> const & filters)
 {

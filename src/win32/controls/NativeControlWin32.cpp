@@ -103,6 +103,8 @@ Rect NativeControlImpl::rect() const
     RECT rc;
     GetClientRect(hWnd,&rc);
     MapWindowPoints(hWnd,GetParent(hWnd),(LPPOINT)&rc,2);
+    --rc.right;
+    --rc.bottom;
     Rect result = convertRect(rc);    
     return result;
 }

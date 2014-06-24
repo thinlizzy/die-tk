@@ -19,10 +19,11 @@ public:
     void detach();
     WindowRef getAttachedWindow();
     
-    virtual void unregister();
-    virtual optional<LRESULT> processNotification(UINT message, UINT notification, UINT id, LPARAM lParam);
+    void unregister() override;
+    optional<LRESULT> processNotification(UINT message, UINT notification, UINT id, LPARAM lParam) override;
+    WDims payload() override;
 private:
-    std::shared_ptr<WindowImpl> findAndUnregister();
+    void unregister(std::shared_ptr<WindowImpl> window);
 };
 
 class MenuItemImpl {
@@ -35,10 +36,11 @@ public:
     virtual MenuItemProperties getProperties() const;
     virtual void setText(die::NativeString const & text);
     virtual void setImage(image::Ptr img);
+
+    void setEnabled(bool enabled);
+    void setChecked(bool checked);
     
     virtual HandleOperation onClick(HandleOperation callback);
-    
-    // TODO enable, check
     
     virtual MenuItemIterator begin();
     virtual MenuItemIterator end();
@@ -54,6 +56,7 @@ public:
     bool operator==(MenuItemImpl const & item) const;
 private:
     void updateIfTopLevel();
+    void setState(bool flag, UINT flagValue);
     HMENU parentHMenu() const;
     UINT getItemId() const;
     unsigned total() const;

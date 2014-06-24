@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "../../util/optional.h"
+#include "../../objects/Dimension.h"
 #include <windows.h>
 
 namespace tk {
@@ -16,6 +17,7 @@ public:
     // return default optional to continue processing or something else otherwise
     virtual optional<LRESULT> processNotification(UINT message, UINT notification, UINT id, LPARAM lParam) = 0;
     virtual void unregister() = 0;
+    virtual WDims payload() = 0;
 };
 
 }

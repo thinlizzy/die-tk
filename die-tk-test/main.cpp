@@ -328,7 +328,31 @@ void showWindows()
     imagepb.onPaint([&](Canvas & canvas, Rect rect) {
         canvas.draw(toImageExt(image),imagepb.rect().move(Point()));
     });
-
+    
+    
+    WDims expectedSize(160,160);
+    auto repaintEvent = [expectedSize](Canvas & canvas, Rect rect) {
+        canvas.rectangle(Rect::closed(Point(),expectedSize),RGBColor(200,0,0));
+    };
+    auto checkSize = [expectedSize](Window const & window) {
+        std::cout << window.getText() << " - " << window.dims() << " difference " << (window.dims() - expectedSize) << std::endl;
+    };    
+    Window wNormal(WindowParams("normal").start(10,10).dims(expectedSize));
+    wNormal.onPaint(repaintEvent);
+    Window wMenu(WindowParams("menu").start(10,210).dims(expectedSize));
+    wMenu.onPaint(repaintEvent);
+    Menu testMenu;
+    testMenu.root().addItem("1");
+    testMenu.root().addItem("2");
+    testMenu.root().addItem("3");
+    testMenu.attach(wMenu);
+    Window wNoborder(WindowParams("no border").start(10,410).dims(expectedSize));
+    wNoborder.removeBorders();
+    wNoborder.onPaint(repaintEvent);
+    
+    checkSize(wNormal);
+    checkSize(wMenu);
+    checkSize(wNoborder);
 
     while( window1.state() == ws_visible || window2.state() == ws_visible ) {
         app.waitForMessages();
