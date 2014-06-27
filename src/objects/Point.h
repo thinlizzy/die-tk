@@ -26,6 +26,8 @@ public:
 	constexpr basic_point setY(T y) const { return basic_point(this->x,y); }
 	constexpr basic_point addX(T x) const { return basic_point(this->x + x,y); }
 	constexpr basic_point addY(T y) const { return basic_point(x,this->y + y); }
+    
+    constexpr basic_point operator-() const { return basic_point(-x,-y); }
 
 	bool operator==(basic_point const & p) const { return p.x == x && p.y == y; }
     bool operator!=(basic_point const & p) const { return ! operator==(p); }
