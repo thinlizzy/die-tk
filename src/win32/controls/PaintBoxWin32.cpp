@@ -33,7 +33,7 @@ PaintBoxImpl::PaintBoxImpl(HWND parentHwnd, ControlParams const & params):
 
 PaintBoxImpl * PaintBoxImpl::clone() const
 {
-    return new PaintBoxImpl(getParentHwnd(),getControlData());
+    return new PaintBoxImpl(getParentHandle(),getControlData());
 }
 
 }

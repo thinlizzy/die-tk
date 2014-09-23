@@ -14,7 +14,7 @@ LabelImpl::LabelImpl(HWND parentHwnd, ControlParams const & params):
 
 LabelImpl * LabelImpl::clone() const
 {
-    return new LabelImpl(getParentHwnd(),getControlData().autosize(autosize));
+    return new LabelImpl(getParentHandle(),getControlData().autosize(autosize));
 }
 
 void LabelImpl::setAutosize(bool autosize)

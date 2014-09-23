@@ -5,7 +5,6 @@
 #include <memory>
 #include "../WindowObjects.h"
 #include "../Window.h"
-#include "../WindowRef.h"
 #include "../util/ClonePtr.h"
 #include "Image.h"
 
@@ -31,7 +30,7 @@ public:
     
     void attach(Window & window);
     void detach();
-    WindowRef getAttachedWindow();
+    Window getAttachedWindow();
     
     // internal use only
     std::shared_ptr<MenuImpl> impl;

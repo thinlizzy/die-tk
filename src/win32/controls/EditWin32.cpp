@@ -1,5 +1,5 @@
 #include "EditWin32.h"
-#include "../../util/make_unique.h"
+#include <memory>
 #include <stdexcept>
 
 namespace tk {
@@ -18,7 +18,7 @@ EditImpl::EditImpl(HWND parentHwnd, ControlParams const & params, DWORD style):
 
 EditImpl * EditImpl::clone() const
 {
-    auto result = make_unique<EditImpl>(getParentHwnd(),getControlData());
+    auto result = std::make_unique<EditImpl>(getParentHandle(),getControlData());
     cloneInto(*result);
     return result.release();
 }

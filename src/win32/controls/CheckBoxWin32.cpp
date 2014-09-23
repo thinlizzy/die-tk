@@ -1,7 +1,7 @@
 #include "CheckBoxWin32.h"
 #include <algorithm>
 #include <Windowsx.h>
-#include "../../util/make_unique.h"
+#include <memory>
 
 namespace tk {
 
@@ -14,7 +14,7 @@ CheckBoxImpl::CheckBoxImpl(HWND parentHwnd, ControlParams const & params):
 
 CheckBoxImpl * CheckBoxImpl::clone() const
 {
-    auto result = make_unique<CheckBoxImpl>(getParentHwnd(),getControlData().autosize(autosize));
+    auto result = std::make_unique<CheckBoxImpl>(getParentHandle(),getControlData().autosize(autosize));
     if( checked() ) {
         result->check(true);
     }

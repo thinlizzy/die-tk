@@ -155,7 +155,7 @@ int main(int argc, char** argv)
         });
         
         
-        // destroy control used for cloning
+        // unattach control used for cloning. base destructor will take care of it
         calc.remove(base);
     }
     

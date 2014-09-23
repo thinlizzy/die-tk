@@ -12,7 +12,7 @@
 namespace tk {
 
 class ResourceManager {
-	typedef std::unordered_map<HWND,std::shared_ptr<WindowImpl>> WindowMap;
+	typedef std::unordered_map<HWND,std::weak_ptr<WindowImpl>> WindowMap;
 	typedef std::unordered_map<HWND,std::shared_ptr<NativeControlImpl>> ControlMap;
 	WindowMap windowMap;
 	ControlMap controlMap;

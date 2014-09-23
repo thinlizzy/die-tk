@@ -1,7 +1,7 @@
 #include "ImageWin32.h"
 #include "../ConvertersWin32.h"
 #include "../ScopedObjects.h"
-#include "../../util/make_unique.h"
+#include <memory>
 #include "../../log.h"
 #include <functional>
 
@@ -15,7 +15,7 @@ ImageImpl::ImageImpl(HWND parentHwnd, ControlParams const & params):
 
 ImageImpl * ImageImpl::clone() const
 {
-    auto result = make_unique<ImageImpl>(getParentHwnd(),getControlData().autosize(autosize));
+    auto result = std::make_unique<ImageImpl>(getParentHandle(),getControlData().autosize(autosize));
     if( hasImage() ) {
         result->setImage(image);
     }

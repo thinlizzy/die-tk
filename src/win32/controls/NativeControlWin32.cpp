@@ -3,7 +3,6 @@
 #include <winuser.h>
 #include "../ConvertersWin32.h"
 #include "../ResourceManager.h"
-#include "../CallbackUtils.h"
 
 #include "../../log.h"
 #include "../../trace.h"
@@ -252,7 +251,7 @@ Point NativeControlImpl::screenToClient(Point const & point) const
     return convertPoint(p);
 }
 
-HWND NativeControlImpl::getParentHwnd() const
+HWND NativeControlImpl::getParentHandle() const
 {
     HWND result = GetParent(hWnd);
     if( result == NULL ) {

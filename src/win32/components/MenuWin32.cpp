@@ -183,9 +183,9 @@ void MenuImpl::detach()
     }
 }
 
-WindowRef MenuImpl::getAttachedWindow()
+Window MenuImpl::getAttachedWindow()
 {
-    return WindowRef(findWindow(hMenu));
+    return Window(findWindow(hMenu));
 }
 
 void MenuImpl::unregister()

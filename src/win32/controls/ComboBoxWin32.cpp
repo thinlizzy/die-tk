@@ -1,11 +1,11 @@
 #include "ComboBoxWin32.h"
 #include "../ScopedObjects.h"
-#include "../CallbackUtils.h"
-#include "../../util/make_unique.h"
+#include "../../CallbackUtils.h"
+#include <memory>
 
 namespace tk {
 
-ControlCallbackMap<HandleOperation> cbChange;
+CallbackMap<ComboBoxImpl *, HandleOperation> cbChange;
 
 ControlParams chkComboDefaults(ControlParams params)
 {
@@ -33,7 +33,7 @@ ComboBoxImpl::~ComboBoxImpl()
 
 ComboBoxImpl * ComboBoxImpl::clone() const
 {
-    auto result = make_unique<ComboBoxImpl>(getParentHwnd(),getControlData());
+    auto result = std::make_unique<ComboBoxImpl>(getParentHandle(),getControlData());
     for( auto & item : items ) {
         result->addString(item);
     }
@@ -131,7 +131,7 @@ HandleOperation ComboBoxImpl::onChange(HandleOperation callback)
 optional<LRESULT> ComboBoxImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
 {
     if( message == WM_COMMAND && notification == CBN_SELCHANGE ) {
-        if( findExec(this,cbChange) ) {
+        if( executeCallback(this,cbChange) ) {
             return 0;
         }
 	}

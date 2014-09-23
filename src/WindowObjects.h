@@ -3,7 +3,7 @@
 
 namespace tk {
 
-enum WindowState { ws_destroyed=1, ws_visible=2, ws_minimized=4, ws_maximized=8, };
+enum WindowState { ws_visible=2, ws_minimized=4, ws_maximized=8, };
 
 enum class Cursor {
     defaultCursor = -1,
@@ -12,6 +12,10 @@ enum class Cursor {
 };
 
 enum class Scrollbar { none, horizontal, vertical, both, };
+
+enum class ClipboardType {
+    nothing, text, 
+};
 
 }
 

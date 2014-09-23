@@ -1,7 +1,7 @@
 #ifndef WINDOW_H_jdfsr89f4wrjfdasfsd
 #define WINDOW_H_jdfsr89f4wrjfdasfsd
 
-#include "Control.h"
+#include "Surface.h"
 #include "Callbacks.h"
 #include "WindowParams.h"
 #include "SelectFileParams.h"
@@ -9,12 +9,19 @@
 
 namespace tk {
 
+class Control;
 class WindowImpl;
 
-class Window: public Control {
+/* this is a scoped movable only object.
+ * unlike Control, when it goes out of scope, the window handle is destroyed.
+ * it uses a shared_ptr because other operations like getParent() can add more references to the implementation
+ */
+class Window: public Surface {
 public:
-    Window(WindowParams const & params = WindowParams());
-	virtual ~Window();
+    Window(WindowParams const & params);
+    Window(Window &&) = default;
+    Window & operator=(Window &&) = default;
+	virtual ~Window();     // all controls are destroyed too
 
 	int state() const;
     
@@ -28,20 +35,19 @@ public:
     std::vector<die::NativeString> selectFiles(SelectFileParams const & params = SelectFileParams());
     die::NativeString selectFileForSave(SelectFileParams const & params = SelectFileParams());
     
-    using Control::onPaint;
-    using Control::onKeyDown;
-    using Control::onKeyUp;
-    using Control::onKeypress;
+    using Surface::onPaint;
+    using Surface::onKeyDown;
+    using Surface::onKeyUp;
+    using Surface::onKeypress;
 	AllowOperation onClose(AllowOperation callback);
 	ProcessResize onResize(ProcessResize callback);
 	HandleEvent onUserEvent(HandleEvent callback);
     
     // internal use only
+    Window(std::shared_ptr<WindowImpl> impl);
     WindowImpl & getImpl();     
     WindowImpl const & getImpl() const;
     std::shared_ptr<WindowImpl> getImplPtr();
-protected:
-    Window(std::shared_ptr<WindowImpl> impl);  // internal use only
 };
 
 }

@@ -1,5 +1,4 @@
 #include "../WindowImplWin32.h"
-#include "../../WindowRef.h"
 #include "../ResourceManager.h"
 
 namespace {
@@ -36,7 +35,7 @@ CLASS CLASS::clone() const \
 { \
     CLASS result; \
     result.impl = std::shared_ptr<CONTROL_IMPL>(IMPL.clone()); \
-    resourceManager.findWindow(impl->getParentHwnd())->registerControl(result.impl); \
+    resourceManager.findWindow(impl->getParentHandle())->registerControl(result.impl); \
     return std::move(result); \
 }
 

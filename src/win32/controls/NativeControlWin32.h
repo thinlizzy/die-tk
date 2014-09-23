@@ -10,10 +10,13 @@
 #include "../ScopedObjects.h"
 #include "../CanvasImplWin32.h"
 #include "../../util/optional.h"
-#include "../ControlCallbackMap.h"
+#include "../../CallbackUtils.h"
 #include <NativeString.h>
 
 namespace tk {
+
+class NativeControlImpl;
+template<typename T> using ControlCallbackMap = CallbackMap<NativeControlImpl *, T>; 
 
 class NativeControlImpl {
 private:
@@ -69,7 +72,7 @@ public:
 
 	Point screenToClient(Point const & point) const;
     
-    HWND getParentHwnd() const;
+    HWND getParentHandle() const;
     
     ControlParams getControlData() const;
 

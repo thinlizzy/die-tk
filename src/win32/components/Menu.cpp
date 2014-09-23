@@ -31,7 +31,7 @@ void Menu::detach()
     impl->detach();
 }
 
-WindowRef Menu::getAttachedWindow()
+Window Menu::getAttachedWindow()
 {
     return impl->getAttachedWindow();
 }

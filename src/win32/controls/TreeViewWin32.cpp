@@ -1,8 +1,8 @@
 #include "TreeViewWin32.h"
 #include "../components/ImageListWin32.h"
-#include "../CallbackUtils.h"
+#include "../../CallbackUtils.h"
 #include "../../controls/base/ItemProperties.h"
-#include "../../util/make_unique.h"
+#include <memory>
 
 #ifndef MAX_TREEVIEW_ITEM_CHARS
 #define MAX_TREEVIEW_ITEM_CHARS 261
@@ -10,16 +10,18 @@
 
 namespace tk {
 
-ControlCallbackMap<TreeView::AllowChangeFromTo> cbBeforeChange;
-ControlCallbackMap<TreeView::HandleItemOperation> cbOnChange;
-ControlCallbackMap<TreeView::AllowItemChange> cbBeforeExpand;
-ControlCallbackMap<TreeView::HandleItemOperation> cbOnExpand;
-ControlCallbackMap<TreeView::AllowItemChange> cbBeforeCollapse;
-ControlCallbackMap<TreeView::HandleItemOperation> cbOnCollapse;
+template<typename T> using TreeViewCallbackMap = CallbackMap<TreeViewImpl *, T>; 
+
+TreeViewCallbackMap<TreeView::AllowChangeFromTo> cbBeforeChange;
+TreeViewCallbackMap<TreeView::HandleItemOperation> cbOnChange;
+TreeViewCallbackMap<TreeView::AllowItemChange> cbBeforeExpand;
+TreeViewCallbackMap<TreeView::HandleItemOperation> cbOnExpand;
+TreeViewCallbackMap<TreeView::AllowItemChange> cbBeforeCollapse;
+TreeViewCallbackMap<TreeView::HandleItemOperation> cbOnCollapse;
 
 // find and execute a callback
 template<typename CbType>
-bool findExecItem(ControlCallbackMap<CbType> & callbackMap, NativeControlImpl * treeView, HTREEITEM hItem)
+bool findExecItem(TreeViewCallbackMap<CbType> & callbackMap, TreeViewImpl * treeView, HTREEITEM hItem)
 {
     auto callback = fetchCallback(treeView,callbackMap);    
     if( callback == nullptr ) return false;
@@ -59,7 +61,7 @@ void cloneChildren(ItemImpl & dest, ItemImpl const & src)
 
 TreeViewImpl * TreeViewImpl::clone() const
 {
-    auto result = make_unique<TreeViewImpl>(getParentHwnd(),getControlData());    
+    auto result = std::make_unique<TreeViewImpl>(getParentHandle(),getControlData());    
     result->imageListImpl = imageListImpl;
     result->rootItemImpl = std::make_shared<ItemImpl>(result->hWnd,TVI_ROOT);
     cloneChildren(*result->rootItemImpl,*rootItemImpl);

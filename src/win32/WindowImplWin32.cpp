@@ -5,7 +5,7 @@
 #include "ConvertersWin32.h"
 #include "ScopedObjects.h"
 #include "ResourceManager.h"
-#include "CallbackUtils.h"
+#include "../CallbackUtils.h"
 
 #include "../log.h"
 
@@ -19,9 +19,11 @@ std::shared_ptr<tk::NativeControlImpl> nullControl;
 
 namespace tk {
 
-ControlCallbackMap<AllowOperation> cbClose;
-ControlCallbackMap<ProcessResize> cbResize;
-ControlCallbackMap<HandleEvent> cbUserEvent;
+template<typename T> using WindowCallbackMap = CallbackMap<WindowImpl *, T>; 
+
+WindowCallbackMap<AllowOperation> cbClose;
+WindowCallbackMap<ProcessResize> cbResize;
+WindowCallbackMap<HandleEvent> cbUserEvent;
 
 WindowClass::WindowClass()
 {
@@ -100,23 +102,18 @@ HWND WindowImpl::createWindow(Point pos, WDims dims, wchar_t const windowname[],
 
 WindowImpl::~WindowImpl()
 {
-	if( state_ != ws_destroyed ) {
-		// DestroyWindow(hWnd);
-		// PostMessage(hWnd,WM_CLOSE,0,0);
-		PostMessage(hWnd,WM_DESTROY,0,0);
-	}
     removeFromCb(this,cbClose);
     removeFromCb(this,cbResize);
     removeFromCb(this,cbUserEvent);
     for( auto & component : components ) {
         component->unregister();
     }
+    
+    DestroyWindow(hWnd);
 }
 
 WindowImpl * WindowImpl::clone() const
 {
-    if( state_ == ws_destroyed ) return 0;
-    
     return new WindowImpl(WindowParams()
             .start(rect().pos())
             .dims(rect().dims())
@@ -337,13 +334,8 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
     if( auto result = NativeControlImpl::processMessage(message,wParam,lParam) ) return result;
 
 	switch( message ) {
-		case WM_DESTROY:
-			state_ = ws_destroyed;
-			PostQuitMessage(0);			// TODO really need that? I am not processing WM_QUIT anymore
-			break;
-            
 		case WM_CLOSE: {
-            auto canClose = findExec<bool>(this,cbClose);
+            auto canClose = findExec(this,cbClose);
             if( canClose ) {
                 if( *canClose == false ) return 0;
             }
@@ -368,7 +360,7 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
 					break;
 			}
             
-            auto resNewDims = findExec<WDims>(this,cbResize,newDims);
+            auto resNewDims = findExec(this,cbResize,newDims);
             if( resNewDims ) {
                 // TODO verify the need of creating on_minimize and on_maximize callbacks also
                 lParam = WDimsToLParam(*resNewDims);
@@ -396,7 +388,7 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
 
 		default:
 			if( message >= WM_USER ) {
-                if( findExec(this,cbUserEvent,toUserEvent(message,lParam)) ) {
+                if( executeCallback(this,cbUserEvent,toUserEvent(message,lParam)) ) {
                     return 0;
                 }
 			}

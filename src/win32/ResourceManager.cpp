@@ -57,7 +57,7 @@ LRESULT ResourceManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 {
     if( auto controlImpl = findControlOrWindow(hWnd) ) {
         TRACE_M("WndProc! hWnd = " << hWnd << " message = " << windowsMessageToString(message));
-        optional<LRESULT> result = controlImpl->processMessage(message,wParam,lParam);
+        auto result = controlImpl->processMessage(message,wParam,lParam);
         if( result ) {
             TRACE_M("WndProc HANDLED! hWnd = " << hWnd << " message = " << windowsMessageToString(message));
             return *result;
@@ -110,7 +110,12 @@ void ResourceManager::unregisterControl(std::shared_ptr<NativeControlImpl> contr
 std::shared_ptr<WindowImpl> ResourceManager::findWindow(HWND hWnd)
 {
 	auto it = windowMap.find(hWnd);
-	return it == windowMap.end() ? nullWindow : it->second;
+    if( it == windowMap.end() ) return nullWindow;
+    
+    if( auto spt = it->second.lock() ) return spt;
+        
+    windowMap.erase(it);
+    return nullWindow;
 }
 
 std::shared_ptr<NativeControlImpl> ResourceManager::findControl(HWND hWnd)

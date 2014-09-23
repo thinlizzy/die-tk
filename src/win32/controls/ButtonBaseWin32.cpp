@@ -1,9 +1,9 @@
 #include "ButtonBaseWin32.h"
-#include "../CallbackUtils.h"
+#include "../../CallbackUtils.h"
 
 namespace tk {
 
-ControlCallbackMap<HandleOperation> cbClick;
+CallbackMap<ButtonBaseImpl *, HandleOperation> cbClick;
 
 ButtonBaseImpl::ButtonBaseImpl(HWND parentHwnd, ControlParams const & params, DWORD style):
     NativeControlImpl(parentHwnd,params,L"BUTTON",style)
@@ -17,7 +17,7 @@ ButtonBaseImpl::~ButtonBaseImpl()
 optional<LRESULT> ButtonBaseImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
 {
     if( message == WM_COMMAND && notification == BN_CLICKED ) {
-       if( findExec(this,cbClick) ) return 0;
+       if( executeCallback(this,cbClick) ) return 0;
 	}
 
     return NativeControlImpl::processNotification(message,notification,wParam,lParam);

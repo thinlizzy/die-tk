@@ -16,7 +16,7 @@ ImageListImpl::ImageListImpl(WDims dims, int capacity)
 
 ImageListImpl::~ImageListImpl()
 {
-    if( ! ImageList_Destroy(himl) ) {
+    if( ImageList_Destroy(himl) == 0 ) {
         log::error("failure to destroy imagelist with hWnd ",himl);
     }
 }

@@ -1,6 +1,5 @@
 #include "src/Application.h"
 #include "src/Window.h"
-#include "src/WindowRef.h"
 #include "src/Canvas.h"
 #include "src/NullCanvas.h"
 #include "src/log.h"

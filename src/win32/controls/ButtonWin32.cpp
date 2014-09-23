@@ -16,7 +16,7 @@ ButtonImpl::ButtonImpl(HWND parentHwnd, ControlParams const & params):
 
 ButtonImpl * ButtonImpl::clone() const
 {
-    return new ButtonImpl(getParentHwnd(),getControlData());
+    return new ButtonImpl(getParentHandle(),getControlData());
 }
 
 WDims ButtonImpl::getDimsByText(WDims dims)

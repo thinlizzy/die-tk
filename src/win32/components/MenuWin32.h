@@ -17,7 +17,7 @@ public:
     
     void attach(std::shared_ptr<WindowImpl> window);
     void detach();
-    WindowRef getAttachedWindow();
+    Window getAttachedWindow();
     
     void unregister() override;
     optional<LRESULT> processNotification(UINT message, UINT notification, UINT id, LPARAM lParam) override;

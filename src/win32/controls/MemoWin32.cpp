@@ -1,5 +1,5 @@
 #include "MemoWin32.h"
-#include "../../util/make_unique.h"
+#include <memory>
 
 namespace tk {
 
@@ -11,7 +11,7 @@ namespace tk {
 
 MemoImpl * MemoImpl::clone() const
 {
-    auto result = make_unique<MemoImpl>(getParentHwnd(),getControlData());
+    auto result = std::make_unique<MemoImpl>(getParentHandle(),getControlData());
     cloneInto(*result);
     return result.release();
 }

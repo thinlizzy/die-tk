@@ -18,7 +18,7 @@ void showWindows()
 
     app.showConsole();
 
-    Window window1;
+    auto window1 = Window{WindowParams()};
     window1.onClose([]() -> bool {
         std::cout << "window was closed!" << std::endl;
         return true;
@@ -307,20 +307,21 @@ void showWindows()
         .autosize()
         .text("open"));
     buttonFileTreeView.onClick([&](){
-        std::cout << "opening filename = " << ftv.getFile().filename << ' ' <<
-                "full path = " << ftv.getFile().fullPath << ' ' <<
-                "isDir? = " << ftv.getFile().isDirectory << std::endl;
-        if( ftv.getFile().isDirectory ) return;
+        auto fileP = ftv.getFile();
+        std::wcout << L"opening filename = " << fileP.filename << ' ' <<
+                L"full path = " << fileP.fullPath << ' ' <<
+                L"isDir? = " << fileP.isDirectory << std::endl;
+        if( fileP.isDirectory ) return;
 
-        fs::FileStreamWrapper file(ftv.getFile().fullPath);
+        fs::FileStreamWrapper file(fileP.fullPath);
         if( file ) {
             std::string buf(2048,'\0');
             file.read(&buf[0],buf.size());
             buf.resize(file.gcount());
             text.setText(buf);
         } else {
-            std::cout << "fail!" << std::endl;
-            app.showMessage("failed to open " + ftv.getFile().fullPath);
+            std::wcout << L"fail!" << std::endl;
+            app.showMessage("failed to open " + fileP.fullPath);
         }
     });
 
@@ -358,6 +359,8 @@ void showWindows()
         app.waitForMessages();
         app.processMessages();
     }
+    
+    std::cout << "gone!" << std::endl;
 }
 
 std::ostream & printAllItems(std::ostream & os, tk::MenuItem const & item, int level)

@@ -3,9 +3,9 @@
 #include "../components/ImageListWin32.h"
 #include "../../controls/base/ItemProperties.h"
 #include "../../log.h"
-#include "../CallbackUtils.h"
+#include "../../CallbackUtils.h"
 #include "../ConvertersWin32.h"
-#include "../../util/make_unique.h"
+#include <memory>
 
 #ifndef MAX_TABLEVIEW_ITEM_CHARS
 #define MAX_TABLEVIEW_ITEM_CHARS 261
@@ -13,8 +13,10 @@
 
 namespace tk {
 
-ControlCallbackMap<TableView::DrawItem> cbDrawItem;
-ControlCallbackMap<TableView::ItemEvent> cbClickItem;
+template<typename T> using TableViewCallbackMap = CallbackMap<TableViewImpl *, T>; 
+
+TableViewCallbackMap<TableView::DrawItem> cbDrawItem;
+TableViewCallbackMap<TableView::ItemEvent> cbClickItem;
         
 TableViewImpl::TableViewImpl(HWND parentHwnd, ControlParams const & params):
 	NativeControlImpl(parentHwnd,params,WC_LISTVIEW,LVS_REPORT | LVS_SHOWSELALWAYS),
@@ -32,7 +34,7 @@ TableViewImpl::~TableViewImpl()
 
 TableViewImpl * TableViewImpl::clone() const
 {
-    auto result = make_unique<TableViewImpl>(getParentHwnd(),getControlData());    
+    auto result = std::make_unique<TableViewImpl>(getParentHandle(),getControlData());    
     ListView_SetExtendedListViewStyle(result->hWnd,ListView_GetExtendedListViewStyle(hWnd));
     result->imageListImpl = imageListImpl;
     for( int c = 0; c != colCount; ++c ) {
@@ -351,7 +353,7 @@ optional<LRESULT> TableViewImpl::processNotification(UINT message, UINT notifica
             } break;
             case NM_CLICK: {
                 auto lpnmitem = reinterpret_cast<LPNMITEMACTIVATE>(lParam);
-                if( findExec(this,cbClickItem,TableView::ItemPos{lpnmitem->iSubItem,lpnmitem->iItem}) ) return 0;
+                if( executeCallback(this,cbClickItem,TableView::ItemPos{lpnmitem->iSubItem,lpnmitem->iItem}) ) return 0;
             } break;
         }
     }
