@@ -3,6 +3,7 @@
 #include "src/Canvas.h"
 #include "src/NullCanvas.h"
 #include "src/log.h"
+#include "src/Dialogs.h"
 
 // TODO auto generate the includes below
 

@@ -41,7 +41,7 @@ int main(int argc, char** argv)
     Menu menu;
     auto fileIt = menu.root().addItem("File"_dies);
     fileIt->addItem("Save History")->onClick([&](){
-        auto filenames = calc.selectFileForSave(SelectFileParams().
+        auto filenames = dialog::selectFileForSave(calc,SelectFileParams().
                             filter("*.txt").title("save history as")
                         );
         if( filenames.empty() ) return;

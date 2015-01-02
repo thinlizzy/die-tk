@@ -54,16 +54,22 @@ MouseEvent toMouseEvent(XButtonEvent event)
 	MouseEvent result;
 	switch(event.button) {
 	case Button1:
-		result.button = mb_left;
+		result.button = MouseButton::left;
 		break;
 	case Button2:
-		result.button = mb_right;
+		result.button = MouseButton::middle;
 		break;
 	case Button3:
-		result.button = mb_middle;
+		result.button = MouseButton::right;
+		break;
+	case Button4:
+		result.button = MouseButton::extra1;
+		break;
+	case Button5:
+		result.button = MouseButton::extra2;
 		break;
 	default:
-		result.button = MouseButton();
+		result.button = {};
 	}
 
 	return result;

@@ -328,9 +328,7 @@ std::string windowsMessageToString(UINT message)
 
 UserEvent toUserEvent(UINT message, LPARAM lParam)
 {
-	return UserEvent(
-		static_cast<UserEventType>(et_user0+(message-WM_USER)) ,
-		reinterpret_cast<void *>(lParam) );
+	return UserEvent(message,lParam);
 }
 
 MouseEvent toMouseEvent(UINT message, WPARAM wParam)

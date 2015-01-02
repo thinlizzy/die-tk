@@ -17,10 +17,12 @@ enum WindowKey {
     k_SEMICOLON, k_COMMA, k_DOT, 
 };
 
-enum MouseButton {
-    mb_left = 1,
-    mb_right,
-    mb_middle,
+enum class MouseButton {
+    left = 1,
+    right,
+    middle,
+    extra1,
+    extra2,
 };
 
 struct MouseEvent {
@@ -29,19 +31,17 @@ struct MouseEvent {
 	bool shiftPressed;
 };
 
-enum UserEventType {
-	et_user0, et_user1, et_user2, et_user3, et_user4, et_user5, et_user6, et_user7, et_user8, et_user9, et_user10,
-};
+typedef unsigned long UserEventType;
 
 struct UserEvent {
 	UserEventType type;
 	union {
-		int idata;
+		long idata;
 		void * data;
 	};
 
 	UserEvent(UserEventType type): type(type) {}
-	UserEvent(UserEventType type, int idata): type(type), idata(idata) {}
+	UserEvent(UserEventType type, long idata): type(type), idata(idata) {}
 	UserEvent(UserEventType type, void * data): type(type), data(data) {}
 };
 

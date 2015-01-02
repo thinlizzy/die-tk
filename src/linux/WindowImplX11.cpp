@@ -4,6 +4,7 @@
 #include "../CallbackUtils.h"
 #include "ConvertersX11.h"
 #include <X11/Xatom.h>
+#include <memory>
 
 namespace tk {
 
@@ -48,7 +49,7 @@ WindowImpl::WindowImpl(WindowParams const & params)
 			ExposureMask | StructureNotifyMask | PropertyChangeMask
 			);
 
-	XStoreName(resourceManager.dpy, windowId, params.text_.str.c_str());
+	setText(params.text_);
 	XSetIconName(resourceManager.dpy, windowId, params.text_.str.c_str());
 
 	if( params.initialState & ws_visible ) {
@@ -60,6 +61,8 @@ WindowImpl::WindowImpl(WindowParams const & params)
 	if( params.initialState & ws_minimized ) {
 		XIconifyWindow(resourceManager.dpy, windowId, DefaultScreen(resourceManager.dpy));
 	}
+
+	windowCanvas = CanvasX11(windowId);
 }
 
 WindowImpl::~WindowImpl()
@@ -102,29 +105,35 @@ void WindowImpl::setBorders(bool value)
 	XChangeWindowAttributes(resourceManager.dpy, windowId, CWOverrideRedirect, &attr);
 }
 
-die::NativeString WindowImpl::selectFile(const SelectFileParams& params)
-{
-	throw "selectFile is not implemented";
-}
-
-std::vector<die::NativeString> WindowImpl::selectFiles(const SelectFileParams& params)
-{
-	throw "selectFiles is not implemented";
-}
-
-die::NativeString WindowImpl::selectFileForSave(const SelectFileParams& params)
-{
-	throw "selectFileForSave is not implemented";
-}
-
 void WindowImpl::registerControl(std::shared_ptr<NativeControlImpl> control)
 {
-	throw "registerControl is not implemented";
+	controls[control->windowId] = control;
+	// do I need to register on resourceManager too?
 }
 
 void WindowImpl::unregisterControl(std::shared_ptr<NativeControlImpl> control)
 {
-	throw "unregisterControl is not implemented";
+    if( controls.erase(control->windowId) > 0 ) {
+    	// do I need to unregister on resourceManager too?
+        XDestroyWindow(resourceManager.dpy, control->windowId);
+    }
+}
+
+die::NativeString WindowImpl::getText() const
+{
+	char * windowName;
+	XFetchName(resourceManager.dpy, windowId, &windowName);
+	if( windowName == nullptr ) return {};
+
+	auto windowNamePtr = std::unique_ptr<void,int (*)(void*)>(static_cast<void *>(windowName),&XFree);
+	die::NativeString result;
+	result.str.assign(windowName);
+	return result;
+}
+
+void WindowImpl::setText(die::NativeString const & text)
+{
+	XStoreName(resourceManager.dpy, windowId, text.str.c_str());
 }
 
 // callbacks & messages
@@ -149,14 +158,17 @@ void WindowImpl::processMessage(XEvent & e)
 	//log::info("window ",e.xany.window," got event ",xEventToStr(e.type));
 
 	switch(e.type) {
-	case ClientMessage:
-		if( Atom(e.xclient.data.l[0]) == WM_DELETE_WINDOW ) {
+	case ClientMessage: {
+		auto atom = Atom(e.xclient.data.l[0]);
+		if( atom == WM_DELETE_WINDOW ) {
             auto canClose = findExec(this,cbClose);
             if( canClose && *canClose == false ) return;
 
 			hide();
+		} else {
+			executeCallback(this,cbUserEvent,UserEvent{atom,&e.xclient});
 		}
-		break;
+	} break;
 
 	case ConfigureNotify: {
 		auto & data = e.xconfigure;
@@ -172,6 +184,7 @@ void WindowImpl::processMessage(XEvent & e)
 			}
 		}
 	} break;
+
 	default:
 		NativeControlImpl::processMessage(e);
 
@@ -195,5 +208,9 @@ void WindowImpl::maximize(bool yes)
 				False, SubstructureNotifyMask, &xev);
 }
 
+Canvas & WindowImpl::canvas()
+{
+	return windowCanvas;
 }
 
+}

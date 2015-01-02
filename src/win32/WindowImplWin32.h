@@ -5,13 +5,11 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 
 #include "../WindowParams.h"
 #include "CanvasImplWin32.h"
 #include "controls/NativeControlWin32.h"
 #include "components/WindowComponent.h"
-#include "../SelectFileParams.h"
 #include "../util/optional.h"
 
 namespace tk {
@@ -51,10 +49,6 @@ public:
     
     void setBorders(bool value);
     
-    die::NativeString selectFile(SelectFileParams const & params = SelectFileParams());
-    std::vector<die::NativeString> selectFiles(SelectFileParams const & params = SelectFileParams());
-    die::NativeString selectFileForSave(SelectFileParams const & params = SelectFileParams());
-    
 	virtual void show();
 	virtual void hide();
 
@@ -71,9 +65,6 @@ private:
     WDims windowPayload();
     WDims componentsPayload();
     WDims framePayload(DWORD style);
-    
-    typedef WINBOOL WINAPI OpenSaveFunc(LPOPENFILENAMEW);
-    std::vector<die::NativeString> selectFiles(SelectFileParams const & params, OpenSaveFunc * operation, DWORD flags);
 };
 
 }

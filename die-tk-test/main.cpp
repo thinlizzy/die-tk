@@ -129,7 +129,7 @@ void showWindows()
     die::NativeString savedFilename;
     Button button1(window1,ControlParams().text("save file").start(20,20));
     button1.onClick([&]() {
-        auto file = window1.selectFileForSave();
+        auto file = dialog::selectFileForSave(window1);
         if( file.empty() ) {
             std::cout << "selected no files" << std::endl;
         } else {
@@ -143,7 +143,7 @@ void showWindows()
     
     Button buttonLF(window1,ControlParams().text("load file").start(button1.pos().addY(20)));
     buttonLF.onClick([&]() {
-        auto files = window1.selectFiles(SelectFileParams()
+        auto files = dialog::selectFiles(window1,SelectFileParams()
             .title("new title to load file")
             .showHidden()
             .path("C:\\")

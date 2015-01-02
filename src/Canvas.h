@@ -31,6 +31,7 @@ public:
 	virtual void rectangle(Rect const & rect, Pen const & pen) = 0;
 	virtual void fillRect(Rect const & openrect, Brush const & brush) = 0;
 
+	virtual void drawText(Point p, die::NativeString const & text, RGBColor const & color) = 0;
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) = 0;
     virtual WDims measureText(die::NativeString const & text) = 0;
     

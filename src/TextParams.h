@@ -5,8 +5,8 @@
 
 namespace tk {
     
-enum HTextAlign { hta_left, hta_right, hta_center };
-enum VTextAlign { vta_top, vta_bottom, vta_center };
+enum class HTextAlign { left, right, center };
+enum class VTextAlign { top, bottom, center };
 
 class TextParams {
 public:
@@ -15,8 +15,8 @@ public:
 	RGBColor textColor,backgroundColor;
 
 	TextParams():
-		h_align(hta_left),
-		v_align(vta_center),
+		h_align(HTextAlign::left),
+		v_align(VTextAlign::center),
 		textColor(0,0,0),
 		backgroundColor(255,255,255)
 	{}

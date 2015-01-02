@@ -3,15 +3,42 @@
 using namespace std;
 using namespace tk;
 
+template<typename T>
+void debug(T value) { cout << value << endl; }
+
+template<typename T>
+T cycle(T value) {
+	auto i = int(value) + 1;
+	if( i >= 3 ) i = 0;
+	return T(i);
+}
+
 int main()
 {
 	cout << "!!!Hello World!!!" << endl;
 
+	Application app;
+	Points points;
+
 	Window window(WindowParams("testex").dims(200,100));
+	Window window2(WindowParams("draw").dims(400,400));
 	bool closed = false;
-	window.onMouseDown([&window](MouseEvent e,Point){
-		if(e.button == mb_left)
+	window.onMouseDown([&window,&points,&app,&window2](MouseEvent e, Point pt) {
+		switch(e.button) {
+		case MouseButton::left:
 			window.setDims(WDims(400,400));
+			app.processMessages(); // makes setDims to execute now
+			window.canvas().drawPoly(points,RGBColor(0,180,0));
+			window2.canvas().drawPoly(points,RGBColor(0,0,180));
+			points.clear();
+			break;
+		case MouseButton::right:
+			window.canvas().drawLine(Point(),pt,RGBColor(180,0,0));
+			break;
+		case MouseButton::middle:
+			points.push_back(pt);
+		break;
+		}
 	});
 	window.onClose([&closed]() -> bool { closed = true; return true; });
 	window.onResize([](WDims d) -> WDims {
@@ -20,7 +47,18 @@ int main()
 		if( d.height > 400 ) d.height = 400;
 		return d;
 	});
-	Application app;
+
+	TextParams tp;
+	tp.color(RGBColor(20,30,140));
+	window2.onMouseDown([&window2,&window,&tp](MouseEvent e, Point pt) {
+		tp.verticalAlign(cycle(tp.v_align));
+		tp.horizontalAlign(cycle(tp.h_align));
+		window2.canvas().textRect(Rect::open(pt,WDims(250,20)),"Other TEST!"_dies,tp);
+		window2.canvas().fillRect(Rect::square(pt,20),RGBColor(20,30,40));
+		window.canvas().drawText(pt,"TEST!"_dies,RGBColor(200,30,40));
+	});
+	window2.onClose([]() -> bool { return false; });
+
 	do {
 		app.waitForMessages();
 		app.processMessages();

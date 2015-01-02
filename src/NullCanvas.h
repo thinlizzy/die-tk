@@ -18,6 +18,7 @@ class NullCanvas: public Canvas {
 	void rectangle(Rect const & rect, Pen const & pen) override {}
 	void fillRect(Rect const & openrect, Brush const & brush) override {}
 
+	void drawText(Point p, die::NativeString const & text, RGBColor const & color) override {}
 	void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) override {}
     WDims measureText(die::NativeString const & text) override { return WDims(); }
     

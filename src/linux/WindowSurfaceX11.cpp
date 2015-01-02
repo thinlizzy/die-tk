@@ -1,6 +1,7 @@
 #include "WindowSurfaceX11.h"
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
+#include "../NullCanvas.h"
 
 namespace tk {
 
@@ -63,52 +64,49 @@ bool NativeControlImpl::visible() const
 
 void NativeControlImpl::bringToFront()
 {
-	throw "bringToFront not implemented";
+	XRaiseWindow(resourceManager.dpy, windowId);
 }
 
 void NativeControlImpl::sendToBack()
 {
-	throw "sendToBack not implemented";
+	XLowerWindow(resourceManager.dpy, windowId);
 }
 
 bool NativeControlImpl::enabled() const
 {
-	throw "enabled not implemented";
+	return true;
 }
 
 void NativeControlImpl::enable()
 {
-	throw "enable not implemented";
 }
 
 void NativeControlImpl::disable()
 {
-	throw "disable not implemented";
 }
 
 die::NativeString NativeControlImpl::getText() const
 {
-	throw "getText not implemented";
+	return {};
 }
 
 void NativeControlImpl::setText(const die::NativeString& text)
 {
-	throw "setText not implemented";
 }
 
 ClipboardType NativeControlImpl::copyToClipboard() const
 {
-	throw "copyToClipboard not implemented";
+	return ClipboardType::nothing;
 }
 
 Canvas & NativeControlImpl::canvas()
 {
-	throw "canvas not implemented";
+	return nullCanvas;
 }
 
 void NativeControlImpl::repaint()
 {
-	throw "repaint not implemented";
+	XClearArea(resourceManager.dpy, windowId, 0, 0, 0, 0, True);
 }
 
 void NativeControlImpl::setCursor(Cursor cursor)

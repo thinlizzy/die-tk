@@ -49,21 +49,6 @@ void Window::setBorders(bool value)
     return getImpl().setBorders(value);
 }
 
-die::NativeString Window::selectFile(SelectFileParams const & params)
-{
-    return getImpl().selectFile(params);
-}
-
-std::vector<die::NativeString> Window::selectFiles(SelectFileParams const & params)
-{
-    return getImpl().selectFiles(params);    
-}
-
-die::NativeString Window::selectFileForSave(SelectFileParams const & params)
-{
-    return getImpl().selectFileForSave(params);    
-}
-
 AllowOperation Window::onClose(AllowOperation callback)
 {
     return getImpl().onClose(callback);

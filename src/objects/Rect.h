@@ -33,9 +33,14 @@ public:
 
     constexpr int width() const { return right-left+1; }
     constexpr int height() const { return bottom-top+1; }
-
-	constexpr Point pos() const { return Point(left,top); }
 	constexpr WDims dims() const { return WDims(width(),height()); }
+
+	constexpr Point topLeft() const { return Point(left,top); }
+	constexpr Point topRight() const { return Point(right,top); }
+	constexpr Point bottomLeft() const { return Point(left,bottom); }
+	constexpr Point bottomRight() const { return Point(right,bottom); }
+	[[deprecated]]
+	constexpr Point pos() const { return topLeft(); }
 
     constexpr Rect addX(int x) const { return Rect(left+x,top,right+x,bottom); }
     constexpr Rect addY(int y) const { return Rect(left,top+y,right,bottom+y); }
@@ -43,10 +48,10 @@ public:
     
 	constexpr Rect move(Point p) const { return Rect(p.x,p.y,right+p.x-left,bottom+p.y-top); }
 
-	constexpr Rect resize(WDims dims) const { return closed(pos(),dims); }
+	constexpr Rect resize(WDims dims) const { return closed(topLeft(),dims); }
     
-    constexpr Point posDown(int margin) const { return pos().addY(height() + margin); }
-    constexpr Point posRight(int margin) const { return pos().addX(width() + margin); }
+    constexpr Point posDown(int margin) const { return topLeft().addY(height() + margin); }
+    constexpr Point posRight(int margin) const { return topLeft().addX(width() + margin); }
 
 	constexpr bool intersect(Point const & p) const
 	{

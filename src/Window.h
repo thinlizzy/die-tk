@@ -4,8 +4,6 @@
 #include "Surface.h"
 #include "Callbacks.h"
 #include "WindowParams.h"
-#include "SelectFileParams.h"
-#include <vector>
 
 namespace tk {
 
@@ -30,10 +28,6 @@ public:
     void addBorders() { setBorders(true); }
     void removeBorders() { setBorders(false); }
     void setBorders(bool value);
-    
-    die::NativeString selectFile(SelectFileParams const & params = SelectFileParams());
-    std::vector<die::NativeString> selectFiles(SelectFileParams const & params = SelectFileParams());
-    die::NativeString selectFileForSave(SelectFileParams const & params = SelectFileParams());
     
     using Surface::onPaint;
     using Surface::onKeyDown;

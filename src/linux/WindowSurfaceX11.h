@@ -34,21 +34,19 @@ public:
 	void show();
 	void hide();
 
-	//
-
 	void bringToFront();
 	void sendToBack();
 
-	bool enabled() const;
-	void enable();
-	void disable();
+	virtual bool enabled() const;
+	virtual void enable();
+	virtual void disable();
 
 	virtual die::NativeString getText() const;
 	virtual void setText(die::NativeString const & text);
 
     virtual ClipboardType copyToClipboard() const;
 
-	Canvas & canvas();
+	virtual Canvas & canvas();
 	void repaint();
 
 	void setCursor(Cursor cursor);

@@ -4,10 +4,15 @@
 #include "../WindowParams.h"
 #include "../SelectFileParams.h"
 #include "WindowSurfaceX11.h"
+#include "CanvasX11.h"
+#include <unordered_map>
 
 namespace tk {
 
 class WindowImpl: public NativeControlImpl {
+	typedef std::unordered_map<::Window,std::shared_ptr<NativeControlImpl>> Controls;
+	Controls controls;
+	CanvasX11 windowCanvas;
 public:
 	WindowImpl(WindowParams const & params);
 	~WindowImpl();
@@ -16,16 +21,13 @@ public:
 
     void setBorders(bool value);
 
-    //
-
-    die::NativeString selectFile(SelectFileParams const & params = SelectFileParams());
-    std::vector<die::NativeString> selectFiles(SelectFileParams const & params = SelectFileParams());
-    die::NativeString selectFileForSave(SelectFileParams const & params = SelectFileParams());
-
 	void registerControl(std::shared_ptr<NativeControlImpl> control);
     void unregisterControl(std::shared_ptr<NativeControlImpl> control);
 
-    //
+	die::NativeString getText() const override;
+	void setText(die::NativeString const & text) override;
+
+	Canvas & canvas() override;
 
 	void processMessage(XEvent & e) override;
 
