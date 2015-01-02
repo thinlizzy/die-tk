@@ -1,7 +1,7 @@
-#include "../die-tk.h"
+#include <die-tk.h>
 
-#include "../die-tk-extra/die-tk-extra.h"
-#include "../../libimage/src/image.h"
+#include <die-tk-extra.h>
+#include <image.h>
 #include <fileutils.h>
 
 #include <iostream>

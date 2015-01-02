@@ -337,15 +337,15 @@ MouseEvent toMouseEvent(UINT message, WPARAM wParam)
 	switch(message) {
         case WM_LBUTTONDOWN:
         case WM_LBUTTONUP:
-            result.button = mb_left;
+            result.button = MouseButton::left;
             break;
         case WM_RBUTTONDOWN:
         case WM_RBUTTONUP:
-            result.button = mb_right;
+            result.button = MouseButton::right;
             break;
         case WM_MBUTTONDOWN:
         case WM_MBUTTONUP:
-            result.button = mb_middle;
+            result.button = MouseButton::middle;
             break;
         default:
             // TODO log that
@@ -365,25 +365,25 @@ UINT convertTextAlign(HTextAlign hta, VTextAlign vta)
 {
 	UINT format = 0;
 	switch( hta ) {
-		case hta_left:
+		case HTextAlign::left:
 			format |= DT_LEFT;
 			break;
-		case hta_right:
+		case HTextAlign::right:
 			format |= DT_RIGHT;
 			break;
-		case hta_center:
+		case HTextAlign::center:
 			format |= DT_CENTER;
 			break;
 	};
 	switch( vta ) {
-		case vta_top:
+		case VTextAlign::top:
 			format |= DT_TOP;
 			break;
-		case vta_bottom:
+		case VTextAlign::bottom:
 			format |= DT_BOTTOM;
 			format |= DT_SINGLELINE;
 			break;
-		case vta_center:
+		case VTextAlign::center:
 			format |= DT_VCENTER;
 			format |= DT_SINGLELINE;
 			break;

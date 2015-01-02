@@ -38,9 +38,9 @@ void EditImpl::setReadOnly(bool readOnly)
 DWORD alignmentToEditStyle(HTextAlign alignment)
 {
     switch(alignment) {
-        case hta_left: return ES_LEFT;
-        case hta_right: return ES_RIGHT;
-        case hta_center: return ES_CENTER;
+        case HTextAlign::left: return ES_LEFT;
+        case HTextAlign::right: return ES_RIGHT;
+        case HTextAlign::center: return ES_CENTER;
     }
     throw std::invalid_argument("invalid horizontal alignment");
 }

@@ -143,6 +143,11 @@ void CanvasImpl::drawPoly(Points const & polygon, Pen const & pen)
 	Polyline(dc,&points[0],points.size());
 }
 
+void CanvasImpl::drawText(Point p, die::NativeString const & text, RGBColor const & color)
+{
+	SetTextColor(dc,colorWin(color));
+	TextOut(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
+}
 
 void CanvasImpl::textRect(Rect const & rect, die::NativeString const & text, TextParams const & params)
 {
