@@ -7,9 +7,10 @@
 namespace tk {
 
 class CanvasX11: public Canvas {
+public:
 	GC gc;
 	::Window windowId;
-public:
+
 	CanvasX11();
 	explicit CanvasX11(::Window windowId);
 	CanvasX11(CanvasX11 && other);

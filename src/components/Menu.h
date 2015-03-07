@@ -7,6 +7,7 @@
 #include "../Window.h"
 #include "../util/ClonePtr.h"
 #include "Image.h"
+#include "NullImage.h"
 
 namespace tk {
 
