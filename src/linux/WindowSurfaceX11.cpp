@@ -185,12 +185,18 @@ void NativeControlImpl::processMessage(XEvent & e)
 {
 	//log::info("window ",e.xany.window," got event ",xEventToStr(e.type));
 
+	// TODO implement other callbacks
 	switch(e.type) {
-	case ButtonPress:
+	case ButtonPress: {
 		auto & data = e.xbutton;
 		// TODO needs to fill controlPressed and shiftPressed in the mouse event (or remove it)
 		executeCallback(this, cbMouseDown, toMouseEvent(data), Point(data.x,data.y));
-		break;
+	} break;
+	case Expose: {
+		auto & data = e.xexpose;
+		executeCallback(this, cbPaint, canvas(),
+				Rect::open(Point(data.x, data.y), WDims(data.width, data.height)));
+	} break;
 	}
 }
 

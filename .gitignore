@@ -1,2 +1,14 @@
 Makefile
-/Debug/
+Debug
+Release
+build
+dist
+.cproject
+.project
+nbproject
+.dep.inc
+.idea
+.settings
+*.depend
+*.layout
+*.vcxproj.user

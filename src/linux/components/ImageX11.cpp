@@ -14,17 +14,22 @@ char * duplicateBuffer(Params const & params)
 	auto totalBytesDest = params.dimensions_.area() * 4;
 	char * result = static_cast<char *>(malloc(totalBytesDest));
 	if( params.buffer_ ) {
+		auto src = params.buffer_;
+		auto dst = result;
 		switch( params.type_ ) {
-		case Type::RGBA:
-			// TODO swizzle
-			std::copy(params.buffer_,params.buffer_+totalBytesDest,result);
-			break;
 		case Type::BGRA:
-			std::copy(params.buffer_,params.buffer_+totalBytesDest,result);
+			std::copy(src,src+totalBytesDest,dst);
 			break;
-		case Type::RGB: {
-			auto src = params.buffer_;
-			auto dst = result;
+		case Type::RGBA:
+			for( size_t p = 0; p < params.dimensions_.area(); ++p ) {
+				*dst++ = *(src+2);
+				*dst++ = *(src+1);
+				*dst++ = *src;
+				*dst++ = *(src+3);
+				src += 4;
+			}
+			break;
+		case Type::RGB:
 			for( size_t p = 0; p < params.dimensions_.area(); ++p ) {
 				*dst++ = *(src+2);
 				*dst++ = *(src+1);
@@ -32,19 +37,23 @@ char * duplicateBuffer(Params const & params)
 				*dst++ = 0;
 				src += 3;
 			}
-		} break;
-		case Type::BGR: {
-			auto src = params.buffer_;
-			auto dst = result;
+			break;
+		case Type::BGR:
 			for( size_t p = 0; p < params.dimensions_.area(); ++p ) {
 				*dst++ = *src++;
 				*dst++ = *src++;
 				*dst++ = *src++;
 				*dst++ = 0;
 			}
-		} break;
+			break;
 		case Type::gray:
-			// TODO replicate
+			for( size_t p = 0; p < params.dimensions_.area(); ++p ) {
+				*dst++ = *src;
+				*dst++ = *src;
+				*dst++ = *src;
+				*dst++ = 0;
+				++src;
+			}
 			break;
 		}
 	}
