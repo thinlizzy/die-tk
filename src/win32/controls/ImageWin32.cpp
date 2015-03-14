@@ -4,6 +4,7 @@
 #include <memory>
 #include "../../log.h"
 #include <functional>
+#include "../../components/NullImage.h"
 
 namespace tk {
 
@@ -67,7 +68,7 @@ bool ImageImpl::hasImage() const
 void ImageImpl::handlePaint(Canvas & canvas, Rect rect)
 {
     // TODO support partial drawing on image via rect argument
-    canvas.draw(image,Point());
+	image->drawInto(canvas,Point());
 }
 
 }

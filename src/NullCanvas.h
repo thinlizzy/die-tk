@@ -21,9 +21,6 @@ class NullCanvas: public Canvas {
 	void drawText(Point p, die::NativeString const & text, RGBColor const & color) override {}
 	void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) override {}
     WDims measureText(die::NativeString const & text) override { return WDims(); }
-    
-    void draw(image::Ptr image, Point dest) override {}
-    void draw(image::Ptr image, Rect destrect) override {}
 };
 
 extern NullCanvas nullCanvas;

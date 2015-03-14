@@ -179,6 +179,13 @@ std::shared_ptr<Image> create(Params const & params)
     return nullImage;
 }
 
+HDC hdc(Canvas & canvas) {
+	if( &canvas == &nullCanvas ) return 0;
+
+	auto & canvasWin = static_cast<CanvasImpl &>(canvas);
+	return canvasWin.getHDC();
+}
+
 // External buffer
 
 External::External(BITMAPINFO * info, Byte const * buffer):
@@ -234,18 +241,18 @@ void External::endDraw()
 {
 }
 
-void External::drawInto(HDC hdc, Point dest)
+void External::drawInto(Canvas & canvas, Point dest)
 {
     auto d = dims();
-	SetDIBitsToDevice(hdc,dest.x,dest.y,d.width,d.height,
+	SetDIBitsToDevice(hdc(canvas),dest.x,dest.y,d.width,d.height,
                    0,0,0,info->bmiHeader.biHeight,buffer,info,DIB_RGB_COLORS);
 }
 
-void External::drawInto(HDC hdc, Rect destrect)
+void External::drawInto(Canvas & canvas, Rect destrect)
 {
     auto d = dims();
     auto destDims = destrect.dims();
-    StretchDIBits(hdc,destrect.left,destrect.top,destDims.width,destDims.height,
+    StretchDIBits(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
             0,0,d.width,d.height,buffer,info,DIB_RGB_COLORS,SRCCOPY);
 }
 
@@ -328,20 +335,20 @@ void Bitmap::endDraw()
     bd.unselect();
 }
 
-void Bitmap::drawInto(HDC hdc, Point dest)
+void Bitmap::drawInto(Canvas & canvas, Point dest)
 {
     auto d = dims();
     bd.select();
-    BitBlt(hdc,dest.x,dest.y,d.width,d.height,bd.hdc,0,0,SRCCOPY);
+    BitBlt(hdc(canvas),dest.x,dest.y,d.width,d.height,bd.hdc,0,0,SRCCOPY);
     bd.unselect();
 }
 
-void Bitmap::drawInto(HDC hdc, Rect destrect)
+void Bitmap::drawInto(Canvas & canvas, Rect destrect)
 {
     auto d = dims();
     auto destDims = destrect.dims();
     bd.select();
-    StretchBlt(hdc,destrect.left,destrect.top,destDims.width,destDims.height,
+    StretchBlt(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
             bd.hdc,0,0,d.width,d.height,SRCCOPY);
     bd.unselect();
 }
@@ -353,12 +360,12 @@ BitmapAlpha::BitmapAlpha(BITMAPINFO * info, Byte const * buffer):
 {
 }
 
-void BitmapAlpha::drawInto(HDC hdc, Point dest)
+void BitmapAlpha::drawInto(Canvas & canvas, Point dest)
 {
-    drawInto(hdc,Rect::closed(dest,dims()));
+    drawInto(canvas,Rect::closed(dest,dims()));
 }
 
-void BitmapAlpha::drawInto(HDC hdc, Rect destrect)
+void BitmapAlpha::drawInto(Canvas & canvas, Rect destrect)
 {
     auto d = dims();
     auto destDims = destrect.dims();
@@ -369,7 +376,7 @@ void BitmapAlpha::drawInto(HDC hdc, Rect destrect)
     bf.SourceConstantAlpha = 0xFF;
     bf.AlphaFormat = AC_SRC_ALPHA;
     bd.select();
-    ::GdiAlphaBlend(hdc,destrect.left,destrect.top,destDims.width,destDims.height,bd.hdc,0,0,d.width,d.height,bf);
+    ::GdiAlphaBlend(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,bd.hdc,0,0,d.width,d.height,bf);
     bd.unselect();
 }
 
@@ -392,18 +399,18 @@ BitmapPallete::BitmapPallete(BITMAPINFO * info, Byte const * buffer, int transpa
 {
 }
 
-void BitmapPallete::drawInto(HDC hdc, Point dest)
+void BitmapPallete::drawInto(Canvas & canvas, Point dest)
 {
-    drawInto(hdc,Rect::closed(dest,dims()));
+    drawInto(canvas,Rect::closed(dest,dims()));
 }
 
-void BitmapPallete::drawInto(HDC hdc, Rect destrect)
+void BitmapPallete::drawInto(Canvas & canvas, Rect destrect)
 {
     auto d = dims();
     auto destDims = destrect.dims();
     
     bd.select();
-    ::GdiTransparentBlt(hdc,destrect.left,destrect.top,destDims.width,destDims.height,bd.hdc,0,0,d.width,d.height,transpColor);
+    ::GdiTransparentBlt(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,bd.hdc,0,0,d.width,d.height,transpColor);
     bd.unselect();
 }
 

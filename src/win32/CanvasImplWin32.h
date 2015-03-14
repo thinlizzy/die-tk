@@ -39,9 +39,6 @@ public:
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params);
     virtual WDims measureText(die::NativeString const & text);
 
-    virtual void draw(image::Ptr image, Point dest);
-    virtual void draw(image::Ptr image, Rect destrect);
-    
 	void restoreObjects();
 };
 

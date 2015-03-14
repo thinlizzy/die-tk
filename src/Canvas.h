@@ -7,7 +7,6 @@
 #include "objects/Point.h"
 #include "objects/Rect.h"
 #include "objects/Drawing.h"
-#include "components/Image.h"
 #include <vector>
 #include <NativeString.h>
 
@@ -34,9 +33,6 @@ public:
 	virtual void drawText(Point p, die::NativeString const & text, RGBColor const & color) = 0;
 	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) = 0;
     virtual WDims measureText(die::NativeString const & text) = 0;
-    
-    virtual void draw(image::Ptr image, Point dest) = 0;
-    virtual void draw(image::Ptr image, Rect destrect) = 0;
 };
 
 

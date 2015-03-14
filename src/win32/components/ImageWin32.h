@@ -13,9 +13,6 @@ namespace image {
 
 class ImageImpl: public Image {
 public:
-    virtual void drawInto(HDC dc, Point dest) = 0;
-    virtual void drawInto(HDC dc, Rect destrect) = 0;
-    
     virtual bool isBitmap() const = 0;
     
     virtual HBITMAP getOrCreateHbitmap() const = 0;
@@ -26,8 +23,8 @@ public:
 
 class Null: public ImageImpl {
 public:
-    void drawInto(HDC dc, Point dest) override {}
-    void drawInto(HDC dc, Rect destrect) override {}
+    void drawInto(Canvas & canvas, Point dest) override {}
+    void drawInto(Canvas & canvas, Rect destrect) override {}
     bool isBitmap() const override { return false; }
     HBITMAP getOrCreateHbitmap() const override { return 0; }
     void releaseIfCreated(HBITMAP hbmp) override {}
@@ -50,20 +47,20 @@ private:
 public:
     External(BITMAPINFO * info, Byte const * buffer);
     
-    virtual bool isBitmap() const;    
-    virtual HBITMAP getOrCreateHbitmap() const;    
-    virtual void releaseIfCreated(HBITMAP hbmp);
-    virtual HBITMAP cloneHbitmap() const;
+    bool isBitmap() const override;
+    HBITMAP getOrCreateHbitmap() const override;
+    void releaseIfCreated(HBITMAP hbmp) override;
+    HBITMAP cloneHbitmap() const override;
 
-    virtual unsigned bpp() const;
-    virtual WDims dims() const;
+    unsigned bpp() const override;
+    WDims dims() const override;
 
-    virtual Canvas & beginDraw();
-    virtual Canvas & canvas();
-    virtual void endDraw();
+    Canvas & beginDraw() override;
+    Canvas & canvas() override;
+    void endDraw() override;
     
-    virtual void drawInto(HDC dc, Point dest);
-    virtual void drawInto(HDC dc, Rect destrect);
+    void drawInto(Canvas & canvas, Point dest) override;
+    void drawInto(Canvas & canvas, Rect destrect) override;
 };
 
 class ExternalWithHeader: public External {
@@ -80,20 +77,20 @@ public:
     Bitmap(BITMAPINFO * info, Byte const * buffer);
     explicit Bitmap(HBITMAP hbmp);
 
-    virtual bool isBitmap() const;
-    virtual HBITMAP getOrCreateHbitmap() const;
-    virtual void releaseIfCreated(HBITMAP hbmp);
-    virtual HBITMAP cloneHbitmap() const;
+    bool isBitmap() const override;
+    HBITMAP getOrCreateHbitmap() const override;
+    void releaseIfCreated(HBITMAP hbmp) override;
+    HBITMAP cloneHbitmap() const override;
 
-    virtual unsigned bpp() const;
-    virtual WDims dims() const;
+    unsigned bpp() const override;
+    WDims dims() const override;
 
-    virtual Canvas & beginDraw();
-    virtual Canvas & canvas();
-    virtual void endDraw();
+    Canvas & beginDraw() override;
+    Canvas & canvas() override;
+    void endDraw() override;
     
-    virtual void drawInto(HDC dc, Point dest);
-    virtual void drawInto(HDC dc, Rect destrect);
+    void drawInto(Canvas & canvas, Point dest) override;
+    void drawInto(Canvas & canvas, Rect destrect) override;
     
     HBITMAP getHbitmap() const;
 private:
@@ -104,16 +101,16 @@ class BitmapAlpha: public Bitmap {
 public:    
     BitmapAlpha(BITMAPINFO * info, Byte const * buffer);
     
-    virtual void drawInto(HDC dc, Point dest);
-    virtual void drawInto(HDC dc, Rect destrect);
+    void drawInto(Canvas & canvas, Point dest) override;
+    void drawInto(Canvas & canvas, Rect destrect) override;
 };
 
 class BitmapPallete: public Bitmap {
 public:    
     BitmapPallete(BITMAPINFO * info, Byte const * buffer, int transparentIndex);
     
-    virtual void drawInto(HDC dc, Point dest);
-    virtual void drawInto(HDC dc, Rect destrect);
+    void drawInto(Canvas & canvas, Point dest) override;
+    void drawInto(Canvas & canvas, Rect destrect) override;
 };
 
 typedef std::shared_ptr<Bitmap> BitmapPtr;
