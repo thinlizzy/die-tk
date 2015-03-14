@@ -63,15 +63,27 @@ char * duplicateBuffer(Params const & params)
 Ptr create(Params const & params)
 {
 	auto newBuf = duplicateBuffer(params);
+	auto imagePtr = createAndOwnBGRA(params.dimensions_,newBuf);
+	if( imagePtr == nullImage ) {
+		free(newBuf);
+	}
+
+	return imagePtr;
+}
+// not using external header anymore. will create a lib that adapts free image loading
+// perhaps create a RGBA type and move tryTransparent logic to this lib
+
+Ptr createAndOwnBGRA(WDims dims, char * buffer)
+{
 	auto imagePtr = XCreateImage(
 		resourceManager.dpy,
 		DefaultVisual(resourceManager.dpy,0),
-		24, // params.bpp(),
+		24,
 		ZPixmap,
 		0,
-		newBuf,
-		params.dimensions_.width,
-		params.dimensions_.height,
+		buffer,
+		dims.width,
+		dims.height,
 		32,
 		0);
 	if (imagePtr) {
@@ -79,11 +91,10 @@ Ptr create(Params const & params)
 	}
 
 	log::error("Failed to create XImage");
-	free(newBuf);
 	return nullImage;
-	// not using external header anymore. will create a lib that adapts free image loading
-	// perhaps create a RGBA type and move tryTransparent logic to this lib
 }
+
+// *** ImageX11 *** //
 
 ImageX11::ImageX11(XImage * imagePtr):
 	xImage(imagePtr)

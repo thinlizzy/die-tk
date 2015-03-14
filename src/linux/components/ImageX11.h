@@ -28,6 +28,9 @@ public:
     void drawInto(Canvas & canvas, Rect destrect) override;
 };
 
+// result image will own buffer
+Ptr createAndOwnBGRA(WDims dims, char * buffer);
+
 }
 
 }

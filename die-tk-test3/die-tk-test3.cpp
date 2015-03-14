@@ -12,8 +12,8 @@ int main()
 	image::Ptr boss = convertImage(img::Image("boss.png"));
 	image::Ptr diego = convertImage(img::Image("DIEGO1.jpg"));
 	window.onPaint([&](Canvas & canvas, Rect) {
-		boss->drawInto(canvas, Point(10,10));
-		diego->drawInto(canvas, Point(100,100));
+		diego->drawInto(canvas, Point(5,5));
+		boss->drawInto(canvas, Point(20,20));
 	});
 
 	do {
