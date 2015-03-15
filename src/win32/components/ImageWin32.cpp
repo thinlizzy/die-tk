@@ -138,7 +138,8 @@ std::shared_ptr<Image> create(Params const & params)
                 return std::make_shared<BitmapPallete>(info,params.buffer_,params.transparentIndex_);
             }
         } else {
-            // TODO add support for RGBA and Palletized types
+            // TODO add support for RGBA and BGRA
+            // TODO add support for Palletized types - borrow logic from linux port by converting to 32
         }        
     } else {    
         if( params.nativeHeader_ ) {
@@ -154,6 +155,7 @@ std::shared_ptr<Image> create(Params const & params)
                 return std::make_shared<Bitmap>(&info,nullptr);
             } else {
                 switch(params.type_) {
+                    // TODO add support for RGBA and BGRA
                     case Type::BGR:
                         if( params.externalBuffer_ ) {
                             return std::make_shared<ExternalWithHeader>(info,params.buffer_);
