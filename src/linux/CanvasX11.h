@@ -6,6 +6,11 @@
 
 namespace tk {
 
+/**
+ * This class needs a lot of working and tailoring.
+ * The clipping functions don't do what is expected and can generate undesirable side effects.
+ * The text functions need improvement.
+ */
 class CanvasX11: public Canvas {
 public:
 	GC gc;
@@ -33,10 +38,8 @@ public:
 	void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params = TextParams()) override;
     WDims measureText(die::NativeString const & text) override;
 
-    void draw(image::Ptr image, Point dest) override;
-    void draw(image::Ptr image, Rect destrect) override;
-private:
     void setForegroundColor(RGBColor const & color);
+private:
     void setPen(Pen const & pen);
     void setBrush(Brush const & brush);
 };

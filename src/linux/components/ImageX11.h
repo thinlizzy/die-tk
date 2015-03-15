@@ -10,13 +10,16 @@ namespace tk {
 
 namespace image {
 
+struct DestroyXImage {
+	void operator()(XImage * imagePtr) const {
+		if (imagePtr) XDestroyImage(imagePtr);
+	}
+};
+
+using xImagePtr = std::unique_ptr<XImage,DestroyXImage>;
+
 class ImageX11: public Image {
-	struct DestroyXImage {
-		void operator()(XImage * imagePtr) const {
-			if (imagePtr) XDestroyImage(imagePtr);
-		}
-	};
-	std::unique_ptr<XImage,DestroyXImage> xImage;
+	xImagePtr xImage;
 public:
 	explicit ImageX11(XImage * imagePtr);
     unsigned bpp() const override;
@@ -28,8 +31,20 @@ public:
     void drawInto(Canvas & canvas, Rect destrect) override;
 };
 
+class ImageX11Transparent: public ImageX11 {
+	std::unique_ptr<unsigned char[]> transparentBuffer;
+	Pixmap transparentMask;
+public:
+	ImageX11Transparent(XImage * imagePtr);
+	~ImageX11Transparent();
+
+    void drawInto(Canvas & canvas, Point dest) override;
+    void drawInto(Canvas & canvas, Rect destrect) override;
+};
+
 // result image will own buffer
-Ptr createAndOwnBGRA(WDims dims, char * buffer);
+Ptr createNativeBGRA(WDims dims, char * buffer);
+Ptr createTransparentBGRA(WDims dims, char * buffer);
 
 }
 

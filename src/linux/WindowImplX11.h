@@ -6,6 +6,7 @@
 #include "WindowSurfaceX11.h"
 #include "CanvasX11.h"
 #include <unordered_map>
+#include <memory>
 
 namespace tk {
 

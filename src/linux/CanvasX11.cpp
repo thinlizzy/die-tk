@@ -272,14 +272,4 @@ WDims CanvasX11::measureText(const die::NativeString & text)
 	return result;
 }
 
-void CanvasX11::draw(image::Ptr image, Point dest)
-{
-	throw "CanvasX11::draw not implemented";
-}
-
-void CanvasX11::draw(image::Ptr image, Rect destrect)
-{
-	throw "CanvasX11::drawRect not implemented";
-}
-
 }
