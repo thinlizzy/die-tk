@@ -4,18 +4,12 @@
 #include "../ConvertersWin32.h"
 #include "../../log.h"
 #include "../../NullCanvas.h"
+#include "../../components/NullImage.h"
 
 namespace tk {
     
 namespace image {
     
-Canvas & Null::canvas()
-{
-    return nullCanvas;
-}
-
-Ptr nullImage = std::make_shared<Null>();
-
 BITMAPINFO createBitmapInfo(int width, int height, int bpp)
 {
     BITMAPINFO info;
@@ -78,6 +72,24 @@ WDims alignDims(WDims dims)
     return dims;
 }
 
+std::vector<Byte> rgbaToBgra(WDims dims, Byte const * buffer)
+{
+    WDims normDims = alignDims(dims);
+    std::vector<Byte> alignBuf(normDims.area()*4);
+    for( auto h = 0; h != normDims.height; ++h ) {
+        int s = h*dims.width*4;
+        int d = h*normDims.width*4;
+        for( auto w = 0; w != dims.width; ++w,s+=4,d+=4 ) {
+            alignBuf[d] = buffer[s+2];
+            alignBuf[d+1] = buffer[s+1];
+            alignBuf[d+2] = buffer[s];
+            alignBuf[d+3] = buffer[s+3];
+        }
+    }
+
+    return alignBuf;
+}
+
 std::vector<Byte> rgbToBgr(WDims dims, Byte const * buffer)
 {
     WDims normDims = alignDims(dims);
@@ -112,70 +124,49 @@ std::vector<Byte> grayToBgr(WDims dims, Byte const * buffer)
     return alignBuf;
 }
 
-bool transparent(Params const & params)
-{
-    if( ! params.tryTransparent_ || params.buffer_ == 0 ) return false;
-    
-    if( params.nativeHeader_ ) {
-        auto info = reinterpret_cast<BITMAPINFO *>(params.nativeHeader_);
-        if( info->bmiHeader.biBitCount == 32 ) return true;
-        if( params.transparentIndex_ != -1 && info->bmiHeader.biBitCount <= 8 ) return true;
-    } else {
-        // TODO add support for RGBA and Palletized types
-    }
-    
-    return false;
-}
-
 std::shared_ptr<Image> create(Params const & params)
 {
-    if( transparent(params) ) {
-        if( params.nativeHeader_ ) {
-            auto info = reinterpret_cast<BITMAPINFO *>(params.nativeHeader_);
-            if( info->bmiHeader.biBitCount == 32 ) {
-                return std::make_shared<BitmapAlpha>(info,params.buffer_);
-            } else {
-                return std::make_shared<BitmapPallete>(info,params.buffer_,params.transparentIndex_);
-            }
-        } else {
-            // TODO add support for RGBA and BGRA
-            // TODO add support for Palletized types - borrow logic from linux port by converting to 32
-        }        
+    if( params.tryTransparent_ && params.bpp() == 32 ) {
+    	auto info = createBitmapInfo(params.dimensions_.width,params.dimensions_.height,32);
+		if( params.buffer_ == 0 ) {
+			return std::make_shared<BitmapAlpha>(&info,nullptr);
+		}
+		switch(params.type_) {
+		case Type::BGRA:
+			return std::make_shared<BitmapAlpha>(&info,params.buffer_);
+		case Type::RGBA: {
+			info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
+			auto swizzleBuf = rgbaToBgra(params.dimensions_,params.buffer_);
+			return std::make_shared<BitmapAlpha>(&info,&swizzleBuf[0]);
+		} break;
+		}
     } else {    
-        if( params.nativeHeader_ ) {
-            auto info = reinterpret_cast<BITMAPINFO *>(params.nativeHeader_);
-            if( params.externalBuffer_ ) {
-                return std::make_shared<External>(info,params.buffer_);
-            } else {
-                return std::make_shared<Bitmap>(info,params.buffer_);            
-            }
-        } else {
-            auto info = createBitmapInfo(params.dimensions_.width,params.dimensions_.height,24);
-            if( params.buffer_ == 0 ) {
-                return std::make_shared<Bitmap>(&info,nullptr);
-            } else {
-                switch(params.type_) {
-                    // TODO add support for RGBA and BGRA
-                    case Type::BGR:
-                        if( params.externalBuffer_ ) {
-                            return std::make_shared<ExternalWithHeader>(info,params.buffer_);
-                        } else {
-                            return std::make_shared<Bitmap>(&info,params.buffer_);
-                        }
-                    break;
-                    case Type::RGB: {
-                        info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
-                        auto swizzleBuf = rgbToBgr(params.dimensions_,params.buffer_);
-                        return std::make_shared<Bitmap>(&info,&swizzleBuf[0]);
-                    } break;
-                    case Type::gray: {
-                        info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
-                        auto swizzleBuf = grayToBgr(params.dimensions_,params.buffer_);
-                        return std::make_shared<Bitmap>(&info,&swizzleBuf[0]);                
-                    } break;
-                }
-            }
-        }
+    	auto info = createBitmapInfo(params.dimensions_.width,params.dimensions_.height,24);
+		if( params.buffer_ == 0 ) {
+			return std::make_shared<Bitmap>(&info,nullptr);
+		}
+
+		switch(params.type_) {
+			case Type::BGRA:
+				info.bmiHeader.biBitCount = 32; // fall through
+			case Type::BGR:
+				return std::make_shared<Bitmap>(&info,params.buffer_);
+			case Type::RGBA: {
+				info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
+				auto swizzleBuf = rgbaToBgra(params.dimensions_,params.buffer_);
+				return std::make_shared<Bitmap>(&info,&swizzleBuf[0]);
+			} break;
+			case Type::RGB: {
+				info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
+				auto swizzleBuf = rgbToBgr(params.dimensions_,params.buffer_);
+				return std::make_shared<Bitmap>(&info,&swizzleBuf[0]);
+			} break;
+			case Type::gray: {
+				info.bmiHeader.biHeight = -info.bmiHeader.biHeight;
+				auto swizzleBuf = grayToBgr(params.dimensions_,params.buffer_);
+				return std::make_shared<Bitmap>(&info,&swizzleBuf[0]);
+			} break;
+		}
     }
     
     return nullImage;

@@ -12,35 +12,21 @@ typedef unsigned char Byte;
 
 struct Params {
     Byte * buffer_;
-    // TODO remove native header
-    void * nativeHeader_;
     Type type_;
     WDims dimensions_;
-    int transparentIndex_ = -1;
-    bool externalBuffer_ = false;
-    bool tryTransparent_ = true;
-
-    // TODO remove this constructor
-    Params(void * nativeHeader, Byte * buffer = 0):
-        buffer_(buffer),
-        nativeHeader_(nativeHeader)
-    {}
+    bool tryTransparent_ = false;
 
     Params(Type type, WDims dimensions, Byte * buffer = 0):
         buffer_(buffer),
-        nativeHeader_(0),
         type_(type),
         dimensions_(dimensions)
     {}
 
     Params & buffer(Byte * value) { buffer_ = value; return *this; }
     Params & type(Type value) { type_ = value; return *this; }
-    Params & nativeHeader(void * value) { nativeHeader_ = value; return *this; }
     Params & dimensions(WDims value) { dimensions_ = value; return *this; }
 
-    Params & transparentIndex(int value) { transparentIndex_ = value; return *this; }
-    Params & externalBuffer(bool value = true) { externalBuffer_ = value; return *this; }
-    Params & forceNoTransparent(bool value = true) { tryTransparent_ = ! value; return *this; }
+    Params & tryTransparent(bool value = true) { tryTransparent_ = value; return *this; }
 
     unsigned bpp() const {
     	switch(type_) {

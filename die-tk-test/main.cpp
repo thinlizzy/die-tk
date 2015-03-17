@@ -1,6 +1,7 @@
 #include <die-tk.h>
 
 #include <die-tk-extra.h>
+#include <die-tk-image/convert.h>
 #include <image.h>
 #include <fileutils.h>
 
@@ -38,14 +39,12 @@ void showWindows()
     });
     
     img::Image image("images/DIEGO1.jpg");
-    img::Image imageBug("images/bug.png");
-    auto imgBugBmp = image::create(image::Params(imageBug.getWindowSystemHeader(),imageBug.rawBits()));
-    auto imgBugExt = image::create(image::Params(imageBug.getWindowSystemHeader(),imageBug.rawBits()).externalBuffer().forceNoTransparent());
     auto imgRaw = image::create(image::Params(image::Type::BGR,WDims(630,418),image.rawBits()));
-    auto imgRawExt = image::create(image::Params(image::Type::BGR,WDims(630,418),image.rawBits()).externalBuffer());
-    auto imgBugTransp = image::create(image::Params(imageBug.getWindowSystemHeader(),imageBug.rawBits()).transparentIndex(imageBug.getTransparentColorIndex()));
+    img::Image imageBug("images/bug.png");
+    auto imgBugBmp = image::create(image::Params(image::Type::BGR,WDims(630,418),imageBug.toRawBits(24).get()));
+    auto imgBugTransp = convertImage(imageBug);
     img::Image imageX("images/x.png");
-    auto imgX = image::create(image::Params(imageX.getWindowSystemHeader(),imageX.rawBits()));
+    auto imgX = convertImage(imageX);
     
     image::Byte rgbbuffer[] = {
         255,255,255, 255,255,255, 255,255,255, 0,255,255, 255,255,255, 255,255,255, 255,255,255, 
@@ -86,11 +85,11 @@ void showWindows()
     
     img::Image imageGhost("images/ghost0.png");
     auto fourthItemIt = menu.root().addItem("Images");
-    fourthItemIt->addItem(toImage(imageGhost));
-    fourthItemIt->addItem(toImageExt(img::Image("images/bubble.png")));
-    fourthItemIt->addItem(toImageExt(imageBug));
-    fourthItemIt->addItem(imgBugExt);
-    fourthItemIt->addItem(toImage(img::Image("images/ladyBugLeft.png")));
+    fourthItemIt->addItem(convertImage(imageGhost));
+    fourthItemIt->addItem(convertImage(img::Image("images/bubble.png")));
+    fourthItemIt->addItem(convertImage(imageBug));
+    fourthItemIt->addItem(imgBugBmp);
+    fourthItemIt->addItem(convertImage(img::Image("images/ladyBugLeft.png")));
     menu.attach(window1);
     
     printAllItems(std::cout,menu.root()) << std::endl;
@@ -103,27 +102,27 @@ void showWindows()
     
     window2.onPaint([&](Canvas & canvas, Rect rect) {
         canvas.fillRect(rect,tk::RGBColor(0,100,0));
-        canvas.draw(imgRaw,Point(500,480));
-        canvas.draw(imgRawExt,Point(600,520));
-        
-        canvas.draw(imgBugExt,Point(20,400));
-        canvas.draw(imgBugExt,Rect(60,400,110,450));
-        canvas.draw(imgBugBmp,Point(20,440));
-        canvas.draw(imgBugBmp,Rect(60,460,110,510));
-        canvas.draw(imgRgb,Point(20,480));
-        canvas.draw(imgGray,Point(20,490));
-        canvas.draw(imgRgb,Rect(20,520,75,575));
-        canvas.draw(imgGray,Rect(20,580,83,643));
-        
-        canvas.draw(imgBugTransp,Rect(120,400,160,432));
-        canvas.draw(imgBugTransp,Point(120,400));
-        canvas.draw(imgX,Point(120,440));
-        canvas.draw(imgX,Rect(130,440,161,471));
-        
+        imgRaw->drawInto(canvas,Point(500,480));
+        imgRaw->drawInto(canvas,Point(600,520));
+        imgBugBmp->drawInto(canvas,Point(20,400));
+        imgBugBmp->drawInto(canvas,Point(20,440));
+        imgBugBmp->drawInto(canvas,Rect(60,400,110,450));
+        imgBugBmp->drawInto(canvas,Rect(60,460,110,510));
+
+        imgRgb->drawInto(canvas,Point(20,480));
+        imgRgb->drawInto(canvas,Rect(20,520,75,575));
+        imgGray->drawInto(canvas,Point(20,490));
+        imgGray->drawInto(canvas,Rect(20,580,83,643));
+
+        imgBugTransp->drawInto(canvas,Rect(120,400,160,432));
+        imgBugTransp->drawInto(canvas,Point(120,400));
+        imgX->drawInto(canvas,Point(120,440));
+        imgX->drawInto(canvas,Rect(130,440,161,471));
+
         auto it = menu.root().begin();
         std::advance(it,3);
         auto itsub = it->begin();
-        canvas.draw(itsub->getProperties().image,Point(165,440));
+        itsub->getProperties().image->drawInto(canvas,Point(165,440));
     });
     
     die::NativeString savedFilename;
@@ -138,7 +137,7 @@ void showWindows()
         }
     });
     button1.onMouseDown([](MouseEvent evt, Point pt) {
-        std::cout << "clicked me with " << evt.button << " at " << pt << std::endl;
+        std::cout << "clicked me with " << int(evt.button) << " at " << pt << std::endl;
     });
     
     Button buttonLF(window1,ControlParams().text("load file").start(button1.pos().addY(20)));
@@ -171,7 +170,7 @@ void showWindows()
     paintboxB.bringToFront();      // that is partially hidden
 
     Image imageCtl(window2,ControlParams().start(300,100).autosize());
-    imageCtl.setImage(toImage(image));
+    imageCtl.setImage(convertImage(image));
     imageCtl.bringToFront();
     /*
     imageCtl.onMouseOver([](Point pt) {
@@ -221,8 +220,8 @@ void showWindows()
     
 
     ImageList imageList(WDims(16,16));
-    auto iBubble = addFile(imageList,"images/bubble.png");
-    auto iFolder = addFile(imageList,"images/folder.png");
+    auto iBubble = imageList.add(convertImage(img::Image("images/bubble.png")));
+    auto iFolder = imageList.add(convertImage(img::Image("images/folder.png")));
 
     TreeView treeView(window1,ControlParams().start(10,100).dims(100,300));
     treeView.setImageList(imageList);
@@ -327,7 +326,7 @@ void showWindows()
 
     PaintBox imagepb(window1,ControlParams().start(500,500).dims(200,200));
     imagepb.onPaint([&](Canvas & canvas, Rect rect) {
-        canvas.draw(toImageExt(image),imagepb.rect().move(Point()));
+    	imgRaw->drawInto(canvas,imagepb.rect().move(Point()));
     });
     
     
