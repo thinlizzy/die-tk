@@ -3,6 +3,7 @@
 
 #include <windows.h>
 #include <utility>
+#include "../util/ScopedHandle.h"
 
 namespace tk {
 
@@ -121,74 +122,21 @@ public:
     }
 };
 
-template<typename H, typename Deleter>
-class ScopedHandle {
-	H h;
-public:
-	ScopedHandle(H h = 0): h(h) {}
-
-	ScopedHandle(ScopedHandle && temp):
-		h(temp.h)
-	{
-		temp.h = 0;
-	}
-
-    ~ScopedHandle() {
-		dispose();
-	}
-    
-	ScopedHandle & operator=(ScopedHandle other)
-	{
-        swap(other);
-        return *this;
-	}
-
-    void swap(ScopedHandle & other)
-    {
-        std::swap(h,other.h);
-    }
-
-	void reset(H h = 0) {
-		dispose();
-		this->h = h;
-	}
-
-	H get() const {
-		return h;
-	}
-    
-	H release() {
-		H result = h;
-        h = 0;
-        return result;
-	}
-    
-    explicit operator bool() const {
-        return h != 0;
-    }
-private:
-	void dispose() {
-		if( h == 0 ) return;
-		Deleter()(h);
-		h = 0;
-	}
-};
-
 class DeleterObject {
 public:
     void operator()(HGDIOBJ h) { DeleteObject(h); }
 };
 
-typedef ScopedHandle<HBITMAP,DeleterObject> Bitmap;
+typedef Handle<HBITMAP,DeleterObject> Bitmap;
 
-typedef ScopedHandle<HBRUSH,DeleterObject> Brush;
+typedef Handle<HBRUSH,DeleterObject> Brush;
 
 class DeleterCompatDC {
 public:
     void operator()(HDC hdc) { DeleteDC(hdc); }
 };
 
-typedef ScopedHandle<HDC,scoped::DeleterCompatDC> CompatibleDC;
+typedef Handle<HDC,scoped::DeleterCompatDC> CompatibleDC;
 
 }
 
