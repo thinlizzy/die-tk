@@ -14,10 +14,10 @@ namespace tk {
 class CanvasX11: public Canvas {
 public:
 	GC gc;
-	::Window windowId;
+	Drawable drawable;
 
 	CanvasX11();
-	explicit CanvasX11(::Window windowId);
+	explicit CanvasX11(Drawable drawable);
 	CanvasX11(CanvasX11 && other);
 	CanvasX11 & operator=(CanvasX11 && other);
 	~CanvasX11() override;

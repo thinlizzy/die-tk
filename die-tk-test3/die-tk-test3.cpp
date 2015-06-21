@@ -7,7 +7,7 @@ int main()
 {
 	Application app;
 
-	Window window(WindowParams("test image load").dims(400,400));
+	Window window(WindowParams("test image load and transparency").dims(400,400));
 
 	image::Ptr boss = convertImage(img::Image("boss.png"));
 	image::Ptr diego = convertImage(img::Image("DIEGO1.jpg"));

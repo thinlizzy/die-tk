@@ -56,9 +56,13 @@ int main()
 		switch(e.button) {
 		case MouseButton::left:
 			window.setDims(WDims(400,400));
-			app.processMessages(); // makes setDims to execute now
+			app.processMessages(); // makes setDims to execute now, before drawing
 			window.canvas().drawPoly(points,RGBColor(0,180,0));
 			window2.canvas().drawPoly(points,RGBColor(0,0,180));
+			imgRgb2->beginDraw();
+			imgRgb2->canvas().drawLine(Point(points.size(),0),Point(11,11),RGBColor(255,0,0));
+			imgRgb2->endDraw();
+			imgRgb2->drawInto(window.canvas(),pt);
 			points.clear();
 			break;
 		case MouseButton::right:
@@ -84,15 +88,20 @@ int main()
 		if( d.height > 400 ) d.height = 400;
 		return d;
 	});
+	window.setCursor(Cursor::cross);
 
 	TextParams tp;
 	tp.color(RGBColor(20,30,140));
-	window2.onMouseDown([&window2,&window,&tp](MouseEvent e, Point pt) {
+	window2.onMouseDown([&window2,&window,&tp,&app](MouseEvent e, Point pt) {
 		tp.verticalAlign(cycle(tp.v_align));
 		tp.horizontalAlign(cycle(tp.h_align));
 		window2.canvas().textRect(Rect::open(pt,WDims(250,20)),"Other TEST!"_dies,tp);
 		window2.canvas().fillRect(Rect::square(pt,20),RGBColor(20,30,40));
 		window.canvas().drawText(pt,"TEST!"_dies,RGBColor(200,30,40));
+		window2.setCursor(Cursor::hand);
+		auto screenPos = app.getCursorPos();
+		cout << "cursor pos " << screenPos << endl;
+		cout << "window pos " << window2.screenToClient(screenPos) << endl;
 	});
 	window2.onClose([]() -> bool { return false; });
 

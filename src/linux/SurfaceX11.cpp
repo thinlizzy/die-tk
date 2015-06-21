@@ -1,3 +1,3 @@
-#include "WindowSurfaceX11.h"
+#include "NativeControlImpl.h"
 #include "../portable/Surface.hpp"
 

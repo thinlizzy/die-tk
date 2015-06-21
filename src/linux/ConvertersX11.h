@@ -3,6 +3,7 @@
 
 #include <string>
 #include "../Event.h"
+#include "../WindowObjects.h"
 #include <X11/Xlib.h>
 
 namespace tk {
@@ -10,6 +11,8 @@ namespace tk {
 std::string xEventToStr(int eventType);
 
 MouseEvent toMouseEvent(XButtonEvent event);
+
+unsigned int toShape(Cursor cursor);
 
 }
 

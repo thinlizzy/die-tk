@@ -20,6 +20,9 @@ public:
 	void processMessages();
 	void registerWindow(std::shared_ptr<WindowImpl> window);
 	std::shared_ptr<WindowImpl> findWindow(::Window windowId);
+
+	// the screen window
+	::Window root();
 };
 
 extern ResourceManager resourceManager;

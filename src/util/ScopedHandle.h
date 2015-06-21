@@ -1,6 +1,8 @@
 #ifndef SCOPED_HANDLE_H_DIE_TK_2015_03_20
 #define SCOPED_HANDLE_H_DIE_TK_2015_03_20
 
+#include <utility>
+
 namespace tk {
 
 namespace scoped {

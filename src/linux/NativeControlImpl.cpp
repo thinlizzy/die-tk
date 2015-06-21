@@ -1,7 +1,7 @@
-#include "WindowSurfaceX11.h"
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
 #include "../NullCanvas.h"
+#include "NativeControlImpl.h"
 
 namespace tk {
 
@@ -74,15 +74,17 @@ void NativeControlImpl::sendToBack()
 
 bool NativeControlImpl::enabled() const
 {
-	return true;
+	return windowEnabled;
 }
 
 void NativeControlImpl::enable()
 {
+	windowEnabled = true;
 }
 
 void NativeControlImpl::disable()
 {
+	windowEnabled = false;
 }
 
 die::NativeString NativeControlImpl::getText() const
@@ -111,7 +113,8 @@ void NativeControlImpl::repaint()
 
 void NativeControlImpl::setCursor(Cursor cursor)
 {
-	throw "setCursor not implemented";
+	nativeCursor.reset(XCreateFontCursor(resourceManager.dpy,toShape(cursor)));
+	XDefineCursor(resourceManager.dpy,windowId,nativeCursor.get());
 }
 
 void NativeControlImpl::setBackground(const RGBColor& color)
@@ -119,9 +122,15 @@ void NativeControlImpl::setBackground(const RGBColor& color)
 	throw "setBackground not implemented";
 }
 
-Point NativeControlImpl::screenToClient(const Point& point) const
+Point NativeControlImpl::screenToClient(Point const & point) const
 {
-	throw "screenToClient not implemented";
+	Point result;
+	::Window child;
+	XTranslateCoordinates(resourceManager.dpy,
+		resourceManager.root(), windowId,
+		point.x, point.y,
+		&result.x, &result.y, &child);
+	return result;
 }
 
 ::Window NativeControlImpl::getParentHandle() const
@@ -188,14 +197,17 @@ void NativeControlImpl::processMessage(XEvent & e)
 	// TODO implement other callbacks
 	switch(e.type) {
 	case ButtonPress: {
-		auto & data = e.xbutton;
-		// TODO needs to fill controlPressed and shiftPressed in the mouse event (or remove it)
-		executeCallback(this, cbMouseDown, toMouseEvent(data), Point(data.x,data.y));
+		if( windowEnabled ) {
+			auto & data = e.xbutton;
+			// TODO needs to fill controlPressed and shiftPressed in the mouse event (or remove it)
+			executeCallback(this, cbMouseDown, toMouseEvent(data), Point(data.x,data.y));
+		}
 	} break;
 	case Expose: {
 		auto & data = e.xexpose;
 		executeCallback(this, cbPaint, canvas(),
 				Rect::open(Point(data.x, data.y), WDims(data.width, data.height)));
+		// TODO check windowEnabled and gray the window over
 	} break;
 	}
 }

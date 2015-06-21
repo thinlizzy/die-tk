@@ -3,10 +3,10 @@
 
 #include "../WindowParams.h"
 #include "../SelectFileParams.h"
-#include "WindowSurfaceX11.h"
 #include "CanvasX11.h"
 #include <unordered_map>
 #include <memory>
+#include "NativeControlImpl.h"
 
 namespace tk {
 

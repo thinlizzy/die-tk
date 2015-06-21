@@ -34,7 +34,7 @@ char * duplicateBuffer(Params const & params)
 				*dst++ = *(src+2);
 				*dst++ = *(src+1);
 				*dst++ = *src;
-				*dst++ = 0;
+				*dst++ = 255;
 				src += 3;
 			}
 			break;
@@ -43,7 +43,7 @@ char * duplicateBuffer(Params const & params)
 				*dst++ = *src++;
 				*dst++ = *src++;
 				*dst++ = *src++;
-				*dst++ = 0;
+				*dst++ = 255;
 			}
 			break;
 		case Type::gray:
@@ -51,7 +51,7 @@ char * duplicateBuffer(Params const & params)
 				*dst++ = *src;
 				*dst++ = *src;
 				*dst++ = *src;
-				*dst++ = 0;
+				*dst++ = 255;
 				++src;
 			}
 			break;
@@ -125,19 +125,34 @@ WDims ImageX11::dims() const
 
 Canvas & ImageX11::beginDraw()
 {
-	// TODO copy to a pixmap and return a canvas to it
-	return nullCanvas;
+	if( ! drawingArea ) {
+		drawingArea.reset(XCreatePixmap(
+			resourceManager.dpy,
+			resourceManager.root(),
+			xImage->width, xImage->height,
+			xImage->depth
+		));
+		drawingCanvas = CanvasX11(drawingArea.get());
+	}
+	drawInto(drawingCanvas,Point(0,0));
+	return drawingCanvas;
 }
 
 Canvas & ImageX11::canvas()
 {
-	// TODO
-	return nullCanvas;
+	return drawingCanvas;
 }
 
 void ImageX11::endDraw()
 {
-	// TODO copy the pixmap back into the image and delete it
+	xImage.reset(XGetImage(
+		resourceManager.dpy,
+		drawingArea.get(),
+		0,0,
+		xImage->width, xImage->height,
+		-1,
+		ZPixmap
+	));
 }
 
 void ImageX11::drawInto(Canvas & canvas, Point dest)
@@ -147,7 +162,7 @@ void ImageX11::drawInto(Canvas & canvas, Point dest)
 	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
 	XPutImage(
 		resourceManager.dpy,
-		canvasX11.windowId,
+		canvasX11.drawable,
 		canvasX11.gc,
 		xImage.get(),
 		0, 0,
@@ -161,7 +176,7 @@ void ImageX11::drawInto(Canvas & canvas, Rect destrect)
 	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
 	XPutImage(
 		resourceManager.dpy,
-		canvasX11.windowId,
+		canvasX11.drawable,
 		canvasX11.gc,
 		xImage.get(),
 		0, 0,
@@ -195,7 +210,7 @@ size_t bitmapLineSize(int width)
 	return lineSize;
 }
 
-unsigned char * getTransparentMask(XImage * imagePtr)
+std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr)
 {
 	auto lineSize = bitmapLineSize(imagePtr->width);
 	unsigned char * result = new unsigned char[imagePtr->height * lineSize];
@@ -226,35 +241,29 @@ unsigned char * getTransparentMask(XImage * imagePtr)
 			}
 		}
 	}
-	return result;
+	return std::unique_ptr<unsigned char[]>(result);
 }
 
 // ImageX11Transparent //
 
 ImageX11Transparent::ImageX11Transparent(XImage * imagePtr):
 	ImageX11(imagePtr),
-	transparentBuffer(getTransparentMask(imagePtr)),
 	transparentMask(XCreateBitmapFromData(resourceManager.dpy,
-			DefaultRootWindow(resourceManager.dpy),
-			reinterpret_cast<char *>(transparentBuffer.get()),
+			resourceManager.root(),
+			reinterpret_cast<char *>(getTransparentMask(imagePtr).get()),
 			imagePtr->width, imagePtr->height))
 {
 }
 
-ImageX11Transparent::~ImageX11Transparent()
-{
-	XFreePixmap(resourceManager.dpy, transparentMask);
-}
-
 void ImageX11Transparent::drawInto(Canvas & canvas, Point dest)
 {
-	ClipMaskGuard guard(canvas,transparentMask,dest);
+	ClipMaskGuard guard(canvas,transparentMask.get(),dest);
 	ImageX11::drawInto(canvas,dest);
 }
 
 void ImageX11Transparent::drawInto(Canvas & canvas, Rect destrect)
 {
-	ClipMaskGuard guard(canvas,transparentMask,destrect.topLeft());
+	ClipMaskGuard guard(canvas,transparentMask.get(),destrect.topLeft());
 	ImageX11::drawInto(canvas,destrect);
 }
 
@@ -293,3 +302,14 @@ XFreePixmap(resourceManager.dpy, pixmap);
 ImageX11::drawInto(canvas, dest.addX(dims().width));
 ImageX11::drawInto(canvas, dest.addY(dims().height));
 */
+
+// LINKS
+
+// http://tronche.com/gui/x/xlib/utilities/manipulating-bitmaps.html
+// http://tronche.com/gui/x/xlib/utilities/manipulating-images.html
+// http://tronche.com/gui/x/xlib/pixmap-and-cursor/pixmap.html
+
+// http://www.linuxquestions.org/questions/programming-9/how-to-draw-color-images-with-xlib-339366/page2.html
+// http://stackoverflow.com/questions/6384987/load-image-onto-a-window-using-xlib
+// http://stackoverflow.com/questions/10513367/xlib-draw-only-set-bits-of-a-bitmap-on-a-window
+

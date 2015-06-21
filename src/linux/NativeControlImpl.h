@@ -1,5 +1,5 @@
-#ifndef WINDOWSURFACEX11_H_DIE_TK_2014_SEP_7
-#define WINDOWSURFACEX11_H_DIE_TK_2014_SEP_7
+#ifndef NATIVECONTROLIMPLX11_H_DIE_TK_2014_SEP_7
+#define NATIVECONTROLIMPLX11_H_DIE_TK_2014_SEP_7
 
 #include "../objects/Rect.h"
 #include "../objects/Color.h"
@@ -7,16 +7,19 @@
 #include "../Canvas.h"
 #include "../Callbacks.h"
 #include "../CallbackUtils.h"
+#include "ScopedX11.h"
 #include <X11/Xlib.h>
 
 namespace tk {
 
-// TODO rename to WindowSurface in all build trees
-
 class NativeControlImpl;
 template<typename T> using ControlCallbackMap = CallbackMap<NativeControlImpl *, T>;
 
+// this is a base class for window implementations and for window-based controls
 class NativeControlImpl {
+private:
+	bool windowEnabled = true;  // poorman state control. check if there is a native way to enable/disable windows
+	scoped::Cursor nativeCursor;
 protected:
 	NativeControlImpl() = default;
 public:
@@ -75,4 +78,4 @@ public:
 
 }
 
-#endif /* WINDOWSURFACEX11_H_ */
+#endif

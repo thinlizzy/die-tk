@@ -54,6 +54,11 @@ std::shared_ptr<WindowImpl> ResourceManager::findWindow(::Window windowId)
     return nullWindow;
 }
 
+::Window ResourceManager::root()
+{
+	return DefaultRootWindow(dpy);
+}
+
 ResourceManager resourceManager;
 
 }

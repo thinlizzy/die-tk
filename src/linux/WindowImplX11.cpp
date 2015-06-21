@@ -37,7 +37,7 @@ WindowImpl::WindowImpl(WindowParams const & params)
 	int borderWidth = 0;
 	windowId = XCreateSimpleWindow(
 			resourceManager.dpy,
-			DefaultRootWindow(resourceManager.dpy),  // parent :-)
+			resourceManager.root(),  // parent :-)
 			x, y, dims.width, dims.height,
 			borderWidth, borderColor, backgroundColor);
 
@@ -196,16 +196,16 @@ void WindowImpl::maximize(bool yes)
 	XEvent xev{};
 	xev.type = ClientMessage;
 	xev.xclient.window = windowId;
-	xev.xclient.message_type = XInternAtom(resourceManager.dpy, "_NET_WM_STATE",
-			False);
+	xev.xclient.message_type =
+			XInternAtom(resourceManager.dpy, "_NET_WM_STATE", False);
 	xev.xclient.format = 32;
 	xev.xclient.data.l[0] = yes ? 1: 0;
 	xev.xclient.data.l[1] = XInternAtom(resourceManager.dpy,
 			"_NET_WM_STATE_MAXIMIZED_HORZ", False);
 	xev.xclient.data.l[2] = XInternAtom(resourceManager.dpy,
 			"_NET_WM_STATE_MAXIMIZED_VERT", False);
-	XSendEvent(resourceManager.dpy, DefaultRootWindow(resourceManager.dpy),
-				False, SubstructureNotifyMask, &xev);
+	XSendEvent(resourceManager.dpy, resourceManager.root(),
+			False, SubstructureNotifyMask, &xev);
 }
 
 Canvas & WindowImpl::canvas()

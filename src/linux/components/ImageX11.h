@@ -2,6 +2,8 @@
 #define IMAGEX11_H_DIE_TK_2015_02_01
 
 #include "../../components/Image.h"
+#include "../ScopedX11.h"
+#include "../CanvasX11.h"
 #include <memory>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -15,11 +17,12 @@ struct DestroyXImage {
 		if (imagePtr) XDestroyImage(imagePtr);
 	}
 };
-
 using xImagePtr = std::unique_ptr<XImage,DestroyXImage>;
 
 class ImageX11: public Image {
 	xImagePtr xImage;
+	scoped::Pixmap drawingArea;
+	CanvasX11 drawingCanvas;
 public:
 	explicit ImageX11(XImage * imagePtr);
     unsigned bpp() const override;
@@ -32,11 +35,9 @@ public:
 };
 
 class ImageX11Transparent: public ImageX11 {
-	std::unique_ptr<unsigned char[]> transparentBuffer;
-	Pixmap transparentMask;
+	scoped::Pixmap transparentMask;
 public:
 	ImageX11Transparent(XImage * imagePtr);
-	~ImageX11Transparent();
 
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;

@@ -51,15 +51,15 @@ CanvasX11::CanvasX11():
 {
 }
 
-CanvasX11::CanvasX11(::Window windowId):
-	gc(XCreateGC(resourceManager.dpy,windowId,0,nullptr)),
-	windowId(windowId)
+CanvasX11::CanvasX11(Drawable drawable):
+	gc(XCreateGC(resourceManager.dpy,drawable,0,nullptr)),
+	drawable(drawable)
 {
 }
 
 CanvasX11::CanvasX11(CanvasX11 && other):
 	gc(other.gc),
-    windowId(other.windowId)
+    drawable(other.drawable)
 {
 	other.gc = nullptr;
 }
@@ -68,7 +68,7 @@ CanvasX11 & CanvasX11::operator=(CanvasX11 && other)
 {
 	if( this != &other ) {
 		gc = other.gc;
-	    windowId = other.windowId;
+	    drawable = other.drawable;
 		other.gc = nullptr;
 	}
 
@@ -161,13 +161,13 @@ void CanvasX11::setBrush(Brush const & brush)
 void CanvasX11::plot(Point p, const RGBColor & color)
 {
 	setForegroundColor(color);
-	XDrawPoint(resourceManager.dpy,windowId,gc,p.x,p.y);
+	XDrawPoint(resourceManager.dpy,drawable,gc,p.x,p.y);
 }
 
 void CanvasX11::drawLine(Point p1, Point p2, const Pen & pen)
 {
 	setPen(pen);
-	XDrawLine(resourceManager.dpy,windowId,gc,p1.x,p1.y,p2.x,p2.y);
+	XDrawLine(resourceManager.dpy,drawable,gc,p1.x,p1.y,p2.x,p2.y);
 }
 
 void CanvasX11::drawPoly(const Points & polygon, const Pen & pen)
@@ -181,26 +181,26 @@ void CanvasX11::drawPoly(const Points & polygon, const Pen & pen)
 		return XPoint{p.x, p.y};
 	});
 	points.push_back({polygon.front().x,polygon.front().y});
-	XDrawLines(resourceManager.dpy,windowId,gc,&points[0],polygon.size()+1,CoordModeOrigin);
+	XDrawLines(resourceManager.dpy,drawable,gc,&points[0],polygon.size()+1,CoordModeOrigin);
 }
 
 void CanvasX11::rectangle(const Rect & rect, const Pen & pen)
 {
 	setPen(pen);
-	XDrawRectangle(resourceManager.dpy,windowId,gc,rect.left,rect.top,rect.width(),rect.height());
+	XDrawRectangle(resourceManager.dpy,drawable,gc,rect.left,rect.top,rect.width(),rect.height());
 }
 
 void CanvasX11::fillRect(const Rect & openrect, const Brush & brush)
 {
 	setBrush(brush);
-	XFillRectangle(resourceManager.dpy,windowId,gc,openrect.left,openrect.top,openrect.width(),openrect.height());
+	XFillRectangle(resourceManager.dpy,drawable,gc,openrect.left,openrect.top,openrect.width(),openrect.height());
 }
 
 void CanvasX11::drawText(Point p, die::NativeString const & text, RGBColor const & color)
 {
 	setForegroundColor(color);
 	auto textDims = measureText(text);
-	XDrawString(resourceManager.dpy,windowId,gc,p.x,p.y+textDims.height,text.str.data(),text.str.size());
+	XDrawString(resourceManager.dpy,drawable,gc,p.x,p.y+textDims.height,text.str.data(),text.str.size());
 }
 
 void CanvasX11::textRect(const Rect & openrect, const die::NativeString & text, const TextParams & params)
@@ -236,7 +236,7 @@ void CanvasX11::textRect(const Rect & openrect, const die::NativeString & text, 
 	}
 
 	setForegroundColor(params.textColor);
-	XDrawString(resourceManager.dpy,windowId,gc,x,y+textDims.height,text.str.data(),text.str.size());
+	XDrawString(resourceManager.dpy,drawable,gc,x,y+textDims.height,text.str.data(),text.str.size());
 
 	// TODO restore clipping rects instead
 	clearClipping();
