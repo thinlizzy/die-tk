@@ -226,7 +226,6 @@ void NativeControlImpl::processMessage(XEvent & e)
 			auto & data = e.xbutton;
 			executeCallback(this, cbMouseDown, toMouseEvent(data), Point(data.x,data.y));
 		} break;
-
 		case ButtonRelease: {
 			auto & data = e.xbutton;
 			executeCallback(this, cbMouseUp, toMouseEvent(data), Point(data.x,data.y));
@@ -235,14 +234,22 @@ void NativeControlImpl::processMessage(XEvent & e)
 		case KeyPress:
 			keyPressEvent(e);
 		break;
-
 		case KeyRelease:
 			keyReleaseEvent(e);
 		break;
 
-		// TODO implement cbMouseEnter
-		// TODO implement cbMouseOver
-		// TODO implement cbMouseLeave
+		case EnterNotify: {
+			auto & data = e.xcrossing;
+			executeCallback(this, cbMouseEnter, Point(data.x,data.y));
+		} break;
+		case LeaveNotify: {
+			auto & data = e.xcrossing;
+			executeCallback(this, cbMouseLeave, Point(data.x,data.y));
+		} break;
+		case MotionNotify: {
+			auto & data = e.xmotion;
+			executeCallback(this, cbMouseOver, Point(data.x,data.y));
+		} break;
 	}
 }
 
