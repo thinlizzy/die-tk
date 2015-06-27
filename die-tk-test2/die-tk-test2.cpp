@@ -89,6 +89,14 @@ int main()
 		return d;
 	});
 	window.setCursor(Cursor::cross);
+	window.setBackground(RGBColor(0,150,0));
+	window.onKeyDown([&window](WindowKey key) -> WindowKey {
+		if( key == k_RIGHT ) {
+			cout << "previous rect " << window.rect() << endl;
+			window.setPos(window.pos().addX(5));
+		}
+		return key;
+	});
 
 	TextParams tp;
 	tp.color(RGBColor(20,30,140));

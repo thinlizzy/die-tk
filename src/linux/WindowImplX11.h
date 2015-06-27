@@ -25,6 +25,8 @@ public:
 	void registerControl(std::shared_ptr<NativeControlImpl> control);
     void unregisterControl(std::shared_ptr<NativeControlImpl> control);
 
+	Rect rect() const override;
+
 	die::NativeString getText() const override;
 	void setText(die::NativeString const & text) override;
 

@@ -4,9 +4,9 @@
 namespace tk {
 
 enum WindowKey {
-	k_NONE, k_ESCAPE, k_SPACE, k_BACK, k_BACKSPACE=k_BACK, k_RETURN, k_ENTER=k_RETURN, k_TAB,
-	k_INSERT, k_DELETE, k_HOME, k_END, k_PAGEUP, k_PAGEDOWN, k_PGUP=k_PAGEUP, k_PGDN=k_PAGEDOWN,
-	k_UP, k_DOWN, k_LEFT, k_RIGHT, k_SHIFT, k_CONTROL, k_ALT, 
+	k_NONE, k_ESCAPE, k_SPACE, k_BACK, k_BACKSPACE=k_BACK, k_RETURN_BIG, k_ENTER=k_RETURN_BIG, k_RETURN_SMALL,
+	k_TAB, k_INSERT, k_DELETE, k_HOME, k_END, k_PAGEUP, k_PAGEDOWN, k_PGUP=k_PAGEUP, k_PGDN=k_PAGEDOWN,
+	k_UP, k_DOWN, k_LEFT, k_RIGHT, k_SHIFT_L, k_CONTROL_L, k_ALT_L, k_SHIFT_R, k_CONTROL_R, k_ALT_R,
     k_PAUSE, k_PRINT, k_CAPSLOCK, k_NUMLOCK, k_SCROLLLOCK, 
 	k_A, k_B, k_C, k_D, k_E, k_F, k_G, k_H, k_I, k_J, k_K, k_L, k_M,
 	k_N, k_O, k_P, k_Q, k_R, k_S, k_T, k_U, k_V, k_W, k_X, k_Y, k_Z,

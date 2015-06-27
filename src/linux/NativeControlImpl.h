@@ -7,6 +7,7 @@
 #include "../Canvas.h"
 #include "../Callbacks.h"
 #include "../CallbackUtils.h"
+#include "../util/optional.h"
 #include "ScopedX11.h"
 #include <X11/Xlib.h>
 
@@ -18,10 +19,15 @@ template<typename T> using ControlCallbackMap = CallbackMap<NativeControlImpl *,
 // this is a base class for window implementations and for window-based controls
 class NativeControlImpl {
 private:
-	bool windowEnabled = true;  // poorman state control. check if there is a native way to enable/disable windows
 	scoped::Cursor nativeCursor;
+	// TODO check if there is a native way to enable/disable windows
+	bool windowEnabled = true;  // poorman state control.
+
+	Cursor cursor = Cursor::defaultCursor;
+	optional<RGBColor> backgroundColor;
 protected:
 	NativeControlImpl() = default;
+	// TODO some code from WindowImplX11 ctor will be moved here for window-based controls
 public:
 	::Window windowId;
 
@@ -31,7 +37,7 @@ public:
 	void setDims(WDims dims);
 	void setRect(Rect rect);
 
-	Rect rect() const;
+	virtual Rect rect() const = 0;
 
 	bool visible() const;
 	void show();
@@ -74,6 +80,9 @@ public:
 	HandlePaint onPaint(HandlePaint callback);
 
 	virtual void processMessage(XEvent & e);
+private:
+	void keyPressEvent(XEvent & e);
+	void keyReleaseEvent(XEvent & e);
 };
 
 }

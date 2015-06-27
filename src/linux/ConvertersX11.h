@@ -4,6 +4,7 @@
 #include <string>
 #include "../Event.h"
 #include "../WindowObjects.h"
+#include "../objects/Color.h"
 #include <X11/Xlib.h>
 
 namespace tk {
@@ -13,6 +14,12 @@ std::string xEventToStr(int eventType);
 MouseEvent toMouseEvent(XButtonEvent event);
 
 unsigned int toShape(Cursor cursor);
+
+unsigned long rgb32(RGBColor const & color);
+
+WindowKey fromKeySym(KeySym keySym);
+
+unsigned int toKeyCode(WindowKey key);
 
 }
 

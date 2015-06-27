@@ -17,7 +17,7 @@ int Surface::y() const
 
 Point Surface::pos() const
 {
-	return rect().pos();
+	return rect().topLeft();
 }
 
 int Surface::width() const

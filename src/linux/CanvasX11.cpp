@@ -1,5 +1,6 @@
 #include "CanvasX11.h"
 #include "ResourceManager.h"
+#include "ConvertersX11.h"
 #include <array>
 #include <memory>
 #include <type_traits>
@@ -38,11 +39,6 @@ XColor toXColor(const RGBColor & color)
 	return result;
 }
 */
-
-unsigned long rgb32(RGBColor const & color)
-{
-	return (color.r << 16) | (color.g << 8) | color.b;
-}
 
 //
 

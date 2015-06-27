@@ -1,7 +1,9 @@
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
-#include "../NullCanvas.h"
 #include "NativeControlImpl.h"
+#include "../NullCanvas.h"
+#include "../log.h"
+#include <X11/Xutil.h>
 
 namespace tk {
 
@@ -36,13 +38,6 @@ void NativeControlImpl::setRect(Rect rect)
 	changes.width = rect.width();
 	changes.height = rect.height();
 	XConfigureWindow(resourceManager.dpy, windowId, CWX | CWY | CWWidth | CWHeight, &changes);
-}
-
-Rect NativeControlImpl::rect() const
-{
-	XWindowAttributes attrs;
-	XGetWindowAttributes(resourceManager.dpy, windowId, &attrs);
-	return Rect::closed(Point(attrs.x,attrs.y),WDims(attrs.width,attrs.height));
 }
 
 void NativeControlImpl::show()
@@ -84,6 +79,7 @@ void NativeControlImpl::enable()
 
 void NativeControlImpl::disable()
 {
+	// TODO disable all events
 	windowEnabled = false;
 }
 
@@ -113,13 +109,15 @@ void NativeControlImpl::repaint()
 
 void NativeControlImpl::setCursor(Cursor cursor)
 {
+	this->cursor = cursor;
 	nativeCursor.reset(XCreateFontCursor(resourceManager.dpy,toShape(cursor)));
 	XDefineCursor(resourceManager.dpy,windowId,nativeCursor.get());
 }
 
-void NativeControlImpl::setBackground(const RGBColor& color)
+void NativeControlImpl::setBackground(RGBColor const & color)
 {
-	throw "setBackground not implemented";
+	XSetWindowBackground(resourceManager.dpy, windowId, rgb32(color));
+	backgroundColor = color;
 }
 
 Point NativeControlImpl::screenToClient(Point const & point) const
@@ -135,12 +133,34 @@ Point NativeControlImpl::screenToClient(Point const & point) const
 
 ::Window NativeControlImpl::getParentHandle() const
 {
-	throw "getParentHandle not implemented";
+	::Window root_return;
+	::Window parent_return;
+	::Window * children_return;
+	unsigned int nchildren_return;
+	XQueryTree(resourceManager.dpy, windowId,
+		&root_return, &parent_return, &children_return, &nchildren_return);
+	if( children_return ) {
+		XFree(children_return);
+	}
+	return parent_return;
 }
 
 ControlParams NativeControlImpl::getControlData() const
 {
-	throw "getControlData not implemented";
+	auto rectangle = rect();
+
+	ControlParams result = ControlParams()
+		.start(rectangle.topLeft())
+		.dims(rectangle.dims())
+		.text(getText())
+		.visible(visible())
+		.cursor(cursor);
+	// no scrollbar status?
+
+	if( backgroundColor ) {
+		result.backgroundColor(*backgroundColor);
+	}
+	return result;
 }
 
 // callbacks & messages
@@ -194,21 +214,95 @@ void NativeControlImpl::processMessage(XEvent & e)
 {
 	//log::info("window ",e.xany.window," got event ",xEventToStr(e.type));
 
-	// TODO implement other callbacks
 	switch(e.type) {
-	case ButtonPress: {
-		if( windowEnabled ) {
-			auto & data = e.xbutton;
-			// TODO needs to fill controlPressed and shiftPressed in the mouse event (or remove it)
-			executeCallback(this, cbMouseDown, toMouseEvent(data), Point(data.x,data.y));
-		}
-	} break;
-	case Expose: {
-		auto & data = e.xexpose;
-		executeCallback(this, cbPaint, canvas(),
+		case Expose: {
+			auto & data = e.xexpose;
+			executeCallback(this, cbPaint, canvas(),
 				Rect::open(Point(data.x, data.y), WDims(data.width, data.height)));
-		// TODO check windowEnabled and gray the window over
-	} break;
+			// TODO check windowEnabled and gray the window over
+		} break;
+
+		case ButtonPress: {
+			auto & data = e.xbutton;
+			executeCallback(this, cbMouseDown, toMouseEvent(data), Point(data.x,data.y));
+		} break;
+
+		case ButtonRelease: {
+			auto & data = e.xbutton;
+			executeCallback(this, cbMouseUp, toMouseEvent(data), Point(data.x,data.y));
+		} break;
+
+		case KeyPress:
+			keyPressEvent(e);
+		break;
+
+		case KeyRelease:
+			keyReleaseEvent(e);
+		break;
+
+		// TODO implement cbMouseEnter
+		// TODO implement cbMouseOver
+		// TODO implement cbMouseLeave
+	}
+}
+
+void NativeControlImpl::keyPressEvent(XEvent & e)
+{
+	auto it_kd = cbKeyDown.find(this);
+	auto it_kp = cbKeypress.find(this);
+	if( it_kd == cbKeyDown.end() && it_kp == cbKeypress.end() ) return;
+
+	// get event info
+	auto & data = e.xkey;
+	char chars[20];
+	KeySym keySym;
+	XLookupString(&data, chars, 20, &keySym, 0);
+
+	// forward to cbKeyDown if defined
+	if( it_kd != cbKeyDown.end() ) {
+		auto keyPressed = fromKeySym(keySym);
+#ifndef NDEBUG
+		if( keyPressed == k_NONE ) {
+			log::error("untranslated KeySym. code: ",data.keycode," key: ",keySym);
+		}
+#endif
+		auto newKey = it_kd->second(keyPressed);
+		if( newKey != k_NONE ) {
+			if( newKey != keyPressed ) {
+				data.keycode = toKeyCode(newKey);
+			}
+			// TODO forward the event to child windows
+		}
+	}
+
+	// forward to cbKeyPress if defined
+	if( it_kp != cbKeypress.end() ) {
+		for( auto cp = &chars[0]; cp != nullptr; ++cp ) {
+			auto newCh = it_kp->second(*cp);
+			if( newCh != '\0' ) {
+				// TODO forward the event to child windows (somehow)
+			}
+		}
+	}
+}
+
+void NativeControlImpl::keyReleaseEvent(XEvent & e)
+{
+	auto it_ku = cbKeyUp.find(this);
+	if( it_ku == cbKeyUp.end() ) return;
+
+	// get event info
+	auto & data = e.xkey;
+	KeySym keySym;
+	XLookupString(&data, 0, 0, &keySym, 0);
+
+	auto keyReleased = fromKeySym(keySym);
+	auto newKey = it_ku->second(keyReleased);
+	if( newKey != k_NONE ) {
+		if( newKey != keyReleased ) {
+			data.keycode = toKeyCode(newKey);
+		}
+		// TODO forward the event to child windows
 	}
 }
 

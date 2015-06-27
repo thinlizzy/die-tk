@@ -48,6 +48,7 @@ WindowImpl::WindowImpl(WindowParams const & params)
 			EnterWindowMask | LeaveWindowMask | PointerMotionMask |
 			ExposureMask | StructureNotifyMask | PropertyChangeMask
 			);
+	// TODO set do-not-propagate-mask for KeyPress and KeyRelease events
 
 	setText(params.text_);
 	XSetIconName(resourceManager.dpy, windowId, params.text_.str.c_str());
@@ -119,6 +120,16 @@ void WindowImpl::unregisterControl(std::shared_ptr<NativeControlImpl> control)
     }
 }
 
+Rect WindowImpl::rect() const
+{
+	int tx,ty;
+	::Window child;
+	XTranslateCoordinates(resourceManager.dpy, windowId, resourceManager.root(), 0, 0, &tx, &ty, &child);
+	XWindowAttributes attrs;
+	XGetWindowAttributes(resourceManager.dpy, windowId, &attrs);
+	return Rect::closed(Point(tx-attrs.x,ty-attrs.y),WDims(attrs.width,attrs.height));
+}
+
 die::NativeString WindowImpl::getText() const
 {
 	char * windowName;
@@ -158,36 +169,36 @@ void WindowImpl::processMessage(XEvent & e)
 	//log::info("window ",e.xany.window," got event ",xEventToStr(e.type));
 
 	switch(e.type) {
-	case ClientMessage: {
-		auto atom = Atom(e.xclient.data.l[0]);
-		if( atom == WM_DELETE_WINDOW ) {
-            auto canClose = findExec(this,cbClose);
-            if( canClose && *canClose == false ) return;
+		case ClientMessage: {
+			auto atom = Atom(e.xclient.data.l[0]);
+			if( atom == WM_DELETE_WINDOW ) {
+				auto canClose = findExec(this,cbClose);
+				if( canClose && *canClose == false ) return;
 
-			hide();
-		} else {
-			executeCallback(this,cbUserEvent,UserEvent{atom,&e.xclient});
-		}
-	} break;
-
-	case ConfigureNotify: {
-		auto & data = e.xconfigure;
-		WDims newDims(data.width,data.height);
-		if( newDims != cachedDims ) {
-			auto resNewDims = findExec(this,cbResize,newDims);
-			if( resNewDims && *resNewDims != newDims ) {
-				cachedDims = WDims();   // invalidate cache to make the event to trigger again. because WMs
-				setDims(*resNewDims);
-				//XResizeWindow(data.display,data.window,resNewDims->width,resNewDims->height);
+				hide();
 			} else {
-				cachedDims = newDims;
+				executeCallback(this,cbUserEvent,UserEvent{atom,&e.xclient});
 			}
-		}
-	} break;
+		} break;
 
-	default:
-		NativeControlImpl::processMessage(e);
+		case ConfigureNotify: {
+			auto & data = e.xconfigure;
+			WDims newDims(data.width,data.height);
+			if( newDims != cachedDims ) {
+				auto resNewDims = findExec(this,cbResize,newDims);
+				if( resNewDims && *resNewDims != newDims ) {
+					// invalidate cache to make the event to trigger again. because WMs
+					cachedDims = WDims();
+					setDims(*resNewDims);
+					//XResizeWindow(data.display,data.window,resNewDims->width,resNewDims->height);
+				} else {
+					cachedDims = newDims;
+				}
+			}
+		} break;
 
+		default:
+			NativeControlImpl::processMessage(e);
 	}
 }
 
