@@ -1,7 +1,7 @@
 #ifndef FILETREEVIEW_H_mc903jnvhd7234jdfa
 #define	FILETREEVIEW_H_mc903jnvhd7234jdfa
 
-#include "../../die-tk.h"
+#include <die-tk-controls.h>
 #include <NativeString.h>
 
 namespace tk {

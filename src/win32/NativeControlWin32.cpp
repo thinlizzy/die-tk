@@ -1,11 +1,11 @@
 #define WINVER 0x0500
 #include "NativeControlWin32.h"
 #include <winuser.h>
-#include "../ConvertersWin32.h"
-#include "../ResourceManager.h"
+#include "ConvertersWin32.h"
+#include "ResourceManager.h"
 
-#include "../../log.h"
-#include "../../trace.h"
+#include "../log.h"
+#include "../trace.h"
 #include <stdexcept>
 
 namespace tk {

@@ -10,7 +10,8 @@ namespace tk {
 class Canvas;
 class NativeControlImpl;
 
-/* base class for all widgets, including windows.
+/*
+ * Base class for all widgets, including windows.
  */
 class Surface {
 protected:
@@ -73,9 +74,9 @@ protected:
     std::shared_ptr<NativeControlImpl> impl;
 
     // most used callbacks
-    ProcessKeyEvent onKeyDown(ProcessKeyEvent callback); // edit, memo
-    ProcessKeyEvent onKeyUp(ProcessKeyEvent callback); // edit, memo
-    ProcessKeypress onKeypress(ProcessKeypress callback); // edit, memo
+    ProcessKeyEvent onKeyDown(ProcessKeyEvent callback); // window, edit, memo
+    ProcessKeyEvent onKeyUp(ProcessKeyEvent callback); // window, edit, memo
+    ProcessKeypress onKeypress(ProcessKeypress callback); // window, edit, memo
     // seldom used callbacks
     HandlePaint onPaint(HandlePaint callback); // window, paintbox and custom controls
 };

@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <windows.h>
 
-#include "controls/NativeControlWin32.h"
+#include "NativeControlWin32.h"
 #include "WindowImplWin32.h"
 #include "ScopedObjects.h"
 

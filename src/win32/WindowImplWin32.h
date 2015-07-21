@@ -8,7 +8,7 @@
 
 #include "../WindowParams.h"
 #include "CanvasImplWin32.h"
-#include "controls/NativeControlWin32.h"
+#include "NativeControlWin32.h"
 #include "components/WindowComponent.h"
 #include "../util/optional.h"
 

@@ -60,11 +60,8 @@ private:
 	}
 };
 
-
 }
 
 }
-
-
 
 #endif

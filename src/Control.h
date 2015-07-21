@@ -8,11 +8,10 @@ namespace tk {
 
 class Window;
 
-/* base class for all widgets, including windows.
- * 
- * Control objects acts as references. they are not scoped. 
- * once a control is created, its ownership is transferred to its parent window.
- * only the owner window can remove a control from it by explictly calling remove()
+/*
+ * Control objects are not scoped, but they act as references.
+ * Once a control is created, its ownership is transferred to its parent window.
+ * Only the parent window can remove a control from it by explicitly calling remove()
  */
 class Control: public Surface {
     friend class Window;

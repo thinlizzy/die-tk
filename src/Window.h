@@ -10,9 +10,10 @@ namespace tk {
 class Control;
 class WindowImpl;
 
-/* this is a scoped movable only object.
- * unlike Control, when it goes out of scope, the window handle is destroyed.
- * it uses a shared_ptr because other operations like getParent() can add more references to the implementation
+/*
+ * This is a scoped movable only object.
+ * Unlike Control, when it goes out of scope, the window handle is destroyed.
+ * However, other operations like Control::getParent() can add more references to the implementation, thus extending the lifetime of the Window.
  */
 class Window: public Surface {
 public:

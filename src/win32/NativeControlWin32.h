@@ -3,14 +3,14 @@
 
 #include <windows.h>
 
-#include "../../Window.h"
-#include "../../ControlParams.h"
-#include "../../WindowObjects.h"
+#include "../Window.h"
+#include "../ControlParams.h"
+#include "../WindowObjects.h"
 
-#include "../ScopedObjects.h"
-#include "../CanvasImplWin32.h"
-#include "../../util/optional.h"
-#include "../../CallbackUtils.h"
+#include "ScopedObjects.h"
+#include "CanvasImplWin32.h"
+#include "../util/optional.h"
+#include "../CallbackUtils.h"
 #include <NativeString.h>
 
 namespace tk {
