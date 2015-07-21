@@ -1,18 +1,8 @@
 #include "ConvertersWin32.h"
 
-#include <sstream>
-#include <stdexcept>
+#include <string>
 
 namespace tk {
-
-// used in place of to_string since compilers suck
-template<typename T>
-std::string tos(T v)
-{
-    std::ostringstream ss;
-    ss << v;
-    return ss.str();
-}
 
 Rect convertRect(RECT const & rect)
 {
@@ -65,14 +55,15 @@ Point lParamToPoint(LPARAM lParam)
 	return Point(p.x,p.y);
 }
 
-WindowKey fromWindowsKey(WPARAM wParam)
+WindowKey fromWindowsKey(WPARAM wParam, LPARAM lParam)
 {
+	bool extended = (lParam & 0x01000000) != 0;
 	switch(wParam) {
 		case VK_ESCAPE: return k_ESCAPE;
 		case VK_SPACE: return k_SPACE;
 		case VK_BACK: return k_BACKSPACE;
 		case VK_TAB: return k_TAB;
-		case VK_RETURN: return k_RETURN;
+		case VK_RETURN: return extended ? k_RETURN_SMALL : k_RETURN_BIG;
 		case VK_INSERT: return k_INSERT;
 		case VK_DELETE: return k_DELETE;
 		case VK_HOME: return k_HOME;
@@ -83,10 +74,17 @@ WindowKey fromWindowsKey(WPARAM wParam)
 		case VK_DOWN: return k_DOWN;
 		case VK_LEFT: return k_LEFT;
 		case VK_RIGHT: return k_RIGHT;
-        
-		case VK_SHIFT: return k_SHIFT;
-		case VK_CONTROL: return k_CONTROL;        
-		case VK_MENU: return k_ALT;
+		case VK_SHIFT: {
+			// http://stackoverflow.com/questions/15966642/how-do-you-tell-lshift-apart-from-rshift-in-wm-keydown-events
+			auto newShift = MapVirtualKey((lParam & 0x00ff0000) >> 16, MAPVK_VSC_TO_VK_EX);
+			switch(newShift) {
+				case VK_LSHIFT: return k_SHIFT_L;
+				case VK_RSHIFT: return k_SHIFT_R;
+				default: return k_SHIFT_L; // TODO log that, since that should never happen
+			}
+		} break;
+		case VK_CONTROL: return extended ? k_CONTROL_R : k_CONTROL_L;
+		case VK_MENU: return extended ? k_ALT_R : k_ALT_L;
 		case VK_PAUSE: return k_PAUSE;
 		case VK_SNAPSHOT: return k_PRINT;
 		case VK_CAPITAL: return k_CAPSLOCK;
@@ -181,7 +179,9 @@ WPARAM toWindowsKey(WindowKey key)
 		case k_ESCAPE: return VK_ESCAPE;
 		case k_SPACE: return VK_SPACE;
 		case k_BACKSPACE: return VK_BACK;
-		case k_ENTER: return VK_RETURN;
+		case k_RETURN_BIG: return VK_RETURN;
+		case k_RETURN_SMALL: return VK_RETURN; // :(
+
 		case k_INSERT: return VK_INSERT;
 		case k_DELETE: return VK_DELETE;
 		case k_HOME: return VK_HOME;
@@ -193,9 +193,12 @@ WPARAM toWindowsKey(WindowKey key)
 		case k_LEFT: return VK_LEFT;
 		case k_RIGHT: return VK_RIGHT;
 
-		case k_SHIFT: return VK_SHIFT;
-		case k_CONTROL: return VK_CONTROL;
-		case k_ALT: return VK_MENU;
+		case k_SHIFT_L: return VK_LSHIFT;
+		case k_SHIFT_R: return VK_RSHIFT;
+		case k_CONTROL_L: return VK_LCONTROL;
+		case k_CONTROL_R: return VK_RCONTROL;
+		case k_ALT_L: return VK_LMENU;
+		case k_ALT_R: return VK_RMENU;
 		case k_PAUSE: return VK_PAUSE;
 		case k_PRINT: return VK_SNAPSHOT;
 		case k_CAPSLOCK: return VK_CAPITAL;
@@ -322,7 +325,7 @@ std::string windowsMessageToString(UINT message)
 		CK_MSG(WM_PARENTNOTIFY);
 		CK_MSG(WM_MOUSEACTIVATE);
 	default:
-		return "UNK[" + tos(message) + "]";
+		return "UNK[" + std::to_string(message) + "]";
 	}
 }
 

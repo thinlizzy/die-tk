@@ -26,7 +26,7 @@ RECT convertOpenRect(Rect const & rect);
 UserEvent toUserEvent(UINT message, LPARAM lParam);
 MouseEvent toMouseEvent(UINT message, WPARAM wParam);
 
-WindowKey fromWindowsKey(WPARAM wParam);
+WindowKey fromWindowsKey(WPARAM wParam, LPARAM lParam);
 WPARAM toWindowsKey(WindowKey key);
 
 COLORREF colorWin(RGBColor const & color);
