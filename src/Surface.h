@@ -37,8 +37,8 @@ public:
     Surface & setDims(WDims dims);
     Surface & setRect(Rect rect);
 
-    die::NativeString getText() const;
-    Surface & setText(die::NativeString const & text);
+    NativeString getText() const;
+    Surface & setText(NativeString const & text);
 
     ClipboardType copyToClipboard() const;
 

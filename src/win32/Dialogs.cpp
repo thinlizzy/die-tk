@@ -18,7 +18,7 @@ std::wstring ofnFilters(std::vector<SelectFileParams::Filter> const & filters)
     return result;
 }
 
-wchar_t * ofnString(die::NativeString const & ns)
+wchar_t * ofnString(NativeString const & ns)
 {
     return ns.empty() ? NULL : const_cast<wchar_t *>(ns.wstr.c_str());
 }
@@ -38,9 +38,9 @@ WORD ofnLast(SelectFileParams const & params, wchar_t needle)
     return p+1;
 }
 
-std::vector<die::NativeString> ofnFiles(wchar_t * files)
+std::vector<NativeString> ofnFiles(wchar_t * files)
 {
-    std::vector<die::NativeString> result;
+    std::vector<NativeString> result;
     wchar_t * end = files;
     while( *end ) { 
        wchar_t * beg = end;
@@ -54,7 +54,7 @@ std::vector<die::NativeString> ofnFiles(wchar_t * files)
 
 typedef WINBOOL WINAPI OpenSaveFunc(LPOPENFILENAMEW);
 
-std::vector<die::NativeString> selectFiles(Window & owner, SelectFileParams const & params, OpenSaveFunc * operation, DWORD flags)
+std::vector<NativeString> selectFiles(Window & owner, SelectFileParams const & params, OpenSaveFunc * operation, DWORD flags)
 {
     OPENFILENAMEW ofn;
     ofn.lStructSize = sizeof(ofn);    
@@ -81,29 +81,29 @@ std::vector<die::NativeString> selectFiles(Window & owner, SelectFileParams cons
     ofn.lpstrDefExt = NULL;
 
     BOOL ok = operation(&ofn);
-    if( ok == 0 ) return std::vector<die::NativeString>();
+    if( ok == 0 ) return std::vector<NativeString>();
     
     return ofnFiles(ofn.lpstrFile);
 }
     
 
-die::NativeString selectFile(Window & owner, SelectFileParams const & params)
+NativeString selectFile(Window & owner, SelectFileParams const & params)
 {
     auto files = selectFiles(owner,params,&GetOpenFileNameW,0);
-    if( files.empty() ) return die::NativeString();
+    if( files.empty() ) return NativeString();
     
     return files[0];
 }
 
-die::NativeString selectFileForSave(Window & owner, SelectFileParams const & params)
+NativeString selectFileForSave(Window & owner, SelectFileParams const & params)
 {
     auto files = selectFiles(owner,params,&GetSaveFileNameW,0);
-    if( files.empty() ) return die::NativeString();
+    if( files.empty() ) return NativeString();
     
     return files[0];
 }
 
-std::vector<die::NativeString> selectFiles(Window & owner, SelectFileParams const & params)
+std::vector<NativeString> selectFiles(Window & owner, SelectFileParams const & params)
 {
     return selectFiles(owner,params,&GetOpenFileNameW,OFN_ALLOWMULTISELECT | OFN_EXPLORER);
 }

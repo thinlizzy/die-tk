@@ -2,7 +2,7 @@
 #define APPLICATION_H_fdj498gj454328gfjh
 
 #include <memory>
-#include <NativeString.h>
+#include "NativeString.h"
 #include "objects/Point.h"
 
 namespace tk {
@@ -14,11 +14,11 @@ public:
 
     void showConsole();
 
-    void showMessage(die::NativeString const & message);
+    void showMessage(NativeString const & message);
     
     Point getCursorPos() const;
     
-    die::NativeString getClipboardText();
+    NativeString getClipboardText();
 };
 
 }

@@ -163,7 +163,7 @@ void NativeControlImpl::sendToBack()
     SetWindowPos(hWnd,HWND_BOTTOM,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE);
 }
 
-void NativeControlImpl::setText(die::NativeString const & text)
+void NativeControlImpl::setText(NativeString const & text)
 {
     SetWindowTextW(hWnd,text.wstr.c_str());
 }
@@ -201,12 +201,12 @@ ClipboardType NativeControlImpl::copyToClipboard() const
 }
 
 
-die::NativeString NativeControlImpl::getText() const
+NativeString NativeControlImpl::getText() const
 {
     auto len = GetWindowTextLengthW(hWnd);
-    if( len == 0 ) return die::NativeString();
+    if( len == 0 ) return NativeString();
 
-    die::NativeString result;
+    NativeString result;
     result.wstr.resize(len+1,0);
     GetWindowTextW(hWnd,&result.wstr[0],len+1);
     result.wstr.pop_back();

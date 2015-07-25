@@ -69,14 +69,14 @@ Point Application::getCursorPos() const
     return convertPoint(p);
 }
 
-void Application::showMessage(die::NativeString const & message)
+void Application::showMessage(NativeString const & message)
 {
     MessageBoxW(NULL, message.wstr.c_str(), L"Alert", MB_OK | MB_ICONINFORMATION);
 }
 
-die::NativeString Application::getClipboardText()
+NativeString Application::getClipboardText()
 {
-    die::NativeString result;
+    NativeString result;
     if( ! IsClipboardFormatAvailable(CF_UNICODETEXT) ) return result;
         
     if( ! OpenClipboard(NULL) ) {

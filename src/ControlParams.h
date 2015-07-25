@@ -2,14 +2,14 @@
 #define CONTROL_PARAMS_H_gfu43983tgfff45kh03hjg312
 
 #include "WindowObjects.h"
-#include <NativeString.h>
+#include "NativeString.h"
 #include "util/optional.h"
 
 namespace tk {
 
 class ControlParams {
 public:
-	die::NativeString text_;
+	NativeString text_;
 	Point start_;
 	WDims dims_;
     bool visible_;
@@ -26,7 +26,7 @@ public:
     {
     }
 
-	ControlParams & text(die::NativeString const & value) { text_ = value; return *this; }
+	ControlParams & text(NativeString const & value) { text_ = value; return *this; }
 	ControlParams & start(Point value) { start_ = value; return *this; }
 	ControlParams & start(int x, int y) { start_ = Point(x,y); return *this; }
 	ControlParams & dims(WDims value) { dims_ = value; return *this; }

@@ -95,12 +95,12 @@ Surface::operator bool() const
     return impl.operator bool();
 }
 
-die::NativeString Surface::getText() const
+NativeString Surface::getText() const
 {
     return impl->getText();
 }
 
-Surface & Surface::setText(die::NativeString const & text)
+Surface & Surface::setText(NativeString const & text)
 {
     impl->setText(text);
     return *this;

@@ -103,9 +103,9 @@ int main()
 	window2.onMouseDown([&window2,&window,&tp,&app](MouseEvent e, Point pt) {
 		tp.verticalAlign(cycle(tp.v_align));
 		tp.horizontalAlign(cycle(tp.h_align));
-		window2.canvas().textRect(Rect::open(pt,WDims(250,20)),"Other TEST!"_dies,tp);
+		window2.canvas().textRect(Rect::open(pt,WDims(250,20)),"Other TEST!"_ns,tp);
 		window2.canvas().fillRect(Rect::square(pt,20),RGBColor(20,30,40));
-		window.canvas().drawText(pt,"TEST!"_dies,RGBColor(200,30,40));
+		window.canvas().drawText(pt,"TEST!"_ns,RGBColor(200,30,40));
 		window2.setCursor(Cursor::hand);
 		auto screenPos = app.getCursorPos();
 		cout << "cursor pos " << screenPos << endl;

@@ -142,13 +142,13 @@ void CanvasImpl::drawPoly(Points const & polygon, Pen const & pen)
 	Polyline(dc,&points[0],points.size());
 }
 
-void CanvasImpl::drawText(Point p, die::NativeString const & text, RGBColor const & color)
+void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & color)
 {
 	SetTextColor(dc,colorWin(color));
 	TextOut(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
 }
 
-void CanvasImpl::textRect(Rect const & rect, die::NativeString const & text, TextParams const & params)
+void CanvasImpl::textRect(Rect const & rect, NativeString const & text, TextParams const & params)
 {
 	RECT winRect = convertRect(rect);
 	SetTextColor(dc,colorWin(params.textColor));
@@ -156,7 +156,7 @@ void CanvasImpl::textRect(Rect const & rect, die::NativeString const & text, Tex
 	DrawText(dc,text.wstr.c_str(),text.wstr.size(),&winRect,convertTextAlign(params.h_align,params.v_align));
 }
 
-WDims CanvasImpl::measureText(die::NativeString const & text)
+WDims CanvasImpl::measureText(NativeString const & text)
 {
     SIZE size;
     GetTextExtentPoint32(dc,text.wstr.c_str(),text.wstr.size(),&size);

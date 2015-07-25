@@ -1,17 +1,19 @@
 #ifndef SELECT_FILE_PARAMS_H_j34328fg8hjjgo048gsdf
 #define SELECT_FILE_PARAMS_H_j34328fg8hjjgo048gsdf
 
-#include <NativeString.h>
+#include "NativeString.h"
 #include <vector>
 #include <utility>
 
+namespace tk {
+
 class SelectFileParams {
 public:
-    typedef std::pair<die::NativeString,die::NativeString> Filter;
+    typedef std::pair<NativeString,NativeString> Filter;
     
-    die::NativeString title_;
-    die::NativeString path_;
-    die::NativeString filename_;
+    NativeString title_;
+    NativeString path_;
+    NativeString filename_;
     std::vector<Filter> filters_;
     bool showHidden_;
     
@@ -19,17 +21,19 @@ public:
         showHidden_(false)
     {}
     
-    SelectFileParams & title(die::NativeString const & value) { title_ = value; return *this; }    
-    SelectFileParams & path(die::NativeString const & value) { path_ = value; return *this; }
-    SelectFileParams & filename(die::NativeString const & value) { filename_ = value; return *this; }
+    SelectFileParams & title(NativeString const & value) { title_ = value; return *this; }    
+    SelectFileParams & path(NativeString const & value) { path_ = value; return *this; }
+    SelectFileParams & filename(NativeString const & value) { filename_ = value; return *this; }
     
     SelectFileParams & showHidden(bool value = true) { showHidden_ = value; return *this; }
     
-    SelectFileParams & filter(die::NativeString const & mask, die::NativeString const & text = die::NativeString())
+    SelectFileParams & filter(NativeString const & mask, NativeString const & text = NativeString())
     { 
         filters_.push_back(Filter(mask,text));
         return *this; 
     }
 };
+
+}
 
 #endif

@@ -35,9 +35,9 @@ public:
 	void setPen(Pen const & pen);
 	void setBrush(Brush const & brush);
 
-	void drawText(Point p, die::NativeString const & text, RGBColor const & color) override;
-	virtual void textRect(Rect const & openrect, die::NativeString const & text, TextParams const & params);
-    virtual WDims measureText(die::NativeString const & text);
+	void drawText(Point p, NativeString const & text, RGBColor const & color) override;
+	virtual void textRect(Rect const & openrect, NativeString const & text, TextParams const & params);
+    virtual WDims measureText(NativeString const & text);
 
 	void restoreObjects();
 };
