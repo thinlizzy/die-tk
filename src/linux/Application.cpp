@@ -22,7 +22,7 @@ void Application::showConsole()
 }
 
 
-void Application::showMessage(die::NativeString const & message)
+void Application::showMessage(NativeString const & message)
 {
 	throw "Application::showMessage() not implemented";
 }
@@ -42,7 +42,7 @@ Point Application::getCursorPos() const
 }
 
 
-die::NativeString Application::getClipboardText()
+NativeString Application::getClipboardText()
 {
 	throw "Application::getClipboardText() not implemented";
 }

@@ -7,7 +7,7 @@
 #include <cstdint>
 #include "utf8.h"
 
-namespace die {
+namespace tk {
 
 NativeString::Encoding const NativeString::nativeEncoding = NativeString::utf8;
 

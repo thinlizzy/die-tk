@@ -192,14 +192,14 @@ void CanvasX11::fillRect(const Rect & openrect, const Brush & brush)
 	XFillRectangle(resourceManager.dpy,drawable,gc,openrect.left,openrect.top,openrect.width(),openrect.height());
 }
 
-void CanvasX11::drawText(Point p, die::NativeString const & text, RGBColor const & color)
+void CanvasX11::drawText(Point p, NativeString const & text, RGBColor const & color)
 {
 	setForegroundColor(color);
 	auto textDims = measureText(text);
 	XDrawString(resourceManager.dpy,drawable,gc,p.x,p.y+textDims.height,text.str.data(),text.str.size());
 }
 
-void CanvasX11::textRect(const Rect & openrect, const die::NativeString & text, const TextParams & params)
+void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const TextParams & params)
 {
 	fillRect(openrect,params.backgroundColor);
 
@@ -238,7 +238,7 @@ void CanvasX11::textRect(const Rect & openrect, const die::NativeString & text, 
 	clearClipping();
 }
 
-WDims CanvasX11::measureText(const die::NativeString & text)
+WDims CanvasX11::measureText(const NativeString & text)
 {
 	WDims result;
 	auto gid = XGContextFromGC(gc);

@@ -50,8 +50,8 @@ public:
 	virtual void enable();
 	virtual void disable();
 
-	virtual die::NativeString getText() const;
-	virtual void setText(die::NativeString const & text);
+	virtual NativeString getText() const;
+	virtual void setText(NativeString const & text);
 
     virtual ClipboardType copyToClipboard() const;
 

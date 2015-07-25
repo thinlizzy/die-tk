@@ -83,12 +83,12 @@ void NativeControlImpl::disable()
 	windowEnabled = false;
 }
 
-die::NativeString NativeControlImpl::getText() const
+NativeString NativeControlImpl::getText() const
 {
 	return {};
 }
 
-void NativeControlImpl::setText(const die::NativeString& text)
+void NativeControlImpl::setText(const NativeString& text)
 {
 }
 

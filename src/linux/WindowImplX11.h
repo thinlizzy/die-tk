@@ -27,8 +27,8 @@ public:
 
 	Rect rect() const override;
 
-	die::NativeString getText() const override;
-	void setText(die::NativeString const & text) override;
+	NativeString getText() const override;
+	void setText(NativeString const & text) override;
 
 	Canvas & canvas() override;
 

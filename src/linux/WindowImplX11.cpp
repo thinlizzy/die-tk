@@ -130,19 +130,19 @@ Rect WindowImpl::rect() const
 	return Rect::closed(Point(tx-attrs.x,ty-attrs.y),WDims(attrs.width,attrs.height));
 }
 
-die::NativeString WindowImpl::getText() const
+NativeString WindowImpl::getText() const
 {
 	char * windowName;
 	XFetchName(resourceManager.dpy, windowId, &windowName);
 	if( windowName == nullptr ) return {};
 
 	auto windowNamePtr = std::unique_ptr<void,int (*)(void*)>(static_cast<void *>(windowName),&XFree);
-	die::NativeString result;
+	NativeString result;
 	result.str.assign(windowName);
 	return result;
 }
 
-void WindowImpl::setText(die::NativeString const & text)
+void WindowImpl::setText(NativeString const & text)
 {
 	XStoreName(resourceManager.dpy, windowId, text.str.c_str());
 }
