@@ -1,5 +1,5 @@
 #include <die-tk.h>
-#include <die-tk-image/convert.h>
+#include <convert.h>
 
 using namespace tk;
 
