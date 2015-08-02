@@ -14,8 +14,6 @@ public:
 
     void showConsole();
 
-    void showMessage(NativeString const & message);
-    
     Point getCursorPos() const;
     
     NativeString getClipboardText();
