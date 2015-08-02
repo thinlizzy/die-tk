@@ -69,11 +69,6 @@ Point Application::getCursorPos() const
     return convertPoint(p);
 }
 
-void Application::showMessage(NativeString const & message)
-{
-    MessageBoxW(NULL, message.wstr.c_str(), L"Alert", MB_OK | MB_ICONINFORMATION);
-}
-
 NativeString Application::getClipboardText()
 {
     NativeString result;
