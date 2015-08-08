@@ -5,10 +5,14 @@
 #include <X11/Xatom.h>
 #include "ResourceManager.h"
 #include "ClipboardX11.h"
+#include "../log.h"
 using std::cerr;
 using std::hex;
 using std::dec;
 using std::endl;
+
+#define DEBUG_CLIP(x)
+// #define DEBUG_CLIP(x) cerr << x << endl
 
 namespace {
 
@@ -20,21 +24,18 @@ char const * getAtomName(Display * disp, Atom atom)
 
 Atom pick_target(Display* disp, Atom* atom_list, int nitems, char const * datatype)
 {
-	Atom to_be_requested = None;
-
 	for(int i=0; i < nitems; i++)
 	{
 		auto atom_name = getAtomName(disp, atom_list[i]);
-		cerr << "Type " << i << " = " << atom_name << endl;
+		DEBUG_CLIP("Type " << i << " = " << atom_name);
 
 		if( std::strcmp(datatype,atom_name) == 0 ) {
-			cerr << "Will request type: " << atom_name << endl;
-			to_be_requested = atom_list[i];
-			break;
+			DEBUG_CLIP("Will request type: " << atom_name);
+			return atom_list[i];
 		}
 	}
 
-	return to_be_requested;
+	return None;
 }
 
 }
@@ -61,9 +62,10 @@ Clipboard::Property::Property(::Window windowId, Atom property)
 	} while( bytes_after != 0 );
 	data.reset(ret);
 
-	cerr << "Actual type: " << getAtomName(resourceManager.dpy, type) << endl;
-	cerr << "Actual format: " << format << endl;
-	cerr << "Number of items: " << nitems <<  endl;
+	DEBUG_CLIP("Actual type: " << getAtomName(resourceManager.dpy, type));
+	DEBUG_CLIP("Actual format: " << format);
+	DEBUG_CLIP("Number of items: " << nitems);
+
 }
 
 Clipboard::Clipboard(char const * clipProperty):
@@ -84,12 +86,11 @@ XEvent Clipboard::checkEvent()
 {
 	XEvent e;
     XIfEvent(resourceManager.dpy, &e, &clipboardPredicate, reinterpret_cast<XPointer>(window.get()));
-	cerr << "A selection notify has arrived!\n";
-	cerr << hex << "Requestor = 0x" << e.xselectionrequest.requestor << dec << endl;
-	cerr << "Target atom    = " << getAtomName(resourceManager.dpy, e.xselection.target) << endl;
-	cerr << "Property atom  = " << getAtomName(resourceManager.dpy, e.xselection.property) << endl;
-	cerr << "Selection atom = " << getAtomName(resourceManager.dpy, e.xselection.selection) << endl;
-
+    DEBUG_CLIP("A selection notify has arrived!");
+    DEBUG_CLIP("Requester = 0x" << hex << e.xselectionrequest.requestor << dec);
+    DEBUG_CLIP("Target atom    = " << getAtomName(resourceManager.dpy, e.xselection.target));
+    DEBUG_CLIP("Property atom  = " << getAtomName(resourceManager.dpy, e.xselection.property));
+    DEBUG_CLIP("Selection atom = " << getAtomName(resourceManager.dpy, e.xselection.selection));
 	return e;
 }
 
@@ -97,10 +98,10 @@ auto Clipboard::readPropertyFromSel(XEvent const & e) -> Property
 {
 	Atom target = e.xselection.target;
 	if( e.xselection.property == None ) {
-		cerr << (target == XA_TARGETS ?
-				"TARGETS can not be converted (nothing owns the selection)" :
-				"the selection can not be converted")
-			<< endl;
+		log::error(target == XA_TARGETS ?
+			"TARGETS can not be converted (nothing owns the selection)" :
+			"the selection can not be converted"
+		);
 		return {};
 	}
 
@@ -114,7 +115,7 @@ NativeString Clipboard::pasteString()
 
 	//If we're being given a list of targets (possible conversions)
 	if( e.xselection.target != XA_TARGETS ) {
-		cerr << "Target " << e.xselection.target << " should be XA_TARGETS." << XA_TARGETS << "\n";
+		log::error("Target ", e.xselection.target, " should be XA_TARGETS ", XA_TARGETS);
 		return {};
 	}
     auto prop = readPropertyFromSel(e);
@@ -125,10 +126,10 @@ NativeString Clipboard::pasteString()
 	// request the STRING type
 	Atom targetToBeRequested = pick_target(resourceManager.dpy, reinterpret_cast<Atom *>(prop.data.get()), prop.nitems, "STRING");
 	if( targetToBeRequested == None ) {
-		cerr << "No matching datatypes.\n";
+		log::error("No matching datatypes for clipboard!");
 		return {};
 	}
-	cerr << "Now requesting type " << getAtomName(resourceManager.dpy, targetToBeRequested) << endl;
+	DEBUG_CLIP("Now requesting type " << getAtomName(resourceManager.dpy, targetToBeRequested));
 	XConvertSelection(resourceManager.dpy, sel, targetToBeRequested, sel, window.get(), CurrentTime);
 	XFlush(resourceManager.dpy);
 
