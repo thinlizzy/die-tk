@@ -2,7 +2,6 @@
 #define WINDOWIMPLX11_H_DIE_TK_LINUX_DIEGO_2014_SEP_02
 
 #include "../WindowParams.h"
-#include "../SelectFileParams.h"
 #include "CanvasX11.h"
 #include <unordered_map>
 #include <memory>
@@ -14,8 +13,12 @@ class WindowImpl: public NativeControlImpl {
 	typedef std::unordered_map<::Window,std::shared_ptr<NativeControlImpl>> Controls;
 	Controls controls;
 	CanvasX11 windowCanvas;
+protected:
+	WindowImpl() = default;
 public:
-	WindowImpl(WindowParams const & params);
+	static ::Window createWindow(int x, int y, int width, int height);
+
+	explicit WindowImpl(WindowParams const & params);
 	~WindowImpl();
 
 	int state() const;

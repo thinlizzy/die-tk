@@ -1,4 +1,6 @@
 #include "../Application.h"
+
+#include "ClipboardX11.h"
 #include "ResourceManager.h"
 
 namespace tk {
@@ -8,25 +10,16 @@ void Application::processMessages()
 	resourceManager.processMessages();
 }
 
-
 void Application::waitForMessages()
 {
     XEvent e;
     XPeekEvent(resourceManager.dpy, &e);
 }
 
-
 void Application::showConsole()
 {
-	throw "Application::showConsole() not implemented";
+	// TODO implement show console
 }
-
-
-void Application::showMessage(NativeString const & message)
-{
-	throw "Application::showMessage() not implemented";
-}
-
 
 Point Application::getCursorPos() const
 {
@@ -44,7 +37,8 @@ Point Application::getCursorPos() const
 
 NativeString Application::getClipboardText()
 {
-	throw "Application::getClipboardText() not implemented";
+	Clipboard clipboard("CLIPBOARD");
+	return clipboard.pasteString();
 }
 
 }

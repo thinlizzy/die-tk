@@ -16,6 +16,18 @@ WindowCallbackMap<HandleEvent> cbUserEvent;
 
 Atom WM_DELETE_WINDOW = XInternAtom(resourceManager.dpy, "WM_DELETE_WINDOW", False);
 
+::Window WindowImpl::createWindow(int x, int y, int width, int height)
+{
+	int borderColor = BlackPixel(resourceManager.dpy, DefaultScreen(resourceManager.dpy));
+	int backgroundColor = borderColor;
+	int borderWidth = 0;
+	return XCreateSimpleWindow(
+			resourceManager.dpy,
+			resourceManager.root(),
+			x, y, width, height,
+			borderWidth, borderColor, backgroundColor);
+}
+
 WindowImpl::WindowImpl(WindowParams const & params)
 {
 	int x,y;
@@ -32,14 +44,7 @@ WindowImpl::WindowImpl(WindowParams const & params)
 		dims = params.dims_;
 	}
 
-	int borderColor = BlackPixel(resourceManager.dpy, DefaultScreen(resourceManager.dpy));
-	int backgroundColor = borderColor;
-	int borderWidth = 0;
-	windowId = XCreateSimpleWindow(
-			resourceManager.dpy,
-			resourceManager.root(),  // parent :-)
-			x, y, dims.width, dims.height,
-			borderWidth, borderColor, backgroundColor);
+	windowId = createWindow(x, y, dims.width, dims.height);
 
 	XSetWMProtocols(resourceManager.dpy, windowId, &WM_DELETE_WINDOW, 1);
 

@@ -18,7 +18,8 @@ public:
 	~ResourceManager();
 
 	void processMessages();
-	void registerWindow(std::shared_ptr<WindowImpl> window);
+	void registerWindow(std::shared_ptr<WindowImpl> const & window);
+	void unregisterWindow(std::shared_ptr<WindowImpl> const & window);
 	std::shared_ptr<WindowImpl> findWindow(::Window windowId);
 
 	// the screen window

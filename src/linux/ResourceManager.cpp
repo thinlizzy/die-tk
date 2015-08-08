@@ -38,9 +38,14 @@ void ResourceManager::processMessages()
 	}
 }
 
-void ResourceManager::registerWindow(std::shared_ptr<WindowImpl> window)
+void ResourceManager::registerWindow(std::shared_ptr<WindowImpl> const & window)
 {
 	windowMap[window->windowId] = window;
+}
+
+void ResourceManager::unregisterWindow(std::shared_ptr<WindowImpl> const & window)
+{
+	windowMap.erase(window->windowId);
 }
 
 std::shared_ptr<WindowImpl> ResourceManager::findWindow(::Window windowId)

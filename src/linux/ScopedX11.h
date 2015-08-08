@@ -18,6 +18,11 @@ struct DestroyCursor {
 };
 using Cursor = Handle<::Cursor,DestroyCursor>;
 
+struct DestroyWindow {
+	void operator()(::Window windowId) const;
+};
+using Window = Handle<::Window,DestroyWindow>;
+
 }
 
 }
