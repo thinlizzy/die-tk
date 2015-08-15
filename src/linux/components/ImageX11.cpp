@@ -60,6 +60,40 @@ char * duplicateBuffer(Params const & params)
 	return result;
 }
 
+int nnb(int d, int dLen, int sLen)
+{
+	return d * sLen / dLen;
+}
+
+// se ficar podre demais, fazer bilinear interpolation
+char * imageResize(XImage const * imagePtr, WDims dims)
+{
+	auto totalBytesDest = dims.area() * 4;
+	char * result = static_cast<char *>(malloc(totalBytesDest));
+
+	auto dst = result;
+	int dx = 0;
+	int dy = 0;
+	int sy = 0;
+	for( size_t p = 0; p < dims.area(); ++p ) {
+		int sx = nnb(dx, dims.width, imagePtr->width);
+
+		auto src = imagePtr->data + sy*imagePtr->bytes_per_line + sx*4;
+		*dst++ = *src;
+		*dst++ = *(src+1);
+		*dst++ = *(src+2);
+		*dst++ = *(src+3);
+
+		++dx;
+		if( dx == dims.width ) {
+			dx = 0;
+			++dy;
+			sy = nnb(dy, dims.height, imagePtr->height);
+		}
+	}
+	return result;
+}
+
 Ptr create(Params const & params)
 {
 	auto newBuf = duplicateBuffer(params);
@@ -104,6 +138,15 @@ Ptr createTransparentBGRA(WDims dims, char * buffer)
 
 	return std::make_shared<ImageX11Transparent>(imagePtr);
 }
+
+Ptr createTransparentBGRA(WDims dims, std::vector<bool> const & transparentMask, char * buffer)
+{
+	auto imagePtr = doCreateNativeBGRA(dims,buffer);
+	if( ! imagePtr ) return nullImage;
+
+	return std::make_shared<ImageX11Transparent>(imagePtr,transparentMask);
+}
+
 
 
 // *** ImageX11 *** //
@@ -172,13 +215,21 @@ void ImageX11::drawInto(Canvas & canvas, Point dest)
 
 void ImageX11::drawInto(Canvas & canvas, Rect destrect)
 {
+	if( &canvas == &nullCanvas ) return;
+
+	auto imageBuffer = imageResize(xImage.get(), destrect.dims());
+	auto xImage = doCreateNativeBGRA(destrect.dims(), imageBuffer);
+	if( ! xImage ) return;
+
+	xImagePtr resizedImgPtr(xImage);
+
 	// TODO needs to rescale the image to the destrect. this is doing a wrong copyrect, instead
 	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
 	XPutImage(
 		resourceManager.dpy,
 		canvasX11.drawable,
 		canvasX11.gc,
-		xImage.get(),
+		resizedImgPtr.get(),
 		0, 0,
 		destrect.left, destrect.top,
 		destrect.width(), destrect.height());
@@ -221,11 +272,46 @@ std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr)
 		*dst = 0;
 		unsigned char currentBit = 0x1;
 		for( auto w = 0; ; ) { // for each pixel in the line
+			// opaque when alpha channel is not zero
 			if( src[3] != 0 ) {
-				*dst |= currentBit; // set the current bit when alpha channel is not zero
+				*dst |= currentBit; // set the current bit when opaque
 			}
 
 			src += 4; // next source pixel
+
+			++w;
+			if( w == imagePtr->width ) break;
+
+			// next dest pixel
+			if( currentBit == 0x80 ) {
+				// bit is at the end of the byte, move to the next byte
+				currentBit = 0x1;
+				++dst;
+				*dst = 0;
+			} else {
+				currentBit <<= 1;
+			}
+		}
+	}
+	return std::unique_ptr<unsigned char[]>(result);
+}
+
+std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr, std::vector<bool> const & transparentMask)
+{
+	auto lineSize = bitmapLineSize(imagePtr->width);
+	unsigned char * result = new unsigned char[imagePtr->height * lineSize];
+
+	auto s = 0;
+	for( auto h = 0; h != imagePtr->height; ++h ) {
+		auto dst = result + h*lineSize; // first pixel in the destination image
+		*dst = 0;
+		unsigned char currentBit = 0x1;
+		for( auto w = 0; ; ) { // for each pixel in the line
+			if( ! transparentMask[s] ) {
+				*dst |= currentBit; // set the current bit when opaque
+			}
+
+			++s; // next source pixel
 
 			++w;
 			if( w == imagePtr->width ) break;
@@ -251,6 +337,15 @@ ImageX11Transparent::ImageX11Transparent(XImage * imagePtr):
 	transparentMask(XCreateBitmapFromData(resourceManager.dpy,
 			resourceManager.root(),
 			reinterpret_cast<char *>(getTransparentMask(imagePtr).get()),
+			imagePtr->width, imagePtr->height))
+{
+}
+
+ImageX11Transparent::ImageX11Transparent(XImage * imagePtr, std::vector<bool> const & transparentMask):
+	ImageX11(imagePtr),
+	transparentMask(XCreateBitmapFromData(resourceManager.dpy,
+			resourceManager.root(),
+			reinterpret_cast<char *>(getTransparentMask(imagePtr,transparentMask).get()),
 			imagePtr->width, imagePtr->height))
 {
 }

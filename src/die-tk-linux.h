@@ -1,0 +1,7 @@
+#include "linux/CanvasX11.h"
+#include "linux/ConvertersX11.h"
+#include "linux/NativeControlImpl.h"
+#include "linux/ResourceManager.h"
+#include "linux/ScopedX11.h"
+#include "linux/WindowImplX11.h"
+#include "linux/components/ImageX11.h"

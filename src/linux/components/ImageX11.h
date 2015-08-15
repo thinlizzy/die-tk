@@ -38,6 +38,7 @@ class ImageX11Transparent: public ImageX11 {
 	scoped::Pixmap transparentMask;
 public:
 	ImageX11Transparent(XImage * imagePtr);
+	ImageX11Transparent(XImage * imagePtr, std::vector<bool> const & transparentMask);
 
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
@@ -46,6 +47,7 @@ public:
 // result image will own buffer
 Ptr createNativeBGRA(WDims dims, char * buffer);
 Ptr createTransparentBGRA(WDims dims, char * buffer);
+Ptr createTransparentBGRA(WDims dims, std::vector<bool> const & transparentMask, char * buffer);
 
 }
 
