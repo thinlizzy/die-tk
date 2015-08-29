@@ -115,7 +115,7 @@ WindowImpl::~WindowImpl()
 WindowImpl * WindowImpl::clone() const
 {
     return new WindowImpl(WindowParams()
-            .start(rect().pos())
+            .start(rect().topLeft())
             .dims(rect().dims())
             .text(getText())
             .states(state_)
@@ -242,6 +242,7 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
 			return 0;            
 		} break;
 
+        // TODO verify the need of creating on_minimize and on_maximize callbacks also
 		case WM_SIZE: {
 			WDims newDims = lParamToWDims(lParam);
 			switch(wParam) {
@@ -260,8 +261,11 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
             
             auto resNewDims = findExec(this,cbResize,newDims);
             if( resNewDims ) {
-                // TODO verify the need of creating on_minimize and on_maximize callbacks also
+            	// TODO do we still need to change lParam after a size change?
                 lParam = WDimsToLParam(*resNewDims);
+                if( *resNewDims != newDims ) {
+                	setDims(*resNewDims);
+                }
             }            
 		} break;
         
