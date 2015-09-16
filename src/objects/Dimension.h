@@ -2,6 +2,7 @@
 #define DIMENSION_H_A81BA61C_1651_4c9f_8EEF_4365745FDEFB
 
 #include <ostream>
+#include <algorithm>
 
 namespace tk {
 
@@ -52,6 +53,11 @@ struct basic_dimension {
 	constexpr basic_dimension addHeight(DimType height) const
     {
         return basic_dimension<T>(this->width, this->height + height);
+    }
+
+	constexpr basic_dimension fitInto(basic_dimension dims) const
+    {
+        return basic_dimension<T>(std::min(this->width,dims.width), std::min(this->height,dims.height));
     }
 
 	basic_dimension & operator+=(basic_dimension const & d);

@@ -21,6 +21,7 @@ public:
     NativeString & operator=(NativeString const & other);
     NativeString(std::string const & strUTF8);
     NativeString(std::wstring const & strUTF16);
+    NativeString(char ch);
     NativeString(char const * strUTF8);
     NativeString(char const * strUTF8, size_t size);
     NativeString(wchar_t const * strUTF16);
