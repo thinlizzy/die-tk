@@ -75,6 +75,12 @@ NativeString::NativeString(std::string const & strUTF8):
     wstr(utf8_to_ws(strUTF8))
 {}
 
+NativeString::NativeString(char ch):
+	wstr()
+{
+	wstr += ch;
+}
+
 NativeString::NativeString(char const * strUTF8):
     wstr(utf8_to_ws(strUTF8))
 {}
