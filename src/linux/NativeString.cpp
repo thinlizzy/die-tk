@@ -68,6 +68,12 @@ NativeString::NativeString(std::string const & strUTF8):
     str(strUTF8)
 {}
 
+NativeString::NativeString(char ch):
+	str()
+{
+	str += ch;
+}
+
 NativeString::NativeString(char const * strUTF8):
     str(strUTF8)
 {}
