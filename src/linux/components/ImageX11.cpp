@@ -205,8 +205,8 @@ void ImageX11::drawInto(Canvas & canvas, Point dest)
 	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
 	XPutImage(
 		resourceManager.dpy,
-		canvasX11.drawable,
-		canvasX11.gc,
+		canvasX11.getDrawable(),
+		canvasX11.getGC(),
 		xImage.get(),
 		0, 0,
 		dest.x, dest.y,
@@ -227,8 +227,8 @@ void ImageX11::drawInto(Canvas & canvas, Rect destrect)
 	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
 	XPutImage(
 		resourceManager.dpy,
-		canvasX11.drawable,
-		canvasX11.gc,
+		canvasX11.getDrawable(),
+		canvasX11.getGC(),
 		resizedImgPtr.get(),
 		0, 0,
 		destrect.left, destrect.top,
@@ -241,7 +241,7 @@ class ClipMaskGuard {
 	GC gc;
 public:
 	ClipMaskGuard(Canvas & canvas, Pixmap transparentMask, Point dest):
-		gc(static_cast<CanvasX11 &>(canvas).gc)
+		gc(static_cast<CanvasX11 &>(canvas).getGC())
 	{
 		XSetClipOrigin(resourceManager.dpy, gc, dest.x, dest.y);
 		XSetClipMask(resourceManager.dpy, gc, transparentMask);

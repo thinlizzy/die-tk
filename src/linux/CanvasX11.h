@@ -7,15 +7,16 @@
 namespace tk {
 
 /**
- * This class needs a lot of working and tailoring.
+ * TODO This class needs more working and tailoring.
  * The clipping functions don't do what is expected and can generate undesirable side effects.
- * The text functions need improvement.
+ * The text functions need more testing.
  */
 class CanvasX11: public Canvas {
-public:
 	GC gc;
 	Drawable drawable;
-
+	// used to normalize text drawing from bottom to top.
+	int lineHeight; // TODO set font needs to update it or use a Font object instead
+public:
 	CanvasX11();
 	explicit CanvasX11(Drawable drawable);
 	CanvasX11(CanvasX11 && other);
@@ -35,10 +36,15 @@ public:
 	void fillRect(Rect const & openrect, Brush const & brush) override;
 
 	void drawText(Point p, NativeString const & text, RGBColor const & color) override;
+	void drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor) override;
 	void textRect(Rect const & openrect, NativeString const & text, TextParams const & params = TextParams()) override;
     WDims measureText(NativeString const & text) override;
 
     void setForegroundColor(RGBColor const & color);
+    void setBackgroundColor(RGBColor const & color);
+
+	GC getGC() const { return gc; }
+	Drawable getDrawable() const { return drawable; }
 private:
     void setPen(Pen const & pen);
     void setBrush(Brush const & brush);

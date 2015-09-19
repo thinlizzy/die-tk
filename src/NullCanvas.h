@@ -19,6 +19,7 @@ class NullCanvas: public Canvas {
 	void fillRect(Rect const & openrect, Brush const & brush) override {}
 
 	void drawText(Point p, NativeString const & text, RGBColor const & color) override {}
+	void drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor) override {}
 	void textRect(Rect const & openrect, NativeString const & text, TextParams const & params = TextParams()) override {}
     WDims measureText(NativeString const & text) override { return WDims(); }
 };

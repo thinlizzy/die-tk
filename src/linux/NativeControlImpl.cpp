@@ -284,12 +284,21 @@ void NativeControlImpl::keyPressEvent(XEvent & e)
 
 	// forward to cbKeyPress if defined
 	if( it_kp != cbKeypress.end() ) {
+		auto ch = chars[0];
+		if( ch != '\0' ) {
+			auto newCh = it_kp->second(ch);
+			if( newCh != '\0' ) {
+				// TODO forward the event to child windows (somehow)
+			}
+		}
+		/*
 		for( auto cp = &chars[0]; cp != nullptr; ++cp ) {
 			auto newCh = it_kp->second(*cp);
 			if( newCh != '\0' ) {
 				// TODO forward the event to child windows (somehow)
 			}
 		}
+		*/
 	}
 }
 

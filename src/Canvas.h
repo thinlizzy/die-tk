@@ -31,6 +31,7 @@ public:
 	virtual void fillRect(Rect const & openrect, Brush const & brush) = 0;
 
 	virtual void drawText(Point p, NativeString const & text, RGBColor const & color) = 0;
+	virtual void drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor) = 0;
 	virtual void textRect(Rect const & openrect, NativeString const & text, TextParams const & params = TextParams()) = 0;
     virtual WDims measureText(NativeString const & text) = 0;
 };

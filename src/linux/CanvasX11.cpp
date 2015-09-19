@@ -40,6 +40,14 @@ XColor toXColor(const RGBColor & color)
 }
 */
 
+XGCValues getCanvasValues() {
+	XGCValues result;
+	return result;
+}
+
+unsigned long canvasValueMask = 0;
+XGCValues canvasValues = getCanvasValues();
+
 //
 
 CanvasX11::CanvasX11():
@@ -48,14 +56,17 @@ CanvasX11::CanvasX11():
 }
 
 CanvasX11::CanvasX11(Drawable drawable):
-	gc(XCreateGC(resourceManager.dpy,drawable,0,nullptr)),
+	gc(XCreateGC(resourceManager.dpy,drawable,canvasValueMask,&canvasValues)),
 	drawable(drawable)
 {
+	auto dims = measureText('!');
+	lineHeight = dims.height;
 }
 
 CanvasX11::CanvasX11(CanvasX11 && other):
 	gc(other.gc),
-    drawable(other.drawable)
+    drawable(other.drawable),
+	lineHeight(other.lineHeight)
 {
 	other.gc = nullptr;
 }
@@ -65,6 +76,7 @@ CanvasX11 & CanvasX11::operator=(CanvasX11 && other)
 	if( this != &other ) {
 		gc = other.gc;
 	    drawable = other.drawable;
+	    lineHeight = other.lineHeight;
 		other.gc = nullptr;
 	}
 
@@ -95,7 +107,7 @@ void CanvasX11::addClipRect(const Rect & openrect)
 	auto points = rectToPoints(openrect);
 	auto region = XPolygonRegion(points.data(),4,EvenOddRule);
 	auto regionPtr = std::unique_ptr<std::remove_reference<decltype(*region)>::type,int (*)(Region)>(
-			region,&XDestroyRegion);
+		region,&XDestroyRegion);
 
 	XSetRegion(resourceManager.dpy,gc,region);
 }
@@ -115,6 +127,12 @@ void CanvasX11::setForegroundColor(RGBColor const & color)
 	XSetForeground(resourceManager.dpy,gc,xColor.pixel);
 	*/
 }
+
+void CanvasX11::setBackgroundColor(RGBColor const & color)
+{
+	XSetBackground(resourceManager.dpy,gc,rgb32(color));
+}
+
 
 void CanvasX11::setPen(Pen const & pen)
 {
@@ -195,8 +213,14 @@ void CanvasX11::fillRect(const Rect & openrect, const Brush & brush)
 void CanvasX11::drawText(Point p, NativeString const & text, RGBColor const & color)
 {
 	setForegroundColor(color);
-	auto textDims = measureText(text);
-	XDrawString(resourceManager.dpy,drawable,gc,p.x,p.y+textDims.height,text.str.data(),text.str.size());
+	XDrawString(resourceManager.dpy,drawable,gc,p.x,p.y+lineHeight,text.str.data(),text.str.size());
+}
+
+void CanvasX11::drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor)
+{
+	setForegroundColor(textColor);
+	setBackgroundColor(backgroundColor);
+	XDrawImageString(resourceManager.dpy,drawable,gc,p.x,p.y+lineHeight,text.str.data(),text.str.size());
 }
 
 void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const TextParams & params)
@@ -263,7 +287,7 @@ WDims CanvasX11::measureText(const NativeString & text)
 	result.height = overall.ascent; // or font_ascent - font_descent ?
 //	result.height = font_ascent;
 
-		// XQueryTextExtents(resourceManager.dpy, gid, text.str.data(),text.str.size(),&direction, &font_ascent, &font_descent, &overall);
+//	XQueryTextExtents(resourceManager.dpy, gid, text.str.data(),text.str.size(),&direction, &font_ascent, &font_descent, &overall);
 
 	return result;
 }

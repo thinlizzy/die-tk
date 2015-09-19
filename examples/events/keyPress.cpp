@@ -6,6 +6,13 @@
 using namespace std;
 using namespace tk;
 
+/*
+ * TODO this example shows the following bugs which need to be fixed:
+ * - WinApi: maximizing window has some rendering glitches when handled by .onResize()
+ * - WinApi: maximizing window won't have its size constrained when handled by .onResize()
+ * - X11: maximizing window keeps triggering .onResize() forever
+ */
+
 enum class Status { noChange, newChar, deleteChar, newLine, };
 
 class TextLog {
@@ -69,9 +76,11 @@ int main()
 	auto lastHeight = window.dims().height;
 	window.onResize([&](WDims newDims) {
 		newDims = newDims.fitInto(WDims(800,600));
+		static int x = 0;
+		cout << ++x << newDims << endl;
 		if( newDims.height != lastHeight ) {
 			lastHeight = newDims.height;
-			linesView.verifyScroll();   // TODO fix glitches on maximize
+			linesView.verifyScroll();
 		}
 		return newDims;
 	});
@@ -131,7 +140,7 @@ vector<string> const & TextLog::allLines() { return lines; }
 LinesView::LinesView(TextLog & log, Window & window):
 	log(log),
 	window(window),
-	lineHeight(window.canvas().measureText("X"_ns).height),
+	lineHeight(window.canvas().measureText("X"_ns).height + 2),
 	textColor(0,200,0),
 	backgroundColor(0,0,0)
 {
@@ -162,7 +171,7 @@ void LinesView::drawCharLastLine(char key)
 	auto charDims = canvas.measureText(keyNS);
 
 	Point p(lineDims.width - charDims.width, line.y);
-	canvas.drawText(p,keyNS,textColor);
+	canvas.drawText(p,keyNS,textColor,backgroundColor);
 }
 
 void LinesView::removeCharLastLine(char key)
@@ -192,7 +201,7 @@ void LinesView::drawLinesFrom(size_t startLine, size_t endLine, int startY)
 	auto & canvas = window.canvas();
 	Point p(0,startY);
 	for( auto l = startLine; l < endLine; ++l, p.y+=lineHeight ) {
-		canvas.drawText(p,lines[l],textColor);
+		canvas.drawText(p,lines[l],textColor,backgroundColor);
 		auto lineDims = canvas.measureText(lines[l]);
 		canvas.fillRect(Rect::closed(p.addX(lineDims.width),WDims(window.width()-lineDims.width,lineHeight)),backgroundColor);
 	}
