@@ -19,25 +19,26 @@ public:
     
     HDC getHDC() const;
 
-	virtual void translate(Point p);
-	virtual void clearTranslate();
-	virtual void addClipRect(Rect const & openrect);
-	virtual void clearClipping();
+	void translate(Point p) override;
+	void clearTranslate() override;
+	void addClipRect(Rect const & openrect) override;
+	void clearClipping() override;
 
-	virtual void plot(Point p, RGBColor const & color);
-	virtual void drawLine(Point p1, Point p2, Pen const & pen);
-	virtual void drawPoly(Points const & polygon, Pen const & pen);
+	void plot(Point p, RGBColor const & color) override;
+	void drawLine(Point p1, Point p2, Pen const & pen) override;
+	void drawPoly(Points const & polygon, Pen const & pen) override;
 
-	virtual void rectangle(Rect const & rect, Pen const & pen);
-	virtual void fillRect(Rect const & openrect, Brush const & brush);
+	void rectangle(Rect const & rect, Pen const & pen) override;
+	void fillRect(Rect const & openrect, Brush const & brush) override;
 
     // TODO use some sort of caching on pens and brushes
 	void setPen(Pen const & pen);
 	void setBrush(Brush const & brush);
 
 	void drawText(Point p, NativeString const & text, RGBColor const & color) override;
-	virtual void textRect(Rect const & openrect, NativeString const & text, TextParams const & params);
-    virtual WDims measureText(NativeString const & text);
+	void drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor) override;
+	void textRect(Rect const & openrect, NativeString const & text, TextParams const & params) override;
+    WDims measureText(NativeString const & text) override;
 
 	void restoreObjects();
 };

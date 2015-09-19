@@ -145,6 +145,15 @@ void CanvasImpl::drawPoly(Points const & polygon, Pen const & pen)
 void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & color)
 {
 	SetTextColor(dc,colorWin(color));
+	SetBkMode(dc,TRANSPARENT);
+	TextOut(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
+}
+
+void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor)
+{
+	SetTextColor(dc,colorWin(textColor));
+	SetBkColor(dc,colorWin(backgroundColor));
+	SetBkMode(dc,OPAQUE);
 	TextOut(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
 }
 
