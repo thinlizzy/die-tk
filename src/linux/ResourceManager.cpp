@@ -64,6 +64,13 @@ std::shared_ptr<WindowImpl> ResourceManager::findWindow(::Window windowId)
 	return DefaultRootWindow(dpy);
 }
 
+char const * ResourceManager::getAtomName(Atom atom)
+{
+	if( atom == None ) return "None";
+	return XGetAtomName(dpy, atom);
+};
+
+
 ResourceManager resourceManager;
 
 }

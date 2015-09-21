@@ -4,7 +4,7 @@
 #include <X11/Xlib.h>
 #include "../NativeString.h"
 #include "ScopedX11.h"
-#include <memory>
+#include "Property.h"
 
 namespace tk {
 
@@ -17,20 +17,6 @@ public:
 	NativeString pasteString();
 	// TODO get image data too
 private:
-	struct Property {
-		struct XFreeFO {
-			void operator()(unsigned char * ptr) { if( ptr ) XFree(ptr); }
-		};
-		std::unique_ptr<unsigned char, XFreeFO> data;
-		int format;
-		unsigned long nitems;
-		Atom type;
-		Property() = default;
-		Property(::Window windowId, Atom property);
-		Property(Property &&) = default;
-		explicit operator bool() const { return data.operator bool(); }
-	};
-
 	Property readPropertyFromSel(XEvent const & e);
 	XEvent checkEvent();
 };

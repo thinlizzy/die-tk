@@ -10,7 +10,6 @@ using namespace tk;
  * TODO this example shows the following bugs which need to be fixed:
  * - WinApi: maximizing window has some rendering glitches when handled by .onResize()
  * - WinApi: maximizing window won't have its size constrained when handled by .onResize()
- * - X11: maximizing window keeps triggering .onResize() forever
  */
 
 enum class Status { noChange, newChar, deleteChar, newLine, };
@@ -140,7 +139,7 @@ vector<string> const & TextLog::allLines() { return lines; }
 LinesView::LinesView(TextLog & log, Window & window):
 	log(log),
 	window(window),
-	lineHeight(window.canvas().measureText("X"_ns).height + 2),
+	lineHeight(window.canvas().measureText("XZ|"_ns).height + 2),
 	textColor(0,200,0),
 	backgroundColor(0,0,0)
 {
@@ -183,7 +182,7 @@ void LinesView::removeCharLastLine(char key)
 	auto charDims = canvas.measureText(key);
 
 	Point p(lineDims.width,line.y);
-	canvas.fillRect(Rect::closed(p,charDims),backgroundColor);
+	canvas.fillRect(Rect::closed(p,charDims.setHeight(lineHeight)),backgroundColor);
 }
 
 void LinesView::verifyScroll()

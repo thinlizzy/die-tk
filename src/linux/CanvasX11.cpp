@@ -59,7 +59,7 @@ CanvasX11::CanvasX11(Drawable drawable):
 	gc(XCreateGC(resourceManager.dpy,drawable,canvasValueMask,&canvasValues)),
 	drawable(drawable)
 {
-	auto dims = measureText('!');
+	auto dims = measureText("ABCDEFGHIJKXZ!@|");
 	lineHeight = dims.height;
 }
 

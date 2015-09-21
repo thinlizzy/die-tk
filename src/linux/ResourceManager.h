@@ -24,6 +24,8 @@ public:
 
 	// the screen window
 	::Window root();
+
+	char const * getAtomName(Atom atom);
 };
 
 extern ResourceManager resourceManager;

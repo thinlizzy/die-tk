@@ -43,7 +43,9 @@ public:
 
 private:
 	void maximize(bool yes);
+	bool maximized() const;
 	WDims cachedDims;
+	int ignoreConfigureNotify = 0;
 };
 
 }

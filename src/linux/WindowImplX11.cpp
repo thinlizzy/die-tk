@@ -3,6 +3,7 @@
 #include "ResourceManager.h"
 #include "../CallbackUtils.h"
 #include "ConvertersX11.h"
+#include "Property.h"
 #include <X11/Xatom.h>
 #include <memory>
 
@@ -187,17 +188,24 @@ void WindowImpl::processMessage(XEvent & e)
 		} break;
 
 		case ConfigureNotify: {
+			if( ignoreConfigureNotify > 0 ) {
+				--ignoreConfigureNotify;
+				break;
+			}
 			auto & data = e.xconfigure;
 			WDims newDims(data.width,data.height);
+
 			if( newDims != cachedDims ) {
+				cachedDims = newDims;
 				auto resNewDims = findExec(this,cbResize,newDims);
 				if( resNewDims && *resNewDims != newDims ) {
 					// invalidate cache to make the event to trigger again. because WMs
 					cachedDims = WDims();
+					if( maximized() ) {
+						++ignoreConfigureNotify;
+						maximize(false);
+					}
 					setDims(*resNewDims);
-					//XResizeWindow(data.display,data.window,resNewDims->width,resNewDims->height);
-				} else {
-					cachedDims = newDims;
 				}
 			}
 		} break;
@@ -207,21 +215,24 @@ void WindowImpl::processMessage(XEvent & e)
 	}
 }
 
+bool WindowImpl::maximized() const
+{
+	Property p{windowId,XInternAtom(resourceManager.dpy,"_NET_WM_STATE", False)};
+	return p.hasItem("_NET_WM_STATE_MAXIMIZED_HORZ");   // it will have VERT as well
+}
+
 void WindowImpl::maximize(bool yes)
 {
 	XEvent xev{};
 	xev.type = ClientMessage;
 	xev.xclient.window = windowId;
-	xev.xclient.message_type =
-			XInternAtom(resourceManager.dpy, "_NET_WM_STATE", False);
+	xev.xclient.message_type = XInternAtom(resourceManager.dpy, "_NET_WM_STATE", False);
 	xev.xclient.format = 32;
 	xev.xclient.data.l[0] = yes ? 1: 0;
-	xev.xclient.data.l[1] = XInternAtom(resourceManager.dpy,
-			"_NET_WM_STATE_MAXIMIZED_HORZ", False);
-	xev.xclient.data.l[2] = XInternAtom(resourceManager.dpy,
-			"_NET_WM_STATE_MAXIMIZED_VERT", False);
+	xev.xclient.data.l[1] = XInternAtom(resourceManager.dpy,"_NET_WM_STATE_MAXIMIZED_HORZ", False);
+	xev.xclient.data.l[2] = XInternAtom(resourceManager.dpy,"_NET_WM_STATE_MAXIMIZED_VERT", False);
 	XSendEvent(resourceManager.dpy, resourceManager.root(),
-			False, SubstructureNotifyMask, &xev);
+		False, SubstructureNotifyMask, &xev);
 }
 
 Canvas & WindowImpl::canvas()
