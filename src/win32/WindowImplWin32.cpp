@@ -245,12 +245,14 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
         // TODO verify the need of creating on_minimize and on_maximize callbacks also
 		case WM_SIZE: {
 			WDims newDims = lParamToWDims(lParam);
+			bool max = false;
 			switch(wParam) {
 				case SIZE_MINIMIZED:
 					state_ |= ws_minimized;
 					state_ &= ~ws_maximized;
 					break;
 				case SIZE_MAXIMIZED:
+					max = true;
 					state_ &= ~ws_minimized;
 					state_ |= ws_maximized;
 					break;
@@ -261,10 +263,11 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
             
             auto resNewDims = findExec(this,cbResize,newDims);
             if( resNewDims ) {
-            	// TODO do we still need to change lParam after a size change?
-                lParam = WDimsToLParam(*resNewDims);
                 if( *resNewDims != newDims ) {
-                	setDims(*resNewDims);
+                	if( max ) {
+                		ShowWindow(hWnd,SW_RESTORE);
+                	}
+            		setDims(*resNewDims);
                 }
             }            
 		} break;

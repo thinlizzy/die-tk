@@ -6,12 +6,6 @@
 using namespace std;
 using namespace tk;
 
-/*
- * TODO this example shows the following bugs which need to be fixed:
- * - WinApi: maximizing window has some rendering glitches when handled by .onResize()
- * - WinApi: maximizing window won't have its size constrained when handled by .onResize()
- */
-
 enum class Status { noChange, newChar, deleteChar, newLine, };
 
 class TextLog {
@@ -75,8 +69,6 @@ int main()
 	auto lastHeight = window.dims().height;
 	window.onResize([&](WDims newDims) {
 		newDims = newDims.fitInto(WDims(800,600));
-		static int x = 0;
-		cout << ++x << newDims << endl;
 		if( newDims.height != lastHeight ) {
 			lastHeight = newDims.height;
 			linesView.verifyScroll();
