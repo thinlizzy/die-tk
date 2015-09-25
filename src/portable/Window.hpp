@@ -59,6 +59,11 @@ ProcessResize Window::onResize(ProcessResize callback)
     return getImpl().onResize(callback);
 }
 
+HandleResize Window::afterResize(HandleResize callback)
+{
+    return getImpl().afterResize(callback);
+}
+
 HandleEvent Window::onUserEvent(HandleEvent callback)
 {
     return getImpl().onUserEvent(callback);

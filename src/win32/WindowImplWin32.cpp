@@ -23,6 +23,7 @@ template<typename T> using WindowCallbackMap = CallbackMap<WindowImpl *, T>;
 
 WindowCallbackMap<AllowOperation> cbClose;
 WindowCallbackMap<ProcessResize> cbResize;
+WindowCallbackMap<HandleResize> cbAfterResize;
 WindowCallbackMap<HandleEvent> cbUserEvent;
 
 WindowClass::WindowClass()
@@ -222,6 +223,11 @@ ProcessResize WindowImpl::onResize(ProcessResize callback)
     return setCallback(this,cbResize,callback);    
 }
 
+HandleResize WindowImpl::afterResize(HandleResize callback)
+{
+    return setCallback(this,cbAfterResize,callback);
+}
+
 HandleEvent WindowImpl::onUserEvent(HandleEvent callback)
 {
     return setCallback(this,cbUserEvent,callback);    
@@ -261,6 +267,7 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
 					break;
 			}
             
+			bool notChanged = true;
             auto resNewDims = findExec(this,cbResize,newDims);
             if( resNewDims ) {
                 if( *resNewDims != newDims ) {
@@ -268,8 +275,13 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
                 		ShowWindow(hWnd,SW_RESTORE);
                 	}
             		setDims(*resNewDims);
+            		notChanged = false;
                 }
-            }            
+            }
+
+            if( notChanged ) {
+            	executeCallback(this, cbAfterResize, newDims);
+            }
 		} break;
         
 		case WM_COMMAND: {

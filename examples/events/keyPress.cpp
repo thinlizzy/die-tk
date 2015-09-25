@@ -1,41 +1,10 @@
 #include <die-tk.h>
 #include <iostream>
-#include <string>
-#include <vector>
-#include <algorithm>
+#include "model/TextLog.h"
+#include "view/LinesView.h"
+
 using namespace std;
 using namespace tk;
-
-enum class Status { noChange, newChar, deleteChar, newLine, };
-
-class TextLog {
-	vector<string> lines;
-public:
-	TextLog();
-	Status processChar(char ch);
-	vector<string> const & allLines();
-};
-
-class LinesView {
-	TextLog & log;
-	Window & window;
-	int lineHeight;
-	RGBColor textColor,backgroundColor;
-public:
-	LinesView(TextLog & log, Window & window);
-	void drawCharLastLine(char key);
-	void removeCharLastLine(char key);
-	void verifyScroll();
-	void updateLinesInRect(Rect rect);
-private:
-	struct Line {
-		int y;
-		string line;
-	};
-	Line lastLine() const;
-	int linesFit() const;
-	void drawLinesFrom(size_t startLine, size_t endLine, int startY);
-};
 
 // the main function acts as a controller
 int main()
@@ -65,15 +34,17 @@ int main()
 		return '\0';
 	});
 
-	// resize = redraw lines if the height is bigger, scroll if the height is smaller - limit to 800,600
+	// resize = limit to 800,600
+	window.onResize([](WDims newDims) {
+		return newDims.fitInto(WDims(800,600));
+	});
+	// redraw lines if the height is bigger, scroll if the height is smaller
 	auto lastHeight = window.dims().height;
-	window.onResize([&](WDims newDims) {
-		newDims = newDims.fitInto(WDims(800,600));
+	window.afterResize([&](WDims newDims) {
 		if( newDims.height != lastHeight ) {
 			lastHeight = newDims.height;
 			linesView.verifyScroll();
 		}
-		return newDims;
 	});
 
 	// repaint = redraw lines according to the intersecting rectangle
@@ -102,107 +73,3 @@ int main()
 	} while( open );
 }
 
-// -------------
-
-TextLog::TextLog():
-	lines(1)
-{}
-
-Status TextLog::processChar(char ch)
-{
-	switch(ch) {
-	case '\r':
-		lines.resize(lines.size()+1);
-		return Status::newLine;
-	case '\b':
-		if( lines.back().empty() ) return Status::noChange;
-		lines.back().pop_back();
-		return Status::deleteChar;
-	default:
-		lines.back().push_back(ch);
-		return Status::newChar;
-	}
-}
-
-vector<string> const & TextLog::allLines() { return lines; }
-
-// -------------
-
-LinesView::LinesView(TextLog & log, Window & window):
-	log(log),
-	window(window),
-	lineHeight(window.canvas().measureText("XZ|"_ns).height + 2),
-	textColor(0,200,0),
-	backgroundColor(0,0,0)
-{
-}
-
-int LinesView::linesFit() const
-{
-	auto totalHeight = window.dims().height;
-	return std::max(1,totalHeight / lineHeight);
-}
-
-auto LinesView::lastLine() const -> Line
-{
-	auto & lines = log.allLines();
-	Line result;
-	result.line = lines.back();
-	result.y = (std::min(int(lines.size()),linesFit())-1) * lineHeight;
-	return result;
-}
-
-void LinesView::drawCharLastLine(char key)
-{
-	auto & canvas = window.canvas();
-	auto line = lastLine();
-	auto lineDims = canvas.measureText(line.line);
-
-	NativeString keyNS(key);
-	auto charDims = canvas.measureText(keyNS);
-
-	Point p(lineDims.width - charDims.width, line.y);
-	canvas.drawText(p,keyNS,textColor,backgroundColor);
-}
-
-void LinesView::removeCharLastLine(char key)
-{
-	auto & canvas = window.canvas();
-	auto line = lastLine();
-	auto lineDims = canvas.measureText(line.line);
-
-	auto charDims = canvas.measureText(key);
-
-	Point p(lineDims.width,line.y);
-	canvas.fillRect(Rect::closed(p,charDims.setHeight(lineHeight)),backgroundColor);
-}
-
-void LinesView::verifyScroll()
-{
-	auto lf = linesFit();
-	auto & lines = log.allLines();
-	if( lines.size() < lf ) return;
-
-	drawLinesFrom(lines.size() - lf,lines.size(),0);
-}
-
-void LinesView::drawLinesFrom(size_t startLine, size_t endLine, int startY)
-{
-	auto & lines = log.allLines();
-	auto & canvas = window.canvas();
-	Point p(0,startY);
-	for( auto l = startLine; l < endLine; ++l, p.y+=lineHeight ) {
-		canvas.drawText(p,lines[l],textColor,backgroundColor);
-		auto lineDims = canvas.measureText(lines[l]);
-		canvas.fillRect(Rect::closed(p.addX(lineDims.width),WDims(window.width()-lineDims.width,lineHeight)),backgroundColor);
-	}
-}
-
-void LinesView::updateLinesInRect(Rect rect)
-{
-	auto lf = linesFit();
-	auto & lines = log.allLines();
-	auto startLine = lines.size() <= lf ? 0 : lines.size() - lf;
-
-	drawLinesFrom(rect.top / lineHeight + startLine,std::min(lines.size(),rect.bottom / lineHeight + startLine),rect.top / lineHeight * lineHeight);
-}

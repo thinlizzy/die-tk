@@ -60,6 +60,8 @@ public:
 
 	AllowOperation onClose(AllowOperation callback);
 	ProcessResize onResize(ProcessResize callback);
+	HandleResize afterResize(HandleResize callback);
+
 	HandleEvent onUserEvent(HandleEvent callback);
 private:
     WDims windowPayload();

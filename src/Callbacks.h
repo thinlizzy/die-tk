@@ -14,10 +14,13 @@ typedef std::function<void(Canvas &,Rect)> HandlePaint;
 typedef std::function<void(UserEvent)> HandleEvent;
 typedef std::function<void(MouseEvent,Point)> HandleMouseButton;
 typedef std::function<void(Point)> HandleMouseMove;
+
 // TODO test if we can actually replace pressed/released keys. or else, simplify this callback
 typedef std::function<WindowKey(WindowKey)> ProcessKeyEvent;
 typedef std::function<char(char)> ProcessKeypress;
+
 typedef std::function<WDims(WDims)> ProcessResize;
+typedef std::function<void(WDims)> HandleResize;
 
 }
 

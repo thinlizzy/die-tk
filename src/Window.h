@@ -36,6 +36,7 @@ public:
     using Surface::onKeypress;
 	AllowOperation onClose(AllowOperation callback);
 	ProcessResize onResize(ProcessResize callback);
+	HandleResize afterResize(HandleResize callback);
 	HandleEvent onUserEvent(HandleEvent callback);
     
     // internal use only
