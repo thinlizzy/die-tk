@@ -39,8 +39,9 @@ public:
 
 	AllowOperation onClose(AllowOperation callback);
 	ProcessResize onResize(ProcessResize callback);
-	HandleEvent onUserEvent(HandleEvent callback);
+	HandleResize afterResize(HandleResize callback);
 
+	HandleEvent onUserEvent(HandleEvent callback);
 private:
 	void maximize(bool yes);
 	bool maximized() const;

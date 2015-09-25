@@ -13,6 +13,7 @@ template<typename T> using WindowCallbackMap = CallbackMap<WindowImpl *, T>;
 
 WindowCallbackMap<AllowOperation> cbClose;
 WindowCallbackMap<ProcessResize> cbResize;
+WindowCallbackMap<HandleResize> cbAfterResize;
 WindowCallbackMap<HandleEvent> cbUserEvent;
 
 Atom WM_DELETE_WINDOW = XInternAtom(resourceManager.dpy, "WM_DELETE_WINDOW", False);
@@ -165,6 +166,11 @@ ProcessResize WindowImpl::onResize(ProcessResize callback)
     return setCallback(this,cbResize,callback);
 }
 
+HandleResize WindowImpl::afterResize(HandleResize callback)
+{
+    return setCallback(this,cbAfterResize,callback);
+}
+
 HandleEvent WindowImpl::onUserEvent(HandleEvent callback)
 {
     return setCallback(this,cbUserEvent,callback);
@@ -206,6 +212,8 @@ void WindowImpl::processMessage(XEvent & e)
 						maximize(false);
 					}
 					setDims(*resNewDims);
+				} else {
+					executeCallback(this, cbAfterResize, newDims);
 				}
 			}
 		} break;
