@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-enum class Status { noChange, newChar, deleteChar, newLine, };
-
 class TextLog {
 	std::vector<std::string> lines;
 public:
+	enum class Status { noChange, newChar, deleteChar, newLine, };
+
 	TextLog();
 	Status processChar(char ch);
 	std::vector<std::string> const & allLines();

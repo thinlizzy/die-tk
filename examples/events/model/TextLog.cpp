@@ -4,7 +4,7 @@ TextLog::TextLog():
 	lines(1)
 {}
 
-Status TextLog::processChar(char ch)
+auto TextLog::processChar(char ch) -> Status
 {
 	switch(ch) {
 	case '\r':

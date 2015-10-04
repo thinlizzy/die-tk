@@ -8,7 +8,7 @@
 
 namespace tk {
 
-// TODO make a basic_rect<> template
+// TODO make a basic_rect<> template. also make it interact with basic_point<U>, instead
 
 class Rect {
 public:
@@ -46,12 +46,21 @@ public:
     constexpr Rect addY(int y) const { return Rect(left,top+y,right,bottom+y); }
     constexpr Rect add(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
     
-	constexpr Rect move(Point p) const { return Rect(p.x,p.y,right+p.x-left,bottom+p.y-top); }
+	constexpr Rect move(Point p) const { return Rect(p.x,p.y,p.x+right-left,p.y+bottom-top); }
 
 	constexpr Rect resize(WDims dims) const { return closed(topLeft(),dims); }
+
+	constexpr Rect resizeBottomRight(WDims dims) const { return Rect(right-dims.width+1,bottom-dims.height+1,right,bottom); }
     
     constexpr Point posDown(int margin) const { return topLeft().addY(height() + margin); }
     constexpr Point posRight(int margin) const { return topLeft().addX(width() + margin); }
+
+    constexpr Point fitPoint(Point point) const
+    {
+    	return Point(
+			std::max(this->left,std::min(this->right,point.x)),
+			std::max(this->top,std::min(this->bottom,point.y)));
+    }
 
 	constexpr bool intersect(Point const & p) const
 	{
