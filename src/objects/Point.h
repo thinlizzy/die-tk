@@ -32,14 +32,14 @@ public:
 	bool operator==(basic_point const & p) const { return p.x == x && p.y == y; }
     bool operator!=(basic_point const & p) const { return ! operator==(p); }
 	basic_point & operator+=(basic_point const & p) { x += p.x;  y += p.y; return *this; }
-	friend basic_point operator+(basic_point const & p1, basic_point const & p2) { return basic_point(p1)+=p2; }
+	friend constexpr basic_point operator+(basic_point const & p1, basic_point const & p2) { return basic_point(p1)+=p2; }
 	basic_point & operator-=(basic_point const & p) { x -= p.x;  y -= p.y; return *this; }
-	friend basic_point operator-(basic_point const & p1, basic_point const & p2) { return basic_point(p1)-=p2; }
+	friend constexpr basic_point operator-(basic_point const & p1, basic_point const & p2) { return basic_point(p1)-=p2; }
 	basic_point & operator*=(T f) { x *= f;  y *= f; return *this; }
-	friend basic_point operator*(basic_point const & p, T f) { return basic_point(p)*=f; }
-	friend basic_point operator*(T f, basic_point const & p) { return basic_point(p)*=f; }
+	friend constexpr basic_point operator*(basic_point const & p, T f) { return basic_point(p)*=f; }
+	friend constexpr basic_point operator*(T f, basic_point const & p) { return basic_point(p)*=f; }
 	basic_point & operator/=(T f) { x /= f;  y /= f; return *this; }
-	friend basic_point operator/(basic_point const & p, T f) { return basic_point(p)/=f; }
+	friend constexpr basic_point operator/(basic_point const & p, T f) { return basic_point(p)/=f; }
     
     constexpr T distance() const { return std::sqrt(x*x+y*y); }
 

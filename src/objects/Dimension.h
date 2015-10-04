@@ -13,6 +13,8 @@ struct basic_dimension {
 	DimType width;		/** width */
 	DimType height;		/** height */
 
+	constexpr static basic_dimension squared(T size) { return basic_dimension(size,size); }
+
 	constexpr basic_dimension():
         width(0),
         height(0)
