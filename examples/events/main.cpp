@@ -2,8 +2,10 @@
 #include <iostream>
 #include "model/TextLog.h"
 #include "model/Ball.h"
+#include "model/Painting.h"
 #include "view/LinesView.h"
 #include "view/BallView.h"
+#include "view/PaintingView.h"
 
 using namespace std;
 using namespace tk;
@@ -11,6 +13,10 @@ using namespace tk;
 // the main function acts as a controller
 int main()
 {
+	// -----------------the user can type at the first window---------------------------------------------- //
+
+	// horizontal bounds are not being checked for simplicity and it is left as an exercise for the reader :)
+
 	Window logWindow{WindowParams("log").dims(320,200)};
 
 	TextLog log;
@@ -51,9 +57,11 @@ int main()
 		linesView.updateLinesInRect(rect);
 	});
 
-	// horizontal bounds are not being checked for simplicity and it is left as an exercise for the reader :)
+	// -----------------the user can control a ball at the second window with the arrow keys----------------------------- //
 
-// ----------------------------------------------------------------------------- //
+	// a "smoother play" would need manual sync during the message loop.
+	// an alternative would be to post user events as they were sync messages in order to have a continuous movement.
+	// this is left as an exercise for the reader :)
 
 	Window gameWindow{WindowParams("game").dims(200,200).start(300,300)};
 	Ball ball;
@@ -82,8 +90,6 @@ int main()
 		return k_NONE;
 	});
 
-	// a smoother "play" needs manual sync or to post sync messages to have a continuous movement which is left as an exercise for the reader :)
-
 	// update ball limits and drag ball when resizing over it
 	gameWindow.afterResize([&](WDims newDims) {
 		ball.setLimits(newDims);
@@ -105,19 +111,76 @@ int main()
 		ballView.drawIfInRect(rect);
 	});
 
-/*
-	window.onMouseDown();
-	window.onMouseUp();
+	// -----------------the user can paint with the mouse at the third window ----------------------------- //
 
-	window.onMouseEnter();
-	window.onMouseOver();
-	window.onMouseLeave();
-*/
+	Window painterWindow{WindowParams("paint").dims(200,200).start(50,300)};
+	Painting painting{painterWindow.dims()};
+	PaintingView paintingView{painting,painterWindow};
+
+	painterWindow.onMouseEnter([&](Point point) {
+		painting.setCrosshair(point);
+		paintingView.drawCrosshair(point);
+	});
+
+	painterWindow.onMouseOver([&](Point point) {
+		auto pos = painting.posCrosshair();
+		painting.setCrosshair(point);
+		paintingView.move(pos,point);
+	});
+
+	painterWindow.onMouseDown([&](MouseEvent evt, Point pt) {
+		if( evt.button == MouseButton::left ) {
+			painting.penDown();
+			paintingView.updatePen();
+		}
+	});
+
+	painterWindow.onMouseUp([&](MouseEvent evt, Point pt) {
+		if( evt.button == MouseButton::left ) {
+			painting.penUp();
+			paintingView.updatePen();
+		}
+	});
+
+	painterWindow.onMouseLeave([&](Point point) {
+		auto pos = painting.posCrosshair();
+		painting.penUp();
+		paintingView.eraseCrosshair(pos);
+	});
+
+	// TODO implementar image copyRectInto no linux tambem
+
+	// onPaint = redraw correct rect from imagebuf
+	painterWindow.onPaint([&](Canvas & canvas, Rect rect) {
+		paintingView.redraw(canvas,rect);
+	});
+
+	WDims oldPainterDims = painterWindow.dims();
+	// afterResize
+	// resize canvas if any dimension is greater to the previous one
+	// redraw new rects if window is bigger
+	painterWindow.afterResize([&](WDims newDims) {
+		painting.resize(newDims);
+		if( newDims.width > oldPainterDims.width ) {
+			auto rect = painterWindow.rect();
+			rect.left = oldPainterDims.width;
+			paintingView.redraw(painterWindow.canvas(),rect);
+		}
+		if( newDims.height > oldPainterDims.height ) {
+			auto rect = painterWindow.rect();
+			rect.top = oldPainterDims.height;
+			paintingView.redraw(painterWindow.canvas(),rect);
+		}
+		oldPainterDims = newDims;
+	});
 
 	// exit the app when any of its windows is closed
 	bool open = true;
 	logWindow.onClose([&open]() -> bool { open = false; return true; });
 	gameWindow.onClose([&open]() -> bool { open = false; return true; });
+	painterWindow.onClose([&open]() -> bool { open = false; return true; });
+
+	// simple message loop that most applications will use
 
 	Application app;
 	do {
@@ -125,4 +188,3 @@ int main()
 		app.processMessages();
 	} while( open );
 }
-

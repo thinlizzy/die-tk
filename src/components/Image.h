@@ -23,6 +23,7 @@ public:
     virtual void endDraw() = 0;
     virtual void drawInto(Canvas & canvas, Point dest) = 0;
     virtual void drawInto(Canvas & canvas, Rect destrect) = 0;
+    virtual void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) = 0;
 };
 
 typedef std::shared_ptr<Image> Ptr;

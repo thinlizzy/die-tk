@@ -15,6 +15,7 @@ public:
     void endDraw() override {}
     void drawInto(Canvas & canvas, Point dest) override {}
     void drawInto(Canvas & canvas, Rect destrect) override {}
+    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {}
 };
 
 extern Ptr nullImage;

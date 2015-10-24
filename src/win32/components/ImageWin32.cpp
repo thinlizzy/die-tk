@@ -236,17 +236,24 @@ void External::endDraw()
 
 void External::drawInto(Canvas & canvas, Point dest)
 {
-    auto d = dims();
+	auto d = dims();
 	SetDIBitsToDevice(hdc(canvas),dest.x,dest.y,d.width,d.height,
-                   0,0,0,info->bmiHeader.biHeight,buffer,info,DIB_RGB_COLORS);
+		0,0,0,info->bmiHeader.biHeight,buffer,info,DIB_RGB_COLORS);
 }
 
 void External::drawInto(Canvas & canvas, Rect destrect)
 {
-    auto d = dims();
-    auto destDims = destrect.dims();
-    StretchDIBits(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
-            0,0,d.width,d.height,buffer,info,DIB_RGB_COLORS,SRCCOPY);
+	auto d = dims();
+	auto destDims = destrect.dims();
+	StretchDIBits(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
+		0,0,d.width,d.height,buffer,info,DIB_RGB_COLORS,SRCCOPY);
+}
+
+void External::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
+{
+	auto srcDims = srcrect.dims();
+	StretchDIBits(hdc(canvas),dest.x,dest.y,srcDims.width,srcDims.height,
+		srcrect.left,srcrect.top,srcDims.width,srcDims.height,buffer,info,DIB_RGB_COLORS,SRCCOPY);
 }
 
 // ExternalWithHeader
@@ -346,6 +353,15 @@ void Bitmap::drawInto(Canvas & canvas, Rect destrect)
     bd.unselect();
 }
 
+void Bitmap::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
+{
+	auto srcDims = srcrect.dims();
+    bd.select();
+    StretchBlt(hdc(canvas),dest.x,dest.y,srcDims.width,srcDims.height,
+            bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,SRCCOPY);
+    bd.unselect();
+}
+
 // BitmapAlpha
 
 BitmapAlpha::BitmapAlpha(BITMAPINFO * info, Byte const * buffer):
@@ -360,16 +376,27 @@ void BitmapAlpha::drawInto(Canvas & canvas, Point dest)
 
 void BitmapAlpha::drawInto(Canvas & canvas, Rect destrect)
 {
-    auto d = dims();
+	drawInto(canvas,Rect::closed(Point(0,0),dims()),destrect);
+}
+
+void BitmapAlpha::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
+{
+	drawInto(canvas,srcrect,srcrect.move(dest));
+}
+
+void BitmapAlpha::drawInto(Canvas & canvas, Rect srcrect, Rect destrect)
+{
+    auto srcDims = srcrect.dims();
     auto destDims = destrect.dims();
-   
+
     BLENDFUNCTION bf;
     bf.BlendOp = AC_SRC_OVER;
     bf.BlendFlags = 0;
     bf.SourceConstantAlpha = 0xFF;
     bf.AlphaFormat = AC_SRC_ALPHA;
     bd.select();
-    ::GdiAlphaBlend(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,bd.hdc,0,0,d.width,d.height,bf);
+    ::GdiAlphaBlend(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
+		bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,bf);
     bd.unselect();
 }
 
@@ -399,33 +426,43 @@ void BitmapPallete::drawInto(Canvas & canvas, Point dest)
 
 void BitmapPallete::drawInto(Canvas & canvas, Rect destrect)
 {
-    auto d = dims();
+	drawInto(canvas,Rect::closed(Point(0,0),dims()),destrect);
+}
+
+void BitmapPallete::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
+{
+	drawInto(canvas,srcrect,srcrect.move(dest));
+}
+
+void BitmapPallete::drawInto(Canvas & canvas, Rect srcrect, Rect destrect)
+{
+    auto srcDims = srcrect.dims();
     auto destDims = destrect.dims();
     
     bd.select();
-    ::GdiTransparentBlt(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,bd.hdc,0,0,d.width,d.height,transpColor);
+    ::GdiTransparentBlt(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
+		bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,transpColor);
     bd.unselect();
 }
 
-}
+} // namespace image
 
-}
+} // namespace tk
 
 std::ostream & operator<<(std::ostream & os, BITMAPINFOHEADER const & bh)
 {
     os 
-            << "biWidth " << bh.biWidth
-            << " biHeight " << bh.biHeight
-            << " biBitCount " << bh.biBitCount
-            << " biPlanes " << bh.biPlanes
-            << " biSize " << bh.biSize
-            << " biSizeImage " << bh.biSizeImage
-            << " biCompression " << bh.biCompression
-            << " biClrImportant " << bh.biClrImportant
-            << " biClrUsed " << bh.biClrUsed
-            << " biXPelsPerMeter " << bh.biXPelsPerMeter
-            << " biYPelsPerMeter " << bh.biYPelsPerMeter
-            ;
+		<< "biWidth " << bh.biWidth
+		<< " biHeight " << bh.biHeight
+		<< " biBitCount " << bh.biBitCount
+		<< " biPlanes " << bh.biPlanes
+		<< " biSize " << bh.biSize
+		<< " biSizeImage " << bh.biSizeImage
+		<< " biCompression " << bh.biCompression
+		<< " biClrImportant " << bh.biClrImportant
+		<< " biClrUsed " << bh.biClrUsed
+		<< " biXPelsPerMeter " << bh.biXPelsPerMeter
+		<< " biYPelsPerMeter " << bh.biYPelsPerMeter
+		;
     return os;
 }
-

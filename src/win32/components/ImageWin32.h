@@ -45,6 +45,7 @@ public:
     
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
+    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
 };
 
 class ExternalWithHeader: public External {
@@ -75,6 +76,7 @@ public:
     
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
+    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
     
     HBITMAP getHbitmap() const;
 private:
@@ -87,6 +89,9 @@ public:
     
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
+    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+private:
+    void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
 };
 
 class BitmapPallete: public Bitmap {
@@ -95,6 +100,9 @@ public:
     
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
+    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+private:
+    void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
 };
 
 typedef std::shared_ptr<Bitmap> BitmapPtr;
