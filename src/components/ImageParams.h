@@ -16,6 +16,12 @@ struct Params {
     WDims dimensions_;
     bool tryTransparent_ = false;
 
+    Params():
+        buffer_(0),
+        type_(Type::RGBA),
+        dimensions_(1,1)
+    {}
+
     Params(Type type, WDims dimensions, Byte * buffer = 0):
         buffer_(buffer),
         type_(type),
