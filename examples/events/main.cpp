@@ -142,23 +142,23 @@ int main()
 		}
 	});
 
+	// awful implementation just for simplicity, since onMouseLeave can happen before onMouseUp if the mouse button it is still pressed
+	// it would be great exiting and entering the window w/o losing the pen down
 	painterWindow.onMouseLeave([&](Point point) {
 		auto pos = painting.posCrosshair();
 		painting.penUp();
 		paintingView.eraseCrosshair(pos);
 	});
 
-	// TODO implementar image copyRectInto no linux tambem
-
 	// onPaint = redraw correct rect from imagebuf
 	painterWindow.onPaint([&](Canvas & canvas, Rect rect) {
 		paintingView.redraw(canvas,rect);
 	});
 
-	WDims oldPainterDims = painterWindow.dims();
-	// afterResize
+	// TODO image canvas resizing is a little buggy on X11, leaving garbage in the new image
 	// resize canvas if any dimension is greater to the previous one
 	// redraw new rects if window is bigger
+	WDims oldPainterDims = painterWindow.dims();
 	painterWindow.afterResize([&](WDims newDims) {
 		painting.resize(newDims);
 		if( newDims.width > oldPainterDims.width ) {
