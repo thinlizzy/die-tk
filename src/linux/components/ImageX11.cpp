@@ -198,19 +198,39 @@ void ImageX11::endDraw()
 	));
 }
 
-void ImageX11::drawInto(Canvas & canvas, Point dest)
+void drawImage(xImagePtr const & image, Canvas & canvas, Rect srcrect, Point dest)
 {
-	if( &canvas == &nullCanvas ) return;
+	// fit srcrect in image dims
+	if( srcrect.left < 0 ) {
+		dest.x += -srcrect.left;
+		srcrect.left = 0;
+	}
+	if( srcrect.top < 0 ) {
+		dest.y += -srcrect.top;
+		srcrect.top = 0;
+	}
 
 	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
 	XPutImage(
 		resourceManager.dpy,
 		canvasX11.getDrawable(),
 		canvasX11.getGC(),
-		xImage.get(),
-		0, 0,
+		image.get(),
+		srcrect.left, srcrect.top,
 		dest.x, dest.y,
-		xImage->width, xImage->height);
+		srcrect.dims().width, srcrect.dims().height);
+}
+
+void ImageX11::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
+{
+	if( &canvas == &nullCanvas ) return;
+	drawImage(xImage,canvas,srcrect,dest);
+}
+
+void ImageX11::drawInto(Canvas & canvas, Point dest)
+{
+	if( &canvas == &nullCanvas ) return;
+	drawImage(xImage,canvas,Rect::closed(Point(0,0),dims()),dest);
 }
 
 void ImageX11::drawInto(Canvas & canvas, Rect destrect)
@@ -220,19 +240,9 @@ void ImageX11::drawInto(Canvas & canvas, Rect destrect)
 	auto imageBuffer = imageResize(xImage.get(), destrect.dims());
 	auto xImage = doCreateNativeBGRA(destrect.dims(), imageBuffer);
 	if( ! xImage ) return;
-
 	xImagePtr resizedImgPtr(xImage);
 
-	// TODO needs to rescale the image to the destrect. this is doing a wrong copyrect, instead
-	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
-	XPutImage(
-		resourceManager.dpy,
-		canvasX11.getDrawable(),
-		canvasX11.getGC(),
-		resizedImgPtr.get(),
-		0, 0,
-		destrect.left, destrect.top,
-		destrect.width(), destrect.height());
+	drawImage(resizedImgPtr,canvas,Rect::closed(Point(0,0),destrect.dims()),destrect.topLeft());
 }
 
 // ImageX11Transparent helpers
@@ -335,18 +345,18 @@ std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr, std::vect
 ImageX11Transparent::ImageX11Transparent(XImage * imagePtr):
 	ImageX11(imagePtr),
 	transparentMask(XCreateBitmapFromData(resourceManager.dpy,
-			resourceManager.root(),
-			reinterpret_cast<char *>(getTransparentMask(imagePtr).get()),
-			imagePtr->width, imagePtr->height))
+		resourceManager.root(),
+		reinterpret_cast<char *>(getTransparentMask(imagePtr).get()),
+		imagePtr->width, imagePtr->height))
 {
 }
 
 ImageX11Transparent::ImageX11Transparent(XImage * imagePtr, std::vector<bool> const & transparentMask):
 	ImageX11(imagePtr),
 	transparentMask(XCreateBitmapFromData(resourceManager.dpy,
-			resourceManager.root(),
-			reinterpret_cast<char *>(getTransparentMask(imagePtr,transparentMask).get()),
-			imagePtr->width, imagePtr->height))
+		resourceManager.root(),
+		reinterpret_cast<char *>(getTransparentMask(imagePtr,transparentMask).get()),
+		imagePtr->width, imagePtr->height))
 {
 }
 
@@ -356,10 +366,18 @@ void ImageX11Transparent::drawInto(Canvas & canvas, Point dest)
 	ImageX11::drawInto(canvas,dest);
 }
 
+// TODO I suspect the clipmask needs to be rescaled too - test and fix
 void ImageX11Transparent::drawInto(Canvas & canvas, Rect destrect)
 {
 	ClipMaskGuard guard(canvas,transparentMask.get(),destrect.topLeft());
 	ImageX11::drawInto(canvas,destrect);
+}
+
+// TODO I suspect the destination point needs to be adjusted for the clipmask too - test and fix
+void ImageX11Transparent::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
+{
+	ClipMaskGuard guard(canvas,transparentMask.get(),dest);
+	ImageX11::copyRectInto(canvas,srcrect,dest);
 }
 
 }

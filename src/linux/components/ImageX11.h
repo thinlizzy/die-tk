@@ -32,6 +32,7 @@ public:
     void endDraw() override;
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
+    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
 };
 
 class ImageX11Transparent: public ImageX11 {
@@ -42,6 +43,7 @@ public:
 
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
+    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
 };
 
 // result image will own buffer
