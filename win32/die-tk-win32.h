@@ -1,0 +1,8 @@
+#include "CanvasImplWin32.h"
+#include "ConvertersWin32.h"
+#include "NativeControlWin32.h"
+#include "ResourceManager.h"
+#include "ScopedObjects.h"
+#include "WindowImplWin32.h"
+#include "components/ImageWin32.h"
+#include "components/WindowComponent.h"
