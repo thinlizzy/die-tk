@@ -17,6 +17,9 @@ Window::Window(std::shared_ptr<WindowImpl> impl)
 
 Window::~Window()
 {   
+	if( impl ) {
+		resourceManager.unregisterWindow(getImplPtr());
+	}
 }
 
 void Window::remove(Control & control)
