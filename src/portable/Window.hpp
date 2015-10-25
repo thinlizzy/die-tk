@@ -17,7 +17,7 @@ Window::Window(std::shared_ptr<WindowImpl> impl)
 
 Window::~Window()
 {   
-	if( impl ) {
+	if( impl && impl.unique() ) {
 		resourceManager.unregisterWindow(getImplPtr());
 	}
 }
