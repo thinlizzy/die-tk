@@ -17,6 +17,6 @@ The directory examples has some example applications to experiment with die-tk.
 
 # TODO
 - add a build system, like Bazel or CMake
-- test X11 more and more
-- currently some of the Canvas functions are behaving differently in Winapi and XLib. They need to be normalized
+- test X11 more and more. I think the image routines can be greatly improved
+- currently some of the Canvas functions are behaving differently in WinApi and XLib. They need to be normalized
 - add more example apps, by moving code from die-tk-test2 to them

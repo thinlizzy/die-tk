@@ -6,7 +6,7 @@
 namespace tk {
 namespace image {
 
-enum class Type { RGBA, BGRA, RGB, BGR, gray, }; // TODO add more types
+enum class Type { BGRA, BGR, RGBA, RGB, gray, }; // TODO add more types
 
 typedef unsigned char Byte;
 
@@ -18,7 +18,7 @@ struct Params {
 
     Params():
         buffer_(0),
-        type_(Type::RGBA),
+        type_(Type::BGRA),
         dimensions_(1,1)
     {}
 

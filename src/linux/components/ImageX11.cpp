@@ -55,17 +55,19 @@ char * duplicateBuffer(Params const & params)
 				++src;
 			}
 			break;
+		default:
+			log::error("image type not supported: ",static_cast<int>(params.type_));
 		}
 	}
 	return result;
 }
 
-int nnb(int d, int dLen, int sLen)
+int nnb(int d, int dLen, int sLen) // nearest neighbor
 {
 	return d * sLen / dLen;
 }
 
-// se ficar podre demais, fazer bilinear interpolation
+// TODO add option to change the resize algorithm (nnb, bilinear interpolation, etc.)
 char * imageResize(XImage const * imagePtr, WDims dims)
 {
 	auto totalBytesDest = dims.area() * 4;
@@ -200,16 +202,6 @@ void ImageX11::endDraw()
 
 void drawImage(xImagePtr const & image, Canvas & canvas, Rect srcrect, Point dest)
 {
-	// fit srcrect in image dims
-	if( srcrect.left < 0 ) {
-		dest.x += -srcrect.left;
-		srcrect.left = 0;
-	}
-	if( srcrect.top < 0 ) {
-		dest.y += -srcrect.top;
-		srcrect.top = 0;
-	}
-
 	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
 	XPutImage(
 		resourceManager.dpy,
@@ -224,6 +216,23 @@ void drawImage(xImagePtr const & image, Canvas & canvas, Rect srcrect, Point des
 void ImageX11::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
 {
 	if( &canvas == &nullCanvas ) return;
+
+	// fit srcrect (and dest) in image dims
+	if( srcrect.left < 0 ) {
+		dest.x += -srcrect.left;
+		srcrect.left = 0;
+	}
+	if( srcrect.top < 0 ) {
+		dest.y += -srcrect.top;
+		srcrect.top = 0;
+	}
+	if( srcrect.right > xImage->width ) {
+		srcrect.right = xImage->width;
+	}
+	if( srcrect.bottom > xImage->height ) {
+		srcrect.bottom = xImage->height;
+	}
+
 	drawImage(xImage,canvas,srcrect,dest);
 }
 
