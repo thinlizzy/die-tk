@@ -22,9 +22,10 @@ class ResourceManager {
 	std::shared_ptr<NativeControlImpl> getTopLevelWindow(HWND hWnd);
 public:
     ResourceManager();
-	void registerWindow(std::shared_ptr<WindowImpl> window);
-	void registerControl(std::shared_ptr<NativeControlImpl> control);
-    void unregisterControl(std::shared_ptr<NativeControlImpl> control);
+	void registerWindow(std::shared_ptr<WindowImpl> const & window);
+	void unregisterWindow(std::shared_ptr<WindowImpl> const & window);
+	void registerControl(std::shared_ptr<NativeControlImpl> const & control);
+    void unregisterControl(std::shared_ptr<NativeControlImpl> const & control);
 	std::shared_ptr<WindowImpl> findWindow(HWND hWnd);
 	std::shared_ptr<NativeControlImpl> findControl(HWND hWnd);
     std::shared_ptr<NativeControlImpl> findControlOrWindow(HWND hWnd);

@@ -92,17 +92,22 @@ std::shared_ptr<NativeControlImpl> ResourceManager::getTopLevelWindow(HWND hWnd)
     return findWindow(parentHWnd);
 }
 
-void ResourceManager::registerWindow(std::shared_ptr<WindowImpl> window)
+void ResourceManager::registerWindow(std::shared_ptr<WindowImpl> const & window)
 {
 	windowMap[window->hWnd] = window;
 }
 
-void ResourceManager::registerControl(std::shared_ptr<NativeControlImpl> control)
+void ResourceManager::unregisterWindow(std::shared_ptr<WindowImpl> const & window)
+{
+	windowMap.erase(window->hWnd);
+}
+
+void ResourceManager::registerControl(std::shared_ptr<NativeControlImpl> const & control)
 {
 	controlMap[control->hWnd] = control;
 }
 
-void ResourceManager::unregisterControl(std::shared_ptr<NativeControlImpl> control)
+void ResourceManager::unregisterControl(std::shared_ptr<NativeControlImpl> const & control)
 {
     controlMap.erase(control->hWnd);
 }
