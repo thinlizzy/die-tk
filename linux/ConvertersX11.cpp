@@ -1,8 +1,8 @@
 #include "ConvertersX11.h"
-#include "ResourceManager.h"
 #include <X11/Xlib.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
+#include "ResourceManager.h"
 
 #define XES(et) case et: return #et
 

@@ -1,11 +1,11 @@
 #ifndef WINDOWIMPLX11_H_DIE_TK_LINUX_DIEGO_2014_SEP_02
 #define WINDOWIMPLX11_H_DIE_TK_LINUX_DIEGO_2014_SEP_02
 
-#include "../WindowParams.h"
-#include "CanvasX11.h"
 #include <unordered_map>
 #include <memory>
+#include "CanvasX11.h"
 #include "NativeControlImpl.h"
+#include "../src/WindowParams.h"
 
 namespace tk {
 

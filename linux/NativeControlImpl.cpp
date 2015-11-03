@@ -1,9 +1,9 @@
+#include "NativeControlImpl.h"
+#include <X11/Xutil.h>
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
-#include "NativeControlImpl.h"
-#include "../NullCanvas.h"
-#include "../log.h"
-#include <X11/Xutil.h>
+#include "../src/NullCanvas.h"
+#include "../src/log.h"
 
 namespace tk {
 

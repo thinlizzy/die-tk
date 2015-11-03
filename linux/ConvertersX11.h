@@ -2,10 +2,10 @@
 #define CONVERTERSX11_H_DIE_TK_2014_SEP_7
 
 #include <string>
-#include "../Event.h"
-#include "../WindowObjects.h"
-#include "../objects/Color.h"
 #include <X11/Xlib.h>
+#include "../src/Event.h"
+#include "../src/WindowObjects.h"
+#include "../src/objects/Color.h"
 
 namespace tk {
 

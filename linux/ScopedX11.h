@@ -1,8 +1,8 @@
 #ifndef LINUX_SCOPEDX11_H_DIETK_2015_06_21
 #define LINUX_SCOPEDX11_H_DIETK_2015_06_21
 
-#include "../util/ScopedHandle.h"
 #include <X11/Xlib.h>
+#include "../src/util/ScopedHandle.h"
 
 namespace tk {
 

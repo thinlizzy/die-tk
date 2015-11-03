@@ -1,11 +1,11 @@
-#include "../NativeString.h"
+#include "../src/NativeString.h"
+#include "utf8.h"
 #include <iostream>
 #include <sstream>
 #include <cwchar>
 
 #include <iterator>
 #include <cstdint>
-#include "utf8.h"
 
 namespace tk {
 

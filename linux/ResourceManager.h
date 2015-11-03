@@ -3,15 +3,15 @@
 
 #include <memory>
 #include <unordered_map>
-#include "WindowImplX11.h"
-
 #include <X11/Xlib.h>
+#include "WindowImplX11.h"
 
 namespace tk {
 
 class ResourceManager {
 	typedef std::unordered_map<::Window,std::weak_ptr<WindowImpl>> WindowMap;
 	WindowMap windowMap;
+	// no control map here. only win32 version is registering controls for now
 public:
 	Display * dpy;
 	ResourceManager();

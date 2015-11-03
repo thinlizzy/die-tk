@@ -1,8 +1,8 @@
 #include "Property.h"
-#include "ResourceManager.h"
-#include "../log.h"
 #include <cstring>
 #include <algorithm>
+#include "ResourceManager.h"
+#include "../src/log.h"
 
 namespace tk {
 

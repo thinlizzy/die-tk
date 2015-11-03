@@ -1,12 +1,12 @@
 #ifndef IMAGEX11_H_DIE_TK_2015_02_01
 #define IMAGEX11_H_DIE_TK_2015_02_01
 
-#include "../../components/Image.h"
-#include "../ScopedX11.h"
-#include "../CanvasX11.h"
 #include <memory>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include "../ScopedX11.h"
+#include "../CanvasX11.h"
+#include "../../src/components/Image.h"
 
 namespace tk {
 

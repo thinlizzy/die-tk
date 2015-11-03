@@ -1,5 +1,5 @@
 #include "ResourceManager.h"
-#include "../log.h"
+#include "../src/log.h"
 
 namespace {
 std::shared_ptr<tk::WindowImpl> nullWindow;

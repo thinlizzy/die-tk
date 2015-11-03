@@ -1,15 +1,15 @@
 #ifndef NATIVECONTROLIMPLX11_H_DIE_TK_2014_SEP_7
 #define NATIVECONTROLIMPLX11_H_DIE_TK_2014_SEP_7
 
-#include "../objects/Rect.h"
-#include "../objects/Color.h"
-#include "../ControlParams.h"
-#include "../Canvas.h"
-#include "../Callbacks.h"
-#include "../CallbackUtils.h"
-#include "../util/optional.h"
-#include "ScopedX11.h"
 #include <X11/Xlib.h>
+#include "ScopedX11.h"
+#include "../src/objects/Rect.h"
+#include "../src/objects/Color.h"
+#include "../src/ControlParams.h"
+#include "../src/Canvas.h"
+#include "../src/Callbacks.h"
+#include "../src/CallbackUtils.h"
+#include "../src/util/optional.h"
 
 namespace tk {
 

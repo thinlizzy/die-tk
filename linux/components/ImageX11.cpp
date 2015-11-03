@@ -1,9 +1,9 @@
 #include "ImageX11.h"
-#include "../ResourceManager.h"
-#include "../../NullCanvas.h"
-#include "../../components/NullImage.h"
-#include "../../log.h"
 #include <algorithm>
+#include "../ResourceManager.h"
+#include "../../src/NullCanvas.h"
+#include "../../src/components/NullImage.h"
+#include "../../src/log.h"
 
 namespace tk {
 

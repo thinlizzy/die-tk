@@ -1,7 +1,7 @@
 #ifndef CANVASX11_H_DIE_TK_2014_OCT_12
 #define CANVASX11_H_DIE_TK_2014_OCT_12
 
-#include "../Canvas.h"
+#include "../src/Canvas.h"
 #include <X11/Xlib.h>
 
 namespace tk {

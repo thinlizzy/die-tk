@@ -2,7 +2,7 @@
 #define CLIPBOARDX11_H_DIE_TK_LINUX_DIEGO_2015_AUG_06
 
 #include <X11/Xlib.h>
-#include "../NativeString.h"
+#include "../src/NativeString.h"
 #include "ScopedX11.h"
 #include "Property.h"
 

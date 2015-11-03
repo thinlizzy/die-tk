@@ -1,10 +1,10 @@
-// source: https://github.com/edrosten/x_clipboard/blob/master/paste.cc
+// adapted from https://github.com/edrosten/x_clipboard/blob/master/paste.cc
+#include "ClipboardX11.h"
 #include <algorithm>
 #include <iostream>
 #include <X11/Xatom.h>
 #include "ResourceManager.h"
-#include "ClipboardX11.h"
-#include "../log.h"
+#include "../src/log.h"
 using std::cerr;
 using std::hex;
 using std::dec;

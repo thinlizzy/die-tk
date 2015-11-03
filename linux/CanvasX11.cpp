@@ -1,6 +1,4 @@
 #include "CanvasX11.h"
-#include "ResourceManager.h"
-#include "ConvertersX11.h"
 #include <array>
 #include <memory>
 #include <type_traits>
@@ -8,7 +6,9 @@
 #include <algorithm>
 #include <iterator>
 #include <X11/Xutil.h>
-#include "../log.h"
+#include "ResourceManager.h"
+#include "ConvertersX11.h"
+#include "../src/log.h"
 
 namespace tk {
 

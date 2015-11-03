@@ -1,11 +1,11 @@
 #include "WindowImplX11.h"
-#include "../log.h"
+#include <memory>
+#include <X11/Xatom.h>
 #include "ResourceManager.h"
-#include "../CallbackUtils.h"
 #include "ConvertersX11.h"
 #include "Property.h"
-#include <X11/Xatom.h>
-#include <memory>
+#include "../src/CallbackUtils.h"
+#include "../src/log.h"
 
 namespace tk {
 
