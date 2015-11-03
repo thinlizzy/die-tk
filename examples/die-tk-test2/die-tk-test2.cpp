@@ -1,3 +1,5 @@
+// a random retarded example with some events and raw image buffer that I am not sure if it still works properly
+
 #include <die-tk.h>
 #include <iostream>
 using namespace std;
