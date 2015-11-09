@@ -1,11 +1,15 @@
-#include "../../die-tk.h"
-#include "calculator.h"
+#include <die-tk.h>
+#include <die-tk-controls.h>
 #include <fstream>
+#include "calculator.h"
 
 using namespace std;
 using namespace tk;
 
-bool saveFile(die::NativeString const & filename, die::NativeString const & text);
+bool saveFile(NativeString const & filename, NativeString const & text);
+
+// a crappy calculator example to demonstrate some of die-tk-controls
+// TODO fix some history presentation issues
 
 int main(int argc, char** argv)
 {
@@ -19,51 +23,51 @@ int main(int argc, char** argv)
     Calculator calculator;
     
     Window calc(WindowParams()
-        .text("Calculator")
-        .dims(160,300)
+        .text("Calc")
+        .dims(175,300)
     );
     
     Edit edit(calc, ControlParams()
-        .start(margin,calc.height() - 5*tdist)
-        .dims(calc.width()-10,dim)
+        .start(margin,calc.height() - 5*tdist - 10)
+        .dims(calc.width()-20,dim)
         .text("0")
     );
     edit.setReadOnly(true);
-    edit.setTextAlign(hta_right);
+    edit.setTextAlign(HTextAlign::right);
     
     Memo history(calc, ControlParams()
         .start(margin,margin)
-        .dims(calc.width()-margin*2,edit.y()-margin*2)
+        .dims(edit.width(),edit.y()-margin*2)
     );
     history.setReadOnly(true);
-    history.setTextAlign(hta_right);
+    history.setTextAlign(HTextAlign::right);
 
     Menu menu;
-    auto fileIt = menu.root().addItem("File"_dies);
-    fileIt->addItem("Save History")->onClick([&](){
+    auto fileIt = menu.root().addItem("File"_ns);
+    fileIt->addItem("Save History"_ns)->onClick([&](){
         auto filenames = dialog::selectFileForSave(calc,SelectFileParams().
-                            filter("*.txt").title("save history as")
+                            filter("*.txt"_ns).title("save history as"_ns)
                         );
         if( filenames.empty() ) return;
         
         if( saveFile(filenames,history.getText()) ) {
-            app.showMessage("history file saved successfully");
+        	dialog::showMessage(calc, "history file saved successfully"_ns);
         } else {
-            app.showMessage("failed to save history file");                
+        	dialog::showMessage(calc, "failed to save history file"_ns);
         }
     });
-    auto clipIt = menu.root().addItem("Edit"_dies);
-    clipIt->addItem("copy"_dies)->onClick([&](){ edit.copyToClipboard(); });
-    clipIt->addItem("paste"_dies)->onClick([&](){
+    auto clipIt = menu.root().addItem("Edit"_ns);
+    clipIt->addItem("copy"_ns)->onClick([&](){ edit.copyToClipboard(); });
+    clipIt->addItem("paste"_ns)->onClick([&](){
         auto clipText = app.getClipboardText();
         if( ! clipText.empty() ) {
             // TODO replace below with a for each on chars and calls to addDigit()
-            history.lines().add("PASTED"_dies);
+            history.lines().add("PASTED"_ns);
             history.lines().add(clipText);
         }
     });
-    auto helpIt = menu.root().addItem("Help"_dies);
-    helpIt->addItem("about"_dies)->onClick([&](){ app.showMessage("by Diego Martins\njose.diego@gmail.com"_dies); });
+    auto helpIt = menu.root().addItem("Help"_ns);
+    helpIt->addItem("about"_ns)->onClick([&](){ dialog::showMessage(calc, "by Diego Martins\njose.diego@gmail.com"_ns); });
     menu.attach(calc);
     
     vector<Button> numbers;
@@ -79,7 +83,7 @@ int main(int argc, char** argv)
         );
         for( int n = 1; n <= 9; ++n ) {
             auto button = base.clone();
-            button.setText(die::NativeString::toString(n));
+            button.setText(NativeString::toString(n));
             button.setPos( Point(dist + ((n-1) % 3) * tdist, numbers[0].y() - (((n-1) / 3 + 1) * tdist)) );
             numbers.push_back(move(button));
         }
@@ -137,7 +141,7 @@ int main(int argc, char** argv)
         )
         .onClick([&edit,&calculator,&history](){
             if( calculator.execute() ) {
-                edit.setText(die::NativeString::toString(calculator.currentNumber));
+                edit.setText(NativeString::toString(calculator.currentNumber));
                 history.lines().add(edit.getText() + "=");
                 history.scrollTo(history.lines().count());
             }
@@ -154,7 +158,6 @@ int main(int argc, char** argv)
             edit.setText("0");
         });
         
-        
         // unattach control used for cloning. base destructor will take care of it
         calc.remove(base);
     }
@@ -163,7 +166,7 @@ int main(int argc, char** argv)
     for( int n = 0; n != numbers.size(); ++n ) {
         numbers[n].onClick([&numbers,n,&edit,&calculator](){
             if( calculator.addDigit(numbers[n].getText().toUTF8()[0]) ) {
-                edit.setText(die::NativeString::toString(calculator.currentNumber));
+                edit.setText(NativeString::toString(calculator.currentNumber));
             }
         });
     }
@@ -172,7 +175,7 @@ int main(int argc, char** argv)
     for( int n = 0; n != operations.size(); ++n ) {
         operations[n].onClick([&operations,n,&edit,&calculator,&history](){
             if( calculator.execOperation(operations[n].getText().toUTF8()[0]) ) {
-                edit.setText(die::NativeString::toString(calculator.currentNumber));
+                edit.setText(NativeString::toString(calculator.currentNumber));
                 history.lines().add(edit.getText()+operations[n].getText());
                 history.scrollTo(history.lines().count());
             }
@@ -189,12 +192,12 @@ int main(int argc, char** argv)
     return 0;
 }
 
-bool saveFile(die::NativeString const & filename, die::NativeString const & text)
+bool saveFile(NativeString const & filename, NativeString const & text)
 {
     // may not work with unicode filenames. use FileStreamWrapper on fileutils lib, instead
     std::ofstream file(filename.toUTF8());
     if( ! file ) return false;
     
     auto textStr = text.toUTF8();
-    return file.write(&textStr[0],textStr.size());
+    return bool(file.write(&textStr[0],textStr.size()));
 }

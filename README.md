@@ -19,7 +19,7 @@ Applications that use die-tk will need to link with gdi32 (win32) or X11 (linux)
 
 If die-tk-image is included, then applications will need to link with libimage and FreeImage lib.
 
-If die-tk-controls is included, then applications will need to link with comctl32 and comdlg32 (win32). Linux is TBD
+If die-tk-controls is included, then applications will need to link with comdlg32 (win32). Linux is TBD
 
 # TEST
 The directory examples has some example applications to experiment with die-tk.

@@ -11,7 +11,7 @@ Windows builds need to include win32 directory as well.
 Library clients should include die-tk-controls/die-tk-controls.h, which includes all necessary header files from src subdirectories.
 
 # LINK
-In addition to the required die-tk bindings, applications that use die-tk-controls will need to link with comctl32 and comdlg32 (win32). Linux is TBD.
+In addition to the required die-tk bindings, applications that use die-tk-controls will need to link with comdlg32 (win32). Linux is TBD.
 
 # TEST
 The directory examples has some example applications to experiment with die-tk-controls.
