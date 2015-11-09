@@ -8,14 +8,18 @@ Windows builds need to include win32 directory as well.
 
 Linux builds need to include linux directory likewise.
 
-Library clients should #include <die-tk.h>, which includes all necessary header files from src subdirectories.
+Library clients should include die-tk.h, which includes all necessary header files from src subdirectories.
 
-The die-tk-image directory is optional. It can also be included in the build when support for loading image files is needed. It depends on libimage - http://github.com/thinlizzy/libimage
+The die-tk-image directory is optional. It can also be included in the build when support for loading image files is needed. It depends on http://github.com/thinlizzy/libimage
+
+The die-tk-controls directory is optional as well. It can be included in the build if the application needs basic GUI controls.
 
 # LINK
 Applications that use die-tk will need to link with gdi32 (win32) or X11 (linux) libs.
 
-If die-tk-image is included, then applications will need to link with FreeImage lib.
+If die-tk-image is included, then applications will need to link with libimage and FreeImage lib.
+
+If die-tk-controls is included, then applications will need to link with comctl32 and comdlg32 (win32). Linux is TBD
 
 # TEST
 The directory examples has some example applications to experiment with die-tk.

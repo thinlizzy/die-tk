@@ -8,5 +8,7 @@ Windows builds need to include win32 directory as well.
 
 Linux builds need to include linux directory likewise.
 
+Client code should include die-tk-image/src/convert.h in order to import images loaded by libimage into die-tk.
+
 # LINK
-Applications that use die-tk-image need to link with FreeImage lib.
+In addition to the required die-tk bindings, applications that use die-tk-image need to link with FreeImage lib.
