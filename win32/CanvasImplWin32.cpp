@@ -1,6 +1,5 @@
 #include "CanvasImplWin32.h"
 #include "ConvertersWin32.h"
-#include <algorithm>
 #include "../src/log.h"
 
 namespace tk {
@@ -65,6 +64,7 @@ void CanvasImpl::setPen(Pen const & pen)
 	}
 }
 
+// TODO this function will be used in the future for operations than need a selected HBRUSH
 void CanvasImpl::setBrush(Brush const & brush)
 {
 	HBRUSH hbrush = CreateSolidBrush(colorWin(brush.color));
@@ -146,7 +146,7 @@ void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & c
 {
 	SetTextColor(dc,colorWin(color));
 	SetBkMode(dc,TRANSPARENT);
-	TextOut(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
+	TextOutW(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
 }
 
 void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor)
@@ -154,7 +154,7 @@ void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & t
 	SetTextColor(dc,colorWin(textColor));
 	SetBkColor(dc,colorWin(backgroundColor));
 	SetBkMode(dc,OPAQUE);
-	TextOut(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
+	TextOutW(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
 }
 
 void CanvasImpl::textRect(Rect const & rect, NativeString const & text, TextParams const & params)
@@ -162,13 +162,13 @@ void CanvasImpl::textRect(Rect const & rect, NativeString const & text, TextPara
 	RECT winRect = convertRect(rect);
 	SetTextColor(dc,colorWin(params.textColor));
 	SetBkColor(dc,colorWin(params.backgroundColor));
-	DrawText(dc,text.wstr.c_str(),text.wstr.size(),&winRect,convertTextAlign(params.h_align,params.v_align));
+	DrawTextW(dc,text.wstr.c_str(),text.wstr.size(),&winRect,convertTextAlign(params.h_align,params.v_align));
 }
 
 WDims CanvasImpl::measureText(NativeString const & text)
 {
     SIZE size;
-    GetTextExtentPoint32(dc,text.wstr.c_str(),text.wstr.size(),&size);
+    GetTextExtentPoint32W(dc,text.wstr.c_str(),text.wstr.size(),&size);
     return sizeToWDims(size);
 }
 
