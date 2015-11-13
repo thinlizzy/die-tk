@@ -2,10 +2,10 @@
 This is an Alpha version of a portable GUI TK API. It supports WinApi and XLib bindings.
 
 # COMPILE
-Sorry! No build system yet, so you need to set your favorite C++ compiler to C++14 and build a library with all files under src directory.
+I am experimenting with CMake now. Please let me know if it works for you.
 
+For the ones that don't want to use CMake, you need to set your favorite C++ compiler to C++14 and build a library with all files under src directory.
 Windows builds need to include win32 directory as well.
-
 Linux builds need to include linux directory likewise.
 
 Library clients should include die-tk.h, which includes all necessary header files from src subdirectories.
@@ -25,7 +25,8 @@ If die-tk-controls is included, then applications will need to link with comdlg3
 The directory examples has some example applications to experiment with die-tk.
 
 # TODO
-- add a build system, like Bazel or CMake
+- experiment with Bazel
+- add CMakeLists.txt to the example directories and to die-tk-image and die-tk-controls bindings
 - test X11 more and more. I think the image routines can be greatly improved
-- currently some of the Canvas functions are behaving differently in WinApi and X11. They need to be normalized
+- currently some of the Canvas functions are behaving differently in win32 and X11. They need to be normalized
 - add more example apps
