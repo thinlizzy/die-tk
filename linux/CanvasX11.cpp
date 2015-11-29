@@ -10,6 +10,12 @@
 #include "ConvertersX11.h"
 #include "../src/log.h"
 
+namespace {
+
+tk::ResourceManagerSingleton resourceManager;
+
+}
+
 namespace tk {
 
 XPoint toXPoint(Point point)
@@ -56,7 +62,7 @@ CanvasX11::CanvasX11():
 }
 
 CanvasX11::CanvasX11(Drawable drawable):
-	gc(XCreateGC(resourceManager.dpy,drawable,canvasValueMask,&canvasValues)),
+	gc(XCreateGC(resourceManager->dpy,drawable,canvasValueMask,&canvasValues)),
 	drawable(drawable)
 {
 	auto dims = measureText("ABCDEFGHIJKXZ!@|");
@@ -86,13 +92,13 @@ CanvasX11 & CanvasX11::operator=(CanvasX11 && other)
 CanvasX11::~CanvasX11()
 {
 	if( gc ) {
-		XFreeGC(resourceManager.dpy,gc);
+		XFreeGC(resourceManager->dpy,gc);
 	}
 }
 
 void CanvasX11::translate(Point p)
 {
-	XSetClipOrigin(resourceManager.dpy,gc,p.x,p.y);
+	XSetClipOrigin(resourceManager->dpy,gc,p.x,p.y);
 }
 
 void CanvasX11::clearTranslate()
@@ -109,28 +115,28 @@ void CanvasX11::addClipRect(const Rect & openrect)
 	auto regionPtr = std::unique_ptr<std::remove_reference<decltype(*region)>::type,int (*)(Region)>(
 		region,&XDestroyRegion);
 
-	XSetRegion(resourceManager.dpy,gc,region);
+	XSetRegion(resourceManager->dpy,gc,region);
 }
 
 void CanvasX11::clearClipping()
 {
-	XSetClipMask(resourceManager.dpy,gc,None);
+	XSetClipMask(resourceManager->dpy,gc,None);
 }
 
 void CanvasX11::setForegroundColor(RGBColor const & color)
 {
-	XSetForeground(resourceManager.dpy,gc,rgb32(color));
+	XSetForeground(resourceManager->dpy,gc,rgb32(color));
 	/*
 	auto xColor = toXColor(color);
-	auto colormap = DefaultColormap(resourceManager.dpy, DefaultScreen(resourceManager.dpy));
-	XAllocColor(resourceManager.dpy,colormap,&xColor);
-	XSetForeground(resourceManager.dpy,gc,xColor.pixel);
+	auto colormap = DefaultColormap(resourceManager->dpy, DefaultScreen(resourceManager->dpy));
+	XAllocColor(resourceManager->dpy,colormap,&xColor);
+	XSetForeground(resourceManager->dpy,gc,xColor.pixel);
 	*/
 }
 
 void CanvasX11::setBackgroundColor(RGBColor const & color)
 {
-	XSetBackground(resourceManager.dpy,gc,rgb32(color));
+	XSetBackground(resourceManager->dpy,gc,rgb32(color));
 }
 
 
@@ -149,20 +155,20 @@ void CanvasX11::setPen(Pen const & pen)
 		lineStyle = LineSolid;
 		break;
 	case PenStyle::dash:
-		XSetDashes(resourceManager.dpy,gc,0,dashList,sizeof(dashList));
+		XSetDashes(resourceManager->dpy,gc,0,dashList,sizeof(dashList));
 		break;
 	case PenStyle::dot:
-		XSetDashes(resourceManager.dpy,gc,0,dashList,sizeof(dotList));
+		XSetDashes(resourceManager->dpy,gc,0,dashList,sizeof(dotList));
 		break;
 	case PenStyle::dashdot:
-		XSetDashes(resourceManager.dpy,gc,0,dashList,sizeof(dashDotList));
+		XSetDashes(resourceManager->dpy,gc,0,dashList,sizeof(dashDotList));
 		break;
 	case PenStyle::dashdotdot:
-		XSetDashes(resourceManager.dpy,gc,0,dashList,sizeof(dashDotDotList));
+		XSetDashes(resourceManager->dpy,gc,0,dashList,sizeof(dashDotDotList));
 		break;
 	// TODO PenStyle::invisible not implemented
 	}
-	XSetLineAttributes(resourceManager.dpy,gc,pen.width,lineStyle,CapButt,JoinMiter);
+	XSetLineAttributes(resourceManager->dpy,gc,pen.width,lineStyle,CapButt,JoinMiter);
 }
 
 void CanvasX11::setBrush(Brush const & brush)
@@ -175,13 +181,13 @@ void CanvasX11::setBrush(Brush const & brush)
 void CanvasX11::plot(Point p, const RGBColor & color)
 {
 	setForegroundColor(color);
-	XDrawPoint(resourceManager.dpy,drawable,gc,p.x,p.y);
+	XDrawPoint(resourceManager->dpy,drawable,gc,p.x,p.y);
 }
 
 void CanvasX11::drawLine(Point p1, Point p2, const Pen & pen)
 {
 	setPen(pen);
-	XDrawLine(resourceManager.dpy,drawable,gc,p1.x,p1.y,p2.x,p2.y);
+	XDrawLine(resourceManager->dpy,drawable,gc,p1.x,p1.y,p2.x,p2.y);
 }
 
 void CanvasX11::drawPoly(const Points & polygon, const Pen & pen)
@@ -195,32 +201,32 @@ void CanvasX11::drawPoly(const Points & polygon, const Pen & pen)
 		return XPoint{p.x, p.y};
 	});
 	points.push_back({polygon.front().x,polygon.front().y});
-	XDrawLines(resourceManager.dpy,drawable,gc,&points[0],polygon.size()+1,CoordModeOrigin);
+	XDrawLines(resourceManager->dpy,drawable,gc,&points[0],polygon.size()+1,CoordModeOrigin);
 }
 
 void CanvasX11::rectangle(const Rect & rect, const Pen & pen)
 {
 	setPen(pen);
-	XDrawRectangle(resourceManager.dpy,drawable,gc,rect.left,rect.top,rect.width(),rect.height());
+	XDrawRectangle(resourceManager->dpy,drawable,gc,rect.left,rect.top,rect.width(),rect.height());
 }
 
 void CanvasX11::fillRect(const Rect & openrect, const Brush & brush)
 {
 	setBrush(brush);
-	XFillRectangle(resourceManager.dpy,drawable,gc,openrect.left,openrect.top,openrect.width(),openrect.height());
+	XFillRectangle(resourceManager->dpy,drawable,gc,openrect.left,openrect.top,openrect.width(),openrect.height());
 }
 
 void CanvasX11::drawText(Point p, NativeString const & text, RGBColor const & color)
 {
 	setForegroundColor(color);
-	XDrawString(resourceManager.dpy,drawable,gc,p.x,p.y+lineHeight,text.str.data(),text.str.size());
+	XDrawString(resourceManager->dpy,drawable,gc,p.x,p.y+lineHeight,text.str.data(),text.str.size());
 }
 
 void CanvasX11::drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor)
 {
 	setForegroundColor(textColor);
 	setBackgroundColor(backgroundColor);
-	XDrawImageString(resourceManager.dpy,drawable,gc,p.x,p.y+lineHeight,text.str.data(),text.str.size());
+	XDrawImageString(resourceManager->dpy,drawable,gc,p.x,p.y+lineHeight,text.str.data(),text.str.size());
 }
 
 void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const TextParams & params)
@@ -256,7 +262,7 @@ void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const
 	}
 
 	setForegroundColor(params.textColor);
-	XDrawString(resourceManager.dpy,drawable,gc,x,y+textDims.height,text.str.data(),text.str.size());
+	XDrawString(resourceManager->dpy,drawable,gc,x,y+textDims.height,text.str.data(),text.str.size());
 
 	// TODO restore clipping rects instead
 	clearClipping();
@@ -268,7 +274,7 @@ WDims CanvasX11::measureText(const NativeString & text)
 	auto gid = XGContextFromGC(gc);
 
 	// TODO cache the font on gc creation
-	auto fontStruct = XQueryFont(resourceManager.dpy,gid);
+	auto fontStruct = XQueryFont(resourceManager->dpy,gid);
 	if( fontStruct == NULL ) {
 		log::error("measureText ","can't get font info for gc ",gc);
 		return result;
@@ -287,7 +293,7 @@ WDims CanvasX11::measureText(const NativeString & text)
 	result.height = overall.ascent; // or font_ascent - font_descent ?
 //	result.height = font_ascent;
 
-//	XQueryTextExtents(resourceManager.dpy, gid, text.str.data(),text.str.size(),&direction, &font_ascent, &font_descent, &overall);
+//	XQueryTextExtents(resourceManager->dpy, gid, text.str.data(),text.str.size(),&direction, &font_ascent, &font_descent, &overall);
 
 	return result;
 }

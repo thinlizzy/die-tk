@@ -390,7 +390,8 @@ KeySym toKeySym(WindowKey key)
 unsigned int toKeyCode(WindowKey key)
 {
 	auto keySym = toKeySym(key);
-	return XKeysymToKeycode(resourceManager.dpy,keySym);
+	ResourceManagerSingleton resourceManager;
+	return XKeysymToKeycode(resourceManager->dpy,keySym);
 }
 
 }

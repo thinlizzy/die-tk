@@ -8,6 +8,7 @@
 #include "NativeControlWin32.h"
 #include "WindowImplWin32.h"
 #include "ScopedObjects.h"
+#include "../src/util/singleton.h"
 
 namespace tk {
 
@@ -41,7 +42,7 @@ public:
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-extern ResourceManager resourceManager;
+using ResourceManagerSingleton = singleton<ResourceManager>;
 
 }
 

@@ -336,7 +336,8 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
         case WM_SETCURSOR:
             if( cursor != Cursor::defaultCursor ) {
                 result = 0;
-                SetCursor(resourceManager.cursors[int(cursor)]);
+                ResourceManagerSingleton resourceManager;
+                SetCursor(resourceManager->cursors[int(cursor)]);
             }
         break;
         case WM_ERASEBKGND:

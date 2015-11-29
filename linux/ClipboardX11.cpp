@@ -13,15 +13,21 @@ using std::endl;
 #define DEBUG_CLIP(x)
 // #define DEBUG_CLIP(x) cerr << x << endl
 
+namespace {
+
+tk::ResourceManagerSingleton resourceManager;
+
+}
+
 namespace tk {
 
 Clipboard::Clipboard(char const * clipProperty):
-	sel(XInternAtom(resourceManager.dpy, clipProperty, False)),
-	XA_TARGETS(XInternAtom(resourceManager.dpy, "TARGETS", False))
+	sel(XInternAtom(resourceManager->dpy, clipProperty, False)),
+	XA_TARGETS(XInternAtom(resourceManager->dpy, "TARGETS", False))
 {
 	window.reset(WindowImpl::createWindow(0,0,100,100));
-	XConvertSelection(resourceManager.dpy, sel, XA_TARGETS, sel, window.get(), CurrentTime);
-	XFlush(resourceManager.dpy);
+	XConvertSelection(resourceManager->dpy, sel, XA_TARGETS, sel, window.get(), CurrentTime);
+	XFlush(resourceManager->dpy);
 }
 
 Bool clipboardPredicate(Display *, XEvent * event, XPointer arg)
@@ -32,12 +38,12 @@ Bool clipboardPredicate(Display *, XEvent * event, XPointer arg)
 XEvent Clipboard::checkEvent()
 {
 	XEvent e;
-    XIfEvent(resourceManager.dpy, &e, &clipboardPredicate, reinterpret_cast<XPointer>(window.get()));
+    XIfEvent(resourceManager->dpy, &e, &clipboardPredicate, reinterpret_cast<XPointer>(window.get()));
     DEBUG_CLIP("A selection notify has arrived!");
     DEBUG_CLIP("Requester = 0x" << hex << e.xselectionrequest.requestor << dec);
-    DEBUG_CLIP("Target atom    = " << getAtomName(resourceManager.dpy, e.xselection.target));
-    DEBUG_CLIP("Property atom  = " << getAtomName(resourceManager.dpy, e.xselection.property));
-    DEBUG_CLIP("Selection atom = " << getAtomName(resourceManager.dpy, e.xselection.selection));
+    DEBUG_CLIP("Target atom    = " << getAtomName(resourceManager->dpy, e.xselection.target));
+    DEBUG_CLIP("Property atom  = " << getAtomName(resourceManager->dpy, e.xselection.property));
+    DEBUG_CLIP("Selection atom = " << getAtomName(resourceManager->dpy, e.xselection.selection));
 	return e;
 }
 
@@ -77,8 +83,8 @@ NativeString Clipboard::pasteString()
 		return {};
 	}
 	DEBUG_CLIP("Now requesting type " << resourceManager.getAtomName(targetToBeRequested));
-	XConvertSelection(resourceManager.dpy, sel, targetToBeRequested, sel, window.get(), CurrentTime);
-	XFlush(resourceManager.dpy);
+	XConvertSelection(resourceManager->dpy, sel, targetToBeRequested, sel, window.get(), CurrentTime);
+	XFlush(resourceManager->dpy);
 
 	// 2
     XEvent e2 = checkEvent();

@@ -7,6 +7,12 @@
 #include "../src/CallbackUtils.h"
 #include "../src/log.h"
 
+namespace {
+
+tk::ResourceManagerSingleton resourceManager;
+
+}
+
 namespace tk {
 
 template<typename T> using WindowCallbackMap = CallbackMap<WindowImpl *, T>;
@@ -16,16 +22,16 @@ WindowCallbackMap<ProcessResize> cbResize;
 WindowCallbackMap<HandleResize> cbAfterResize;
 WindowCallbackMap<HandleEvent> cbUserEvent;
 
-Atom WM_DELETE_WINDOW = XInternAtom(resourceManager.dpy, "WM_DELETE_WINDOW", False);
+Atom WM_DELETE_WINDOW = XInternAtom(resourceManager->dpy, "WM_DELETE_WINDOW", False);
 
 ::Window WindowImpl::createWindow(int x, int y, int width, int height)
 {
-	int borderColor = BlackPixel(resourceManager.dpy, DefaultScreen(resourceManager.dpy));
+	int borderColor = BlackPixel(resourceManager->dpy, DefaultScreen(resourceManager->dpy));
 	int backgroundColor = borderColor;
 	int borderWidth = 0;
 	return XCreateSimpleWindow(
-			resourceManager.dpy,
-			resourceManager.root(),
+			resourceManager->dpy,
+			resourceManager->root(),
 			x, y, width, height,
 			borderWidth, borderColor, backgroundColor);
 }
@@ -48,9 +54,9 @@ WindowImpl::WindowImpl(WindowParams const & params)
 
 	windowId = createWindow(x, y, dims.width, dims.height);
 
-	XSetWMProtocols(resourceManager.dpy, windowId, &WM_DELETE_WINDOW, 1);
+	XSetWMProtocols(resourceManager->dpy, windowId, &WM_DELETE_WINDOW, 1);
 
-	XSelectInput(resourceManager.dpy, windowId,
+	XSelectInput(resourceManager->dpy, windowId,
 			KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask |
 			EnterWindowMask | LeaveWindowMask | PointerMotionMask |
 			ExposureMask | StructureNotifyMask | PropertyChangeMask
@@ -58,7 +64,7 @@ WindowImpl::WindowImpl(WindowParams const & params)
 	// TODO set do-not-propagate-mask for KeyPress and KeyRelease events
 
 	setText(params.text_);
-	XSetIconName(resourceManager.dpy, windowId, params.text_.str.c_str());
+	XSetIconName(resourceManager->dpy, windowId, params.text_.str.c_str());
 
 	if( params.initialState & ws_visible ) {
 		show();
@@ -67,7 +73,7 @@ WindowImpl::WindowImpl(WindowParams const & params)
 		maximize(true);
 	}
 	if( params.initialState & ws_minimized ) {
-		XIconifyWindow(resourceManager.dpy, windowId, DefaultScreen(resourceManager.dpy));
+		XIconifyWindow(resourceManager->dpy, windowId, DefaultScreen(resourceManager->dpy));
 	}
 
 	windowCanvas = CanvasX11(windowId);
@@ -79,7 +85,7 @@ WindowImpl::~WindowImpl()
     removeFromCb(this,cbResize);
     removeFromCb(this,cbUserEvent);
 
-	XDestroyWindow(resourceManager.dpy, windowId);
+	XDestroyWindow(resourceManager->dpy, windowId);
 }
 
 int WindowImpl::state() const
@@ -91,13 +97,13 @@ int WindowImpl::state() const
 	int actual_format;
 	unsigned long num_items, bytes_after;
 	Atom * atoms = NULL;
-	XGetWindowProperty(resourceManager.dpy, windowId, XInternAtom(resourceManager.dpy, "_NET_WM_STATE", False),
+	XGetWindowProperty(resourceManager->dpy, windowId, XInternAtom(resourceManager->dpy, "_NET_WM_STATE", False),
 			0, 1024, False, XA_ATOM, &actual_type, &actual_format, &num_items, &bytes_after, (unsigned char**)&atoms);
     for( unsigned long i=0; i<num_items; ++i ) {
-        if( atoms[i] == XInternAtom(resourceManager.dpy, "_NET_WM_STATE_HIDDEN", False) ) {
+        if( atoms[i] == XInternAtom(resourceManager->dpy, "_NET_WM_STATE_HIDDEN", False) ) {
         	result |= ws_minimized;
         } else
-		if( atoms[i] == XInternAtom(resourceManager.dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False) ) {
+		if( atoms[i] == XInternAtom(resourceManager->dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False) ) {
 			result |= ws_maximized;
 		}
     }
@@ -110,7 +116,7 @@ void WindowImpl::setBorders(bool value)
 {
 	XSetWindowAttributes attr;
 	attr.override_redirect = value ? False : True;
-	XChangeWindowAttributes(resourceManager.dpy, windowId, CWOverrideRedirect, &attr);
+	XChangeWindowAttributes(resourceManager->dpy, windowId, CWOverrideRedirect, &attr);
 }
 
 void WindowImpl::registerControl(std::shared_ptr<NativeControlImpl> control)
@@ -123,7 +129,7 @@ void WindowImpl::unregisterControl(std::shared_ptr<NativeControlImpl> control)
 {
     if( controls.erase(control->windowId) > 0 ) {
     	// do I need to unregister on resourceManager too?
-        XDestroyWindow(resourceManager.dpy, control->windowId);
+        XDestroyWindow(resourceManager->dpy, control->windowId);
     }
 }
 
@@ -131,16 +137,16 @@ Rect WindowImpl::rect() const
 {
 	int tx,ty;
 	::Window child;
-	XTranslateCoordinates(resourceManager.dpy, windowId, resourceManager.root(), 0, 0, &tx, &ty, &child);
+	XTranslateCoordinates(resourceManager->dpy, windowId, resourceManager->root(), 0, 0, &tx, &ty, &child);
 	XWindowAttributes attrs;
-	XGetWindowAttributes(resourceManager.dpy, windowId, &attrs);
+	XGetWindowAttributes(resourceManager->dpy, windowId, &attrs);
 	return Rect::closed(Point(tx-attrs.x,ty-attrs.y),WDims(attrs.width,attrs.height));
 }
 
 NativeString WindowImpl::getText() const
 {
 	char * windowName;
-	XFetchName(resourceManager.dpy, windowId, &windowName);
+	XFetchName(resourceManager->dpy, windowId, &windowName);
 	if( windowName == nullptr ) return {};
 
 	auto windowNamePtr = std::unique_ptr<void,int (*)(void*)>(static_cast<void *>(windowName),&XFree);
@@ -151,7 +157,7 @@ NativeString WindowImpl::getText() const
 
 void WindowImpl::setText(NativeString const & text)
 {
-	XStoreName(resourceManager.dpy, windowId, text.str.c_str());
+	XStoreName(resourceManager->dpy, windowId, text.str.c_str());
 }
 
 // callbacks & messages
@@ -225,7 +231,7 @@ void WindowImpl::processMessage(XEvent & e)
 
 bool WindowImpl::maximized() const
 {
-	Property p{windowId,XInternAtom(resourceManager.dpy,"_NET_WM_STATE", False)};
+	Property p{windowId,XInternAtom(resourceManager->dpy,"_NET_WM_STATE", False)};
 	return p.hasItem("_NET_WM_STATE_MAXIMIZED_HORZ");   // it will have VERT as well
 }
 
@@ -234,12 +240,12 @@ void WindowImpl::maximize(bool yes)
 	XEvent xev{};
 	xev.type = ClientMessage;
 	xev.xclient.window = windowId;
-	xev.xclient.message_type = XInternAtom(resourceManager.dpy, "_NET_WM_STATE", False);
+	xev.xclient.message_type = XInternAtom(resourceManager->dpy, "_NET_WM_STATE", False);
 	xev.xclient.format = 32;
 	xev.xclient.data.l[0] = yes ? 1: 0;
-	xev.xclient.data.l[1] = XInternAtom(resourceManager.dpy,"_NET_WM_STATE_MAXIMIZED_HORZ", False);
-	xev.xclient.data.l[2] = XInternAtom(resourceManager.dpy,"_NET_WM_STATE_MAXIMIZED_VERT", False);
-	XSendEvent(resourceManager.dpy, resourceManager.root(),
+	xev.xclient.data.l[1] = XInternAtom(resourceManager->dpy,"_NET_WM_STATE_MAXIMIZED_HORZ", False);
+	xev.xclient.data.l[2] = XInternAtom(resourceManager->dpy,"_NET_WM_STATE_MAXIMIZED_VERT", False);
+	XSendEvent(resourceManager->dpy, resourceManager->root(),
 		False, SubstructureNotifyMask, &xev);
 }
 

@@ -59,7 +59,8 @@ void Application::waitForMessages()
 
 void Application::processMessages()
 {
-    resourceManager.processMessages();
+    ResourceManagerSingleton resourceManager;
+    resourceManager->processMessages();
 }
 
 Point Application::getCursorPos() const

@@ -5,6 +5,12 @@
 #include "../../src/components/NullImage.h"
 #include "../../src/log.h"
 
+namespace {
+
+tk::ResourceManagerSingleton resourceManager;
+
+}
+
 namespace tk {
 
 namespace image {
@@ -107,8 +113,8 @@ Ptr create(Params const & params)
 XImage * doCreateNativeBGRA(WDims dims, char * buffer)
 {
 	auto imagePtr = XCreateImage(
-		resourceManager.dpy,
-		DefaultVisual(resourceManager.dpy,0),
+		resourceManager->dpy,
+		DefaultVisual(resourceManager->dpy,0),
 		24,
 		ZPixmap,
 		0,
@@ -172,8 +178,8 @@ Canvas & ImageX11::beginDraw()
 {
 	if( ! drawingArea ) {
 		drawingArea.reset(XCreatePixmap(
-			resourceManager.dpy,
-			resourceManager.root(),
+			resourceManager->dpy,
+			resourceManager->root(),
 			xImage->width, xImage->height,
 			xImage->depth
 		));
@@ -191,7 +197,7 @@ Canvas & ImageX11::canvas()
 void ImageX11::endDraw()
 {
 	xImage.reset(XGetImage(
-		resourceManager.dpy,
+		resourceManager->dpy,
 		drawingArea.get(),
 		0,0,
 		xImage->width, xImage->height,
@@ -204,7 +210,7 @@ void drawImage(xImagePtr const & image, Canvas & canvas, Rect srcrect, Point des
 {
 	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
 	XPutImage(
-		resourceManager.dpy,
+		resourceManager->dpy,
 		canvasX11.getDrawable(),
 		canvasX11.getGC(),
 		image.get(),
@@ -262,12 +268,12 @@ public:
 	ClipMaskGuard(Canvas & canvas, Pixmap transparentMask, Point dest):
 		gc(static_cast<CanvasX11 &>(canvas).getGC())
 	{
-		XSetClipOrigin(resourceManager.dpy, gc, dest.x, dest.y);
-		XSetClipMask(resourceManager.dpy, gc, transparentMask);
+		XSetClipOrigin(resourceManager->dpy, gc, dest.x, dest.y);
+		XSetClipMask(resourceManager->dpy, gc, transparentMask);
 	}
 
 	~ClipMaskGuard() {
-		XSetClipMask(resourceManager.dpy, gc, None);
+		XSetClipMask(resourceManager->dpy, gc, None);
 	}
 
 	ClipMaskGuard(ClipMaskGuard const &) = delete;
@@ -353,8 +359,8 @@ std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr, std::vect
 
 ImageX11Transparent::ImageX11Transparent(XImage * imagePtr):
 	ImageX11(imagePtr),
-	transparentMask(XCreateBitmapFromData(resourceManager.dpy,
-		resourceManager.root(),
+	transparentMask(XCreateBitmapFromData(resourceManager->dpy,
+		resourceManager->root(),
 		reinterpret_cast<char *>(getTransparentMask(imagePtr).get()),
 		imagePtr->width, imagePtr->height))
 {
@@ -362,8 +368,8 @@ ImageX11Transparent::ImageX11Transparent(XImage * imagePtr):
 
 ImageX11Transparent::ImageX11Transparent(XImage * imagePtr, std::vector<bool> const & transparentMask):
 	ImageX11(imagePtr),
-	transparentMask(XCreateBitmapFromData(resourceManager.dpy,
-		resourceManager.root(),
+	transparentMask(XCreateBitmapFromData(resourceManager->dpy,
+		resourceManager->root(),
 		reinterpret_cast<char *>(getTransparentMask(imagePtr,transparentMask).get()),
 		imagePtr->width, imagePtr->height))
 {
@@ -413,13 +419,13 @@ void debugPixmap(unsigned char * buf, int width, int height)
 
 debugPixmap(transparentBuffer.get(),dims().width, dims().height);
 auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
-Pixmap pixmap(XCreateBitmapFromData(resourceManager.dpy, canvasX11.windowId,
+Pixmap pixmap(XCreateBitmapFromData(resourceManager->dpy, canvasX11.windowId,
 			reinterpret_cast<char *>(transparentBuffer.get()),
 			dims().width, dims().height));
 canvasX11.setForegroundColor(RGBColor(255,255,255));
-XCopyPlane(resourceManager.dpy, pixmap, canvasX11.windowId, canvasX11.gc,
+XCopyPlane(resourceManager->dpy, pixmap, canvasX11.windowId, canvasX11.gc,
 		0, 0, dims().width, dims().height, dest.x, dest.y, 1);
-XFreePixmap(resourceManager.dpy, pixmap);
+XFreePixmap(resourceManager->dpy, pixmap);
 
 ImageX11::drawInto(canvas, dest.addX(dims().width));
 ImageX11::drawInto(canvas, dest.addY(dims().height));

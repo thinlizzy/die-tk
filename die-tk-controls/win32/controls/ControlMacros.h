@@ -34,7 +34,8 @@ CLASS CLASS::clone() const \
 { \
     CLASS result; \
     result.impl = std::shared_ptr<CONTROL_IMPL>(IMPL.clone()); \
-    resourceManager.findWindow(impl->getParentHandle())->registerControl(result.impl); \
+    ResourceManagerSingleton resourceManager; \
+    resourceManager->findWindow(impl->getParentHandle())->registerControl(result.impl); \
     return std::move(result); \
 }
 

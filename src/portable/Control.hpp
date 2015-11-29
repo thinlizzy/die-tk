@@ -5,7 +5,8 @@ namespace tk {
     
 Window Control::getParent() const
 {
-    return Window(resourceManager.findWindow(impl->getParentHandle()));
+    ResourceManagerSingleton resourceManager;
+    return Window(resourceManager->findWindow(impl->getParentHandle()));
 }
 
 }

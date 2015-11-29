@@ -86,7 +86,7 @@ int ComboBoxImpl::itemsHeight() const
 {
 	scoped::DC sdc(hWnd);
 	SIZE size;
-	GetTextExtentPoint32(sdc.hdc,L"|",1,&size);
+	GetTextExtentPoint32W(sdc.hdc,L"|",1,&size);
 
 	float const height_padding = 1;
 	return int(size.cy + height_padding) * nVisibleItems;

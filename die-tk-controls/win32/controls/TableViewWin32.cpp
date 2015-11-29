@@ -1,10 +1,6 @@
 #define _WIN32_IE 0x0400
 #include "TableViewWin32.h"
-#include <memory>
 #include "../components/ImageListWin32.h"
-#include "../../src/controls/base/ItemProperties.h"
-#include "../../../src/die-tk.h"
-#include "../../../win32/die-tk-win32.h"
 
 #ifndef MAX_TABLEVIEW_ITEM_CHARS
 #define MAX_TABLEVIEW_ITEM_CHARS 261
@@ -18,7 +14,7 @@ TableViewCallbackMap<TableView::DrawItem> cbDrawItem;
 TableViewCallbackMap<TableView::ItemEvent> cbClickItem;
         
 TableViewImpl::TableViewImpl(HWND parentHwnd, ControlParams const & params):
-	NativeControlImpl(parentHwnd,params,WC_LISTVIEW,LVS_REPORT | LVS_SHOWSELALWAYS),
+	NativeControlImpl(parentHwnd,params,WC_LISTVIEWW,LVS_REPORT | LVS_SHOWSELALWAYS),
     colCount(0),
     rowCount(0)
 {
@@ -52,10 +48,10 @@ int alignToWin32(ColumnProperties::Alignment alignment)
             return LVCFMT_RIGHT;
         case ColumnProperties::center:
             return LVCFMT_CENTER;
+        default:
+            // defaults to left if invalid
+            return LVCFMT_LEFT;
     }
-
-    // defaults to left if invalid
-    return LVCFMT_LEFT;
 }
 
 ColumnProperties::Alignment win32ToAlign(int fmt)
@@ -67,15 +63,15 @@ ColumnProperties::Alignment win32ToAlign(int fmt)
             return ColumnProperties::right;
         case LVCFMT_CENTER:
             return ColumnProperties::center;
+        default:
+            // defaults to left if invalid
+            return ColumnProperties::left;
     }
-
-    // defaults to left if invalid
-    return ColumnProperties::left;
 }
 
-LVCOLUMN propertiesToColumn(int colIndex, ColumnProperties const & columnProp)
+LVCOLUMNW propertiesToColumn(int colIndex, ColumnProperties const & columnProp)
 {
-    LVCOLUMN lvc;
+    LVCOLUMNW lvc;
     lvc.iSubItem = colIndex;
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
     lvc.pszText = const_cast<wchar_t *>(columnProp.header.wstr.c_str()); // *
@@ -86,12 +82,12 @@ LVCOLUMN propertiesToColumn(int colIndex, ColumnProperties const & columnProp)
         lvc.iImage = columnProp.imageIndex;
     }
 
-    return lvc; // [*] LVCOLUMN pszText has the same scope as columnProp text
+    return lvc; // [*] LVCOLUMNW pszText has the same scope as columnProp text
 }
 
-LVITEM propertiesToItem(int c, int r, ItemProperties const & itemProp)
+LVITEMW propertiesToItem(int c, int r, ItemProperties const & itemProp)
 {
-    LVITEM item;
+    LVITEMW item;
     item.iItem = r;
     item.iSubItem = c;
     item.mask = LVIF_TEXT | LVIF_IMAGE;
@@ -114,7 +110,7 @@ int TableViewImpl::columns() const
 
 void TableViewImpl::addColumn(ColumnProperties columnProp)
 {
-    LVCOLUMN lvc = propertiesToColumn(colCount,columnProp);
+    LVCOLUMNW lvc = propertiesToColumn(colCount,columnProp);
     if( ListView_InsertColumn(hWnd,colCount,&lvc) == -1 ) {
         log::error("ListView_InsertColumn returned -1 for hWnd ",hWnd);
     } else {
@@ -124,7 +120,7 @@ void TableViewImpl::addColumn(ColumnProperties columnProp)
 
 void TableViewImpl::setColumn(int c, ColumnProperties columnProp)
 {
-    LVCOLUMN lvc = propertiesToColumn(c,columnProp);
+    LVCOLUMNW lvc = propertiesToColumn(c,columnProp);
     if( ListView_SetColumn(hWnd,c,&lvc) == FALSE ) {
         log::error("ListView_SetColumn returned FALSE for hWnd ",hWnd);        
     }
@@ -134,7 +130,7 @@ ColumnProperties TableViewImpl::column(int c) const
 {
     ColumnProperties result;
     result.header.wstr.resize(MAX_TABLEVIEW_ITEM_CHARS);
-    LVCOLUMN lvc;
+    LVCOLUMNW lvc;
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
     lvc.pszText = &result.header.wstr[0];
     lvc.cchTextMax = MAX_TABLEVIEW_ITEM_CHARS;
@@ -159,7 +155,7 @@ void TableViewImpl::deleteColumn(int c)
 
 bool TableViewImpl::addItem(int r, ItemProperties itemProp)
 {
-    LVITEM item = propertiesToItem(0,r,itemProp);
+    LVITEMW item = propertiesToItem(0, r, itemProp);
     if( ListView_InsertItem(hWnd,&item) == -1 ) {
         log::error("ListView_InsertItem returned -1 for hWnd ",hWnd);
         return false;
@@ -203,7 +199,7 @@ void TableViewImpl::deleteRow(int r)
 
 void TableViewImpl::setItem(int c, int r, ItemProperties itemProp)
 {
-    LVITEM item = propertiesToItem(c,r,itemProp);
+    LVITEMW item = propertiesToItem(c, r, itemProp);
     if( ListView_SetItem(hWnd,&item) == FALSE ) {
         log::error("ListView_SetItem returned FALSE for hWnd ",hWnd);
     }
@@ -214,7 +210,7 @@ ItemProperties TableViewImpl::item(int c, int r) const
 {
     ItemProperties result;
     result.text.wstr.resize(MAX_TABLEVIEW_ITEM_CHARS);
-    LVITEM item;
+    LVITEMW item;
     item.iItem = r;
     item.iSubItem = c;
     item.mask = LVIF_TEXT | LVIF_IMAGE;

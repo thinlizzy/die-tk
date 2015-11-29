@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <X11/Xlib.h>
 #include "WindowImplX11.h"
+#include "../src/util/singleton.h"
 
 namespace tk {
 
@@ -28,7 +29,7 @@ public:
 	char const * getAtomName(Atom atom);
 };
 
-extern ResourceManager resourceManager;
+using ResourceManagerSingleton = singleton<ResourceManager>;
 
 }
 

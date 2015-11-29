@@ -5,6 +5,12 @@
 #include "../src/NullCanvas.h"
 #include "../src/log.h"
 
+namespace {
+
+tk::ResourceManagerSingleton resourceManager;
+
+}
+
 namespace tk {
 
 ControlCallbackMap<HandlePaint> cbPaint;
@@ -22,12 +28,12 @@ void NativeControlImpl::setPos(Point pos)
 	XWindowChanges changes;
 	changes.x = pos.x;
 	changes.y = pos.y;
-	XConfigureWindow(resourceManager.dpy, windowId, CWX | CWY, &changes);
+	XConfigureWindow(resourceManager->dpy, windowId, CWX | CWY, &changes);
 }
 
 void NativeControlImpl::setDims(WDims dims)
 {
-	XResizeWindow(resourceManager.dpy, windowId,dims.width,dims.height);
+	XResizeWindow(resourceManager->dpy, windowId,dims.width,dims.height);
 }
 
 void NativeControlImpl::setRect(Rect rect)
@@ -37,34 +43,34 @@ void NativeControlImpl::setRect(Rect rect)
 	changes.y = rect.top;
 	changes.width = rect.width();
 	changes.height = rect.height();
-	XConfigureWindow(resourceManager.dpy, windowId, CWX | CWY | CWWidth | CWHeight, &changes);
+	XConfigureWindow(resourceManager->dpy, windowId, CWX | CWY | CWWidth | CWHeight, &changes);
 }
 
 void NativeControlImpl::show()
 {
-	XMapWindow(resourceManager.dpy, windowId);
+	XMapWindow(resourceManager->dpy, windowId);
 }
 
 void NativeControlImpl::hide()
 {
-	XUnmapWindow(resourceManager.dpy, windowId);
+	XUnmapWindow(resourceManager->dpy, windowId);
 }
 
 bool NativeControlImpl::visible() const
 {
 	XWindowAttributes attrs;
-	XGetWindowAttributes(resourceManager.dpy, windowId, &attrs);
+	XGetWindowAttributes(resourceManager->dpy, windowId, &attrs);
 	return attrs.map_state != IsUnmapped ;
 }
 
 void NativeControlImpl::bringToFront()
 {
-	XRaiseWindow(resourceManager.dpy, windowId);
+	XRaiseWindow(resourceManager->dpy, windowId);
 }
 
 void NativeControlImpl::sendToBack()
 {
-	XLowerWindow(resourceManager.dpy, windowId);
+	XLowerWindow(resourceManager->dpy, windowId);
 }
 
 bool NativeControlImpl::enabled() const
@@ -104,19 +110,19 @@ Canvas & NativeControlImpl::canvas()
 
 void NativeControlImpl::repaint()
 {
-	XClearArea(resourceManager.dpy, windowId, 0, 0, 0, 0, True);
+	XClearArea(resourceManager->dpy, windowId, 0, 0, 0, 0, True);
 }
 
 void NativeControlImpl::setCursor(Cursor cursor)
 {
 	this->cursor = cursor;
-	nativeCursor.reset(XCreateFontCursor(resourceManager.dpy,toShape(cursor)));
-	XDefineCursor(resourceManager.dpy,windowId,nativeCursor.get());
+	nativeCursor.reset(XCreateFontCursor(resourceManager->dpy,toShape(cursor)));
+	XDefineCursor(resourceManager->dpy,windowId,nativeCursor.get());
 }
 
 void NativeControlImpl::setBackground(RGBColor const & color)
 {
-	XSetWindowBackground(resourceManager.dpy, windowId, rgb32(color));
+	XSetWindowBackground(resourceManager->dpy, windowId, rgb32(color));
 	backgroundColor = color;
 }
 
@@ -124,8 +130,8 @@ Point NativeControlImpl::screenToClient(Point const & point) const
 {
 	Point result;
 	::Window child;
-	XTranslateCoordinates(resourceManager.dpy,
-		resourceManager.root(), windowId,
+	XTranslateCoordinates(resourceManager->dpy,
+		resourceManager->root(), windowId,
 		point.x, point.y,
 		&result.x, &result.y, &child);
 	return result;
@@ -137,7 +143,7 @@ Point NativeControlImpl::screenToClient(Point const & point) const
 	::Window parent_return;
 	::Window * children_return;
 	unsigned int nchildren_return;
-	XQueryTree(resourceManager.dpy, windowId,
+	XQueryTree(resourceManager->dpy, windowId,
 		&root_return, &parent_return, &children_return, &nchildren_return);
 	if( children_return ) {
 		XFree(children_return);

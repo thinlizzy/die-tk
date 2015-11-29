@@ -198,13 +198,15 @@ std::shared_ptr<NativeControlImpl> WindowImpl::findControl(HWND handle)
 void WindowImpl::registerControl(std::shared_ptr<NativeControlImpl> control)
 {
 	controls[control->hWnd] = control;
-    resourceManager.registerControl(control);
+	ResourceManagerSingleton resourceManager;
+	resourceManager->registerControl(control);
 }
 
 void WindowImpl::unregisterControl(std::shared_ptr<NativeControlImpl> control)
 {
     if( controls.erase(control->hWnd) > 0 ) {
-        resourceManager.unregisterControl(control);
+		ResourceManagerSingleton resourceManager;
+        resourceManager->unregisterControl(control);
         DestroyWindow(control->hWnd);
     }
 }
@@ -283,20 +285,22 @@ optional<LRESULT> WindowImpl::processMessage(UINT message, WPARAM & wParam, LPAR
 		} break;
         
 		case WM_COMMAND: {
+			ResourceManagerSingleton resourceManager;
             if( lParam == 0 ) {
                 for( auto & component : components ) {
                     auto result = component->processNotification(WM_COMMAND,HIWORD(wParam),LOWORD(wParam),lParam);
                     if( result ) return result;
                 }
             } else
-			if( auto control = resourceManager.findControl(HWND(lParam)) ) {
+			if( auto control = resourceManager->findControl(HWND(lParam)) ) {
                 return control->processNotification(WM_COMMAND,HIWORD(wParam),wParam,lParam);
 			}
 		} break;
 
 		case WM_NOTIFY: {
+			ResourceManagerSingleton resourceManager;
             auto hdr = reinterpret_cast<LPNMHDR>(lParam);
-			if( auto control = resourceManager.findControl(hdr->hwndFrom) ) {
+			if( auto control = resourceManager->findControl(hdr->hwndFrom) ) {
                 return control->processNotification(WM_NOTIFY,hdr->code,wParam,lParam);
 			}
 		} break;

@@ -10,8 +10,6 @@ std::shared_ptr<tk::NativeControlImpl> nullControl;
 
 namespace tk {
 
-ResourceManager resourceManager;
-
 ResourceManager::ResourceManager():
     scrdc(NULL)
 {
@@ -50,7 +48,8 @@ void ResourceManager::processMessages()
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	return resourceManager.WndProc(hWnd,message,wParam,lParam);
+    ResourceManagerSingleton resourceManager;
+    return resourceManager->WndProc(hWnd,message,wParam,lParam);
 }
 
 LRESULT ResourceManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

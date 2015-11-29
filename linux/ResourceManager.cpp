@@ -70,8 +70,5 @@ char const * ResourceManager::getAtomName(Atom atom)
 	return XGetAtomName(dpy, atom);
 };
 
-
-ResourceManager resourceManager;
-
 }
 

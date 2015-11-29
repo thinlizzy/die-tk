@@ -201,7 +201,8 @@ HBITMAP External::getOrCreateHbitmap() const
 
 HBITMAP External::cloneHbitmap() const
 {
-    return createBitmap(resourceManager.screenDC(),info,buffer);
+    ResourceManagerSingleton resourceManager;
+    return createBitmap(resourceManager->screenDC(),info,buffer);
 }
 
 void External::releaseIfCreated(HBITMAP hbmp)
@@ -268,11 +269,11 @@ ExternalWithHeader::ExternalWithHeader(BITMAPINFO const & info_, Byte const * bu
 // Bitmap 
 
 Bitmap::Bitmap(BITMAPINFO * info, Byte const * buffer):
-    Bitmap(createBitmap(resourceManager.screenDC(),info,buffer))
+    Bitmap(createBitmap(ResourceManagerSingleton().instance().screenDC(),info,buffer))
 {}
 
 Bitmap::Bitmap(HBITMAP hbmp):
-    bd(resourceManager.screenDC(),hbmp),
+    bd(ResourceManagerSingleton().instance().screenDC(),hbmp),
     canvasImpl(bd.hdc)
 {}
 
@@ -304,7 +305,7 @@ BITMAP Bitmap::getBitmap() const
 
 HBITMAP Bitmap::cloneHbitmap() const
 {
-    return cloneBitmap(resourceManager.screenDC(),getHbitmap());
+    return cloneBitmap(ResourceManagerSingleton().instance().screenDC(),getHbitmap());
 }
 
 unsigned Bitmap::bpp() const

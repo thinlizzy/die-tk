@@ -18,7 +18,8 @@ Property::Property(::Window windowId, Atom property)
 		if( ret != 0 ) {
 			XFree(ret);
 		}
-		XGetWindowProperty(resourceManager.dpy, windowId, property, 0, read_bytes, False, AnyPropertyType,
+		ResourceManagerSingleton resourceManager;
+		XGetWindowProperty(resourceManager->dpy, windowId, property, 0, read_bytes, False, AnyPropertyType,
 							&type, &format, &nitems, &bytes_after,
 							&ret);
 
@@ -56,7 +57,8 @@ Atom Property::get(char const * name) const
 {
 	auto end = atomList()+nitems;
 	auto it = std::find_if(atomList(),end,[name](Atom atom) {
-		auto atomName = resourceManager.getAtomName(atom);
+		ResourceManagerSingleton resourceManager;
+		auto atomName = resourceManager->getAtomName(atom);
 		return std::strcmp(name,atomName) == 0;
 	});
 	return it == end ? None : *it;

@@ -7,17 +7,20 @@ namespace scoped {
 
 void DestroyPixmap::operator()(::Pixmap pixmap) const
 {
-	if( pixmap ) XFreePixmap(resourceManager.dpy, pixmap);
+	ResourceManagerSingleton resourceManager;
+	if( pixmap ) XFreePixmap(resourceManager->dpy, pixmap);
 }
 
 void DestroyCursor::operator()(::Cursor cursor) const
 {
-	if( cursor ) XFreeCursor(resourceManager.dpy, cursor);
+	ResourceManagerSingleton resourceManager;
+	if( cursor ) XFreeCursor(resourceManager->dpy, cursor);
 }
 
 void DestroyWindow::operator()(::Window windowId) const
 {
-	if( windowId ) XDestroyWindow(resourceManager.dpy, windowId);
+	ResourceManagerSingleton resourceManager;
+	if( windowId ) XDestroyWindow(resourceManager->dpy, windowId);
 }
 
 }

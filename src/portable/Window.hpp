@@ -7,7 +7,8 @@ Window::Window(WindowParams const & params)
 {
     auto windowImpl = std::make_shared<WindowImpl>(params);
     impl = windowImpl;
-    resourceManager.registerWindow(windowImpl);
+    ResourceManagerSingleton resourceManager;
+    resourceManager->registerWindow(windowImpl);
 }
 
 Window::Window(std::shared_ptr<WindowImpl> impl)
@@ -18,7 +19,8 @@ Window::Window(std::shared_ptr<WindowImpl> impl)
 Window::~Window()
 {   
 	if( impl && impl.unique() ) {
-		resourceManager.unregisterWindow(getImplPtr());
+        ResourceManagerSingleton resourceManager;
+		resourceManager->unregisterWindow(getImplPtr());
 	}
 }
 
