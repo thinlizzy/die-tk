@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 project(die_tk)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-
 IF(WIN32 AND NOT UNIX)
     set(NON_PORTABLE_SOURCES
         win32/components/ImageWin32.cpp
@@ -98,3 +96,6 @@ set(SOURCE_FILES
         src/WindowParams.h src/util/singleton.h)
 
 add_library(die_tk ${SOURCE_FILES})
+set_property(TARGET die_tk PROPERTY CXX_STANDARD 14)
+
+add_subdirectory("examples/events")
