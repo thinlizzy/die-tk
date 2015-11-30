@@ -95,7 +95,7 @@ set(SOURCE_FILES
         src/WindowObjects.h
         src/WindowParams.h src/util/singleton.h)
 
-add_library(die_tk ${SOURCE_FILES})
-set_property(TARGET die_tk PROPERTY CXX_STANDARD 14)
+add_library(die-tk ${SOURCE_FILES})
+set_property(TARGET die-tk PROPERTY CXX_STANDARD 14)
 
 add_subdirectory("examples/events")
