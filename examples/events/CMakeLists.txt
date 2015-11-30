@@ -16,16 +16,7 @@ set(SOURCE_FILES
     view/PaintingView.h
     main.cpp)
 
-include_directories("../../src")
-
 add_executable(events ${SOURCE_FILES})
 set_property(TARGET events PROPERTY CXX_STANDARD 14)
 
-IF(WIN32 AND NOT UNIX)
-    FIND_LIBRARY(GDI32_LIB gdi32)
-    set(OS_LIBS ${GDI32_LIB})
-ELSE(WIN32 AND NOT UNIX)
-    FIND_LIBRARY(X11_LIB X11)
-    set(OS_LIBS ${X11_LIB})
-ENDIF(WIN32 AND NOT UNIX)
 target_link_libraries(events die-tk ${OS_LIBS})

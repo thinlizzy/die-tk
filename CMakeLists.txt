@@ -96,6 +96,15 @@ set(SOURCE_FILES
         src/WindowParams.h src/util/singleton.h)
 
 add_library(die-tk ${SOURCE_FILES})
+target_include_directories(die-tk PUBLIC ${PROJECT_SOURCE_DIR}/src)
 set_property(TARGET die-tk PROPERTY CXX_STANDARD 14)
+
+IF(WIN32 AND NOT UNIX)
+    FIND_LIBRARY(GDI32_LIB gdi32)
+    set(OS_LIBS ${GDI32_LIB})
+ELSE(WIN32 AND NOT UNIX)
+    FIND_LIBRARY(X11_LIB X11)
+    set(OS_LIBS ${X11_LIB})
+ENDIF(WIN32 AND NOT UNIX)
 
 add_subdirectory("examples/events")
