@@ -95,10 +95,6 @@ set(SOURCE_FILES
         src/WindowObjects.h
         src/WindowParams.h src/util/singleton.h)
 
-add_library(die-tk ${SOURCE_FILES})
-target_include_directories(die-tk PUBLIC ${PROJECT_SOURCE_DIR}/src)
-set_property(TARGET die-tk PROPERTY CXX_STANDARD 14)
-
 IF(WIN32 AND NOT UNIX)
     FIND_LIBRARY(GDI32_LIB gdi32)
     set(OS_LIBS ${GDI32_LIB})
@@ -107,4 +103,15 @@ ELSE(WIN32 AND NOT UNIX)
     set(OS_LIBS ${X11_LIB})
 ENDIF(WIN32 AND NOT UNIX)
 
+add_library(die-tk ${SOURCE_FILES})
+target_include_directories(die-tk PUBLIC ${PROJECT_SOURCE_DIR}/src)
+target_link_libraries(die-tk ${OS_LIBS})
+set_property(TARGET die-tk PROPERTY CXX_STANDARD 14)
+
+add_subdirectory("die-tk-image")
+
 add_subdirectory("examples/events")
+add_subdirectory("examples/clipboard")
+add_subdirectory("examples/die-tk-test2")
+add_subdirectory("examples/two-windows")
+#add_subdirectory("examples/ImageLoad")

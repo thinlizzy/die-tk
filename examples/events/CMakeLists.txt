@@ -19,4 +19,4 @@ set(SOURCE_FILES
 add_executable(events ${SOURCE_FILES})
 set_property(TARGET events PROPERTY CXX_STANDARD 14)
 
-target_link_libraries(events die-tk ${OS_LIBS})
+target_link_libraries(events die-tk)
