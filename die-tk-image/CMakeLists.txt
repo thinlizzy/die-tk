@@ -18,7 +18,6 @@ add_library(die-tk-image ${SOURCE_FILES})
 set_property(TARGET die-tk-image PROPERTY CXX_STANDARD 14)
 target_include_directories(die-tk-image PUBLIC ${PROJECT_SOURCE_DIR}/src)
 
-#TODO add CMakeLists.txt on libimage and import it
 ExternalProject_Add(libimage_project
     GIT_REPOSITORY https://github.com/thinlizzy/libimage
     INSTALL_DIR libimage
