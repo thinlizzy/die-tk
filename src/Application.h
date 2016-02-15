@@ -1,7 +1,6 @@
 #ifndef APPLICATION_H_fdj498gj454328gfjh
 #define APPLICATION_H_fdj498gj454328gfjh
 
-#include <memory>
 #include "NativeString.h"
 #include "objects/Point.h"
 
