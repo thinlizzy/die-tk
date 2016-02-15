@@ -9,12 +9,12 @@ int main()
 {
 	Application app;
 
-    bool firstWindowWide = true;
-    auto swapWindowSizes = [&firstWindowWide](Window & w1, Window & w2) {
+	bool firstWindowWide = true;
+	auto swapWindowSizes = [&firstWindowWide](Window & w1, Window & w2) {
 		w2.setDims(getDims(firstWindowWide));
 		firstWindowWide = ! firstWindowWide;
-    	w1.setDims(getDims(firstWindowWide));
-    };
+		w1.setDims(getDims(firstWindowWide));
+	};
 
 	Window window(WindowParams("first").start(10,10).dims(200,100));
 	Window window2(WindowParams("second").start(250,10).dims(100,200));
