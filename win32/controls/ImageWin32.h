@@ -2,8 +2,8 @@
 #define IMAGE_WIN32_H_j3422224fdsfdsfs342432432332sa354h
 
 #include "PaintBoxWin32.h"
-#include "../../../src/die-tk.h"
-#include "../../../win32/die-tk-win32.h"
+#include "../../src/Canvas.h"
+#include "../../src/components/Image.h"
 
 namespace tk {
 

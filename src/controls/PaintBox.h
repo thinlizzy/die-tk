@@ -1,7 +1,7 @@
-#ifndef PAINTBOX_H_fkkkkkkkk453432984328fh
-#define PAINTBOX_H_fkkkkkkkk453432984328fh
+#ifndef PAINTBOX_H_DIE_TK_2016_08
+#define PAINTBOX_H_DIE_TK_2016_08
 
-#include "../../../src/die-tk.h"
+#include "../Control.h"
 
 namespace tk {
 
@@ -12,9 +12,6 @@ public:
     PaintBox clone() const;
     
     using Control::onPaint;
-private:
-    using Control::getText;
-    using Control::setText;
 };
 
 }

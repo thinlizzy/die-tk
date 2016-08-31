@@ -1,7 +1,9 @@
-#ifndef IMAGE_H_dssssfas3289fk560ftgjdwtsss
-#define IMAGE_H_dssssfas3289fk560ftgjdwtsss
+#ifndef IMAGE_H_DIE_TK_2016_08
+#define IMAGE_H_DIE_TK_2016_08
 
-#include "../../../src/die-tk.h"
+#include "../Canvas.h"
+#include "../Control.h"
+#include "../components/Image.h"
 
 namespace tk {
 

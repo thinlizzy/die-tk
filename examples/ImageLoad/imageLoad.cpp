@@ -24,6 +24,14 @@ int main()
 		gameTitle->drawInto(canvas, Point(200,40));
 	});
 
+	// TODO add transparency to PaintBox and to Image
+	PaintBox p(window, ControlParams().start(5,40).dims(32,32).backgroundColor(RGBColor(120,0,0)));
+	p.onPaint([&](Canvas & canvas, Rect) {
+		explosion->drawInto(canvas, Point());
+	});
+	Image i(window, ControlParams().start(p.pos().addY(32)).dims(p.dims()));
+	i.setImage(explosion);
+
 	do {
 		app.waitForMessages();
 		app.processMessages();

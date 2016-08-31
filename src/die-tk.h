@@ -8,4 +8,7 @@
 #include "components/Image.h"
 #include "components/NullImage.h"
 
+#include "controls/Image.h"
+#include "controls/PaintBox.h"
+
 #include "util/ClonePtr.h"

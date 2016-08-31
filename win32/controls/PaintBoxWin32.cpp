@@ -1,4 +1,5 @@
 #include "PaintBoxWin32.h"
+#include "../ResourceManager.h"
 
 namespace tk {
 
@@ -15,7 +16,7 @@ public:
 		wc.cbWndExtra = 0;
 		wc.hInstance = GetModuleHandle(NULL);
 		wc.hIcon = NULL;
-        wc.hCursor = LoadCursor(NULL,IDC_ARROW);
+		wc.hCursor = LoadCursor(NULL,IDC_ARROW);
 		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 		wc.lpszMenuName = NULL;
 		wc.lpszClassName = L"die-tk-paintbox";
@@ -32,7 +33,7 @@ PaintBoxImpl::PaintBoxImpl(HWND parentHwnd, ControlParams const & params):
 
 PaintBoxImpl * PaintBoxImpl::clone() const
 {
-    return new PaintBoxImpl(getParentHandle(),getControlData());
+	return new PaintBoxImpl(getParentHandle(),getControlData());
 }
 
 }

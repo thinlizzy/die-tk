@@ -1,8 +1,8 @@
 #include "ImageWin32.h"
 #include <memory>
 #include <functional>
-#include "../../../src/die-tk.h"
-#include "../../../win32/die-tk-win32.h"
+#include "../components/ImageWin32.h"
+#include "../../src/components/NullImage.h"
 
 namespace tk {
 
