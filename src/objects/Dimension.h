@@ -26,7 +26,7 @@ struct basic_dimension {
     {}
 
 	template<typename U>
-	constexpr basic_dimension(basic_dimension<U> const & d):
+	explicit constexpr basic_dimension(basic_dimension<U> const & d):
         width(d.width),
         height(d.height)
     {}
@@ -70,9 +70,11 @@ struct basic_dimension {
 
 	basic_dimension & operator/=(basic_dimension const & d);
 
-	basic_dimension & operator*=(T f);
+	template<typename U>
+	basic_dimension & operator*=(U f);
 
-	basic_dimension & operator/=(T f);
+	template<typename U>
+	basic_dimension & operator/=(U f);
     
 	friend std::ostream & operator<<(std::ostream & os, basic_dimension const & dims) { os << '(' << dims.width << ',' << dims.height << ')'; return os; }
 };
@@ -96,20 +98,20 @@ constexpr basic_dimension<T> operator-(basic_dimension<T> const & d1, basic_dime
     return basic_dimension<T>(d1.width-d2.width,d1.height-d2.height);
 }
 
+template<typename T, typename U>
+constexpr basic_dimension<T> operator*(basic_dimension<T> const & d1, U f);
+
+template<typename T, typename U>
+constexpr basic_dimension<T> operator*(U f, basic_dimension<T> const & d1);
+
+template<typename T, typename U>
+basic_dimension<T> operator/(basic_dimension<T> const & d1, U f);
+
 template<typename T>
 basic_dimension<T> operator*(basic_dimension<T> const & d1, basic_dimension<T> const & d2);
 
 template<typename T>
 basic_dimension<T> operator/(basic_dimension<T> const & d1, basic_dimension<T> const & d2);
-
-template<typename T>
-constexpr basic_dimension<T> operator*(basic_dimension<T> const & d1, typename basic_dimension<T>::DimType f);
-
-template<typename T>
-constexpr basic_dimension<T> operator*(typename basic_dimension<T>::DimType f, basic_dimension<T> const & d1);
-
-template<typename T>
-basic_dimension<T> operator/(basic_dimension<T> const & d1, typename basic_dimension<T>::DimType f);
 
 /** common dimension type */
 typedef basic_dimension<int> Dimension;

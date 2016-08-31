@@ -85,7 +85,8 @@ basic_dimension<T> & basic_dimension<T>::operator/=(basic_dimension<T> const & d
 * @return reference to *this
 */
 template<typename T>
-basic_dimension<T> & basic_dimension<T>::operator*=(DimType f)
+template<typename U>
+basic_dimension<T> & basic_dimension<T>::operator*=(U f)
 {
 	width *= f;
 	height *= f;
@@ -97,7 +98,8 @@ basic_dimension<T> & basic_dimension<T>::operator*=(DimType f)
 * @return reference to *this
 */
 template<typename T>
-basic_dimension<T> & basic_dimension<T>::operator/=(DimType f)
+template<typename U>
+basic_dimension<T> & basic_dimension<T>::operator/=(U f)
 {
 	width /= f;
 	height /= f;
@@ -133,14 +135,14 @@ basic_dimension<T> operator/(basic_dimension<T> const & d1, basic_dimension<T> c
 	return basic_dimension<T>(d1)/=d2;
 }
 
-template<typename T>
-constexpr basic_dimension<T> operator*(basic_dimension<T> const & d1, typename basic_dimension<T>::DimType f)
+template<typename T, typename U>
+constexpr basic_dimension<T> operator*(basic_dimension<T> const & d1, U f)
 {
 	return basic_dimension<T>(d1.width*f,d1.height*f);
 }
 
-template<typename T>
-constexpr basic_dimension<T> operator*(typename basic_dimension<T>::DimType f, basic_dimension<T> const & d1)
+template<typename T, typename U>
+constexpr basic_dimension<T> operator*(U f, basic_dimension<T> const & d1)
 {
 	return basic_dimension<T>(d1.width*f,d1.height*f);
 }
@@ -148,8 +150,8 @@ constexpr basic_dimension<T> operator*(typename basic_dimension<T>::DimType f, b
 
 /** @return dimension scaled: (a,b) / f == (a/f,b/f)
 */
-template<typename T>
-basic_dimension<T> operator/(basic_dimension<T> const & d1, typename basic_dimension<T>::DimType f)
+template<typename T, typename U>
+basic_dimension<T> operator/(basic_dimension<T> const & d1, U f)
 {
 	return basic_dimension<T>(d1)/=f;
 }

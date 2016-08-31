@@ -39,6 +39,7 @@ public:
 	constexpr Point topRight() const { return Point(right,top); }
 	constexpr Point bottomLeft() const { return Point(left,bottom); }
 	constexpr Point bottomRight() const { return Point(right,bottom); }
+	constexpr Point center() const { return Point((right+left)/2,(bottom+top)/2); }
 	[[deprecated]]
 	constexpr Point pos() const { return topLeft(); }
 
@@ -61,6 +62,11 @@ public:
 			std::max(this->left,std::min(this->right,point.x)),
 			std::max(this->top,std::min(this->bottom,point.y)));
     }
+
+	constexpr bool contains(Rect const & rect) const
+	{
+		return top <= rect.top && left <= rect.left && bottom >= rect.bottom && right >= rect.right;
+	}
 
 	constexpr bool intersect(Point const & p) const
 	{
