@@ -27,6 +27,7 @@ void ImageImpl::setImage(image::Ptr image)
     using namespace std::placeholders;
 
     auto imgImpl = dynamic_pointer_cast<image::ImageImpl>(image);
+    // TODO cloneBitmap() needs to be changed in order to support transparent images
     this->image = image::cloneBitmap(imgImpl);
     
 	if( autosize ) {
@@ -65,8 +66,7 @@ bool ImageImpl::hasImage() const
 
 void ImageImpl::handlePaint(Canvas & canvas, Rect rect)
 {
-    // TODO support partial drawing on image via rect argument
-	image->drawInto(canvas,Point());
+	image->copyRectInto(canvas,rect,rect.topLeft());
 }
 
 }

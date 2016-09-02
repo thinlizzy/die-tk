@@ -63,6 +63,14 @@ public:
 			std::max(this->top,std::min(this->bottom,point.y)));
     }
 
+    constexpr Rect fitInRect(Rect rect) const
+    {
+    	return Rect(
+			this->left >= rect.left ? this->left : rect.left, this->top >= rect.top ? this->top : rect.top,
+			this->right <= rect.right ? this-> right : rect.right, this->bottom <= rect.bottom ? this-> bottom : rect.bottom
+    			);
+    }
+
 	constexpr bool contains(Rect const & rect) const
 	{
 		return top <= rect.top && left <= rect.left && bottom >= rect.bottom && right >= rect.right;

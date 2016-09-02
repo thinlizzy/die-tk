@@ -382,6 +382,7 @@ void BitmapAlpha::drawInto(Canvas & canvas, Rect destrect)
 
 void BitmapAlpha::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
 {
+    srcrect = srcrect.fitInRect(Rect::closed(Point(),dims()));
 	drawInto(canvas,srcrect,srcrect.move(dest));
 }
 
