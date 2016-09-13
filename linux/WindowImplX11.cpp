@@ -11,6 +11,24 @@ namespace {
 
 tk::ResourceManagerSingleton resourceManager;
 
+::Window createWindow(tk::WindowParams const & params)
+{
+	int x,y;
+	tk::WDims dims;
+	if( params.isDefaultPos() ) {
+		x = y = 0;
+	} else {
+		x = params.start_.x;
+		y = params.start_.y;
+	}
+	if( params.isDefaultDims() ) {
+		dims.width = dims.height = 200; // TODO find a correct default
+	} else {
+		dims = params.dims_;
+	}
+	return resourceManager->createTopLevelWindow(x, y, dims.width, dims.height);
+}
+
 }
 
 namespace tk {
@@ -24,36 +42,9 @@ WindowCallbackMap<HandleEvent> cbUserEvent;
 
 Atom WM_DELETE_WINDOW = XInternAtom(resourceManager->dpy, "WM_DELETE_WINDOW", False);
 
-::Window WindowImpl::createWindow(int x, int y, int width, int height)
+WindowImpl::WindowImpl(WindowParams const & params):
+	NativeControlImpl(resourceManager->root(),createWindow(params))
 {
-	int borderColor = BlackPixel(resourceManager->dpy, DefaultScreen(resourceManager->dpy));
-	int backgroundColor = borderColor;
-	int borderWidth = 0;
-	return XCreateSimpleWindow(
-			resourceManager->dpy,
-			resourceManager->root(),
-			x, y, width, height,
-			borderWidth, borderColor, backgroundColor);
-}
-
-WindowImpl::WindowImpl(WindowParams const & params)
-{
-	int x,y;
-	WDims dims;
-	if( params.isDefaultPos() ) {
-		x = y = 0;
-	} else {
-		x = params.start_.x;
-		y = params.start_.y;
-	}
-	if( params.isDefaultDims() ) {
-		dims.width = dims.height = 200; // TODO find a correct default
-	} else {
-		dims = params.dims_;
-	}
-
-	windowId = createWindow(x, y, dims.width, dims.height);
-
 	XSetWMProtocols(resourceManager->dpy, windowId, &WM_DELETE_WINDOW, 1);
 
 	XSelectInput(resourceManager->dpy, windowId,
@@ -75,8 +66,6 @@ WindowImpl::WindowImpl(WindowParams const & params)
 	if( params.initialState & ws_minimized ) {
 		XIconifyWindow(resourceManager->dpy, windowId, DefaultScreen(resourceManager->dpy));
 	}
-
-	windowCanvas = CanvasX11(windowId);
 }
 
 WindowImpl::~WindowImpl()
@@ -97,8 +86,9 @@ int WindowImpl::state() const
 	int actual_format;
 	unsigned long num_items, bytes_after;
 	Atom * atoms = NULL;
-	XGetWindowProperty(resourceManager->dpy, windowId, XInternAtom(resourceManager->dpy, "_NET_WM_STATE", False),
-			0, 1024, False, XA_ATOM, &actual_type, &actual_format, &num_items, &bytes_after, (unsigned char**)&atoms);
+	XGetWindowProperty(resourceManager->dpy, windowId,
+		XInternAtom(resourceManager->dpy, "_NET_WM_STATE", False),
+		0, 1024, False, XA_ATOM, &actual_type, &actual_format, &num_items, &bytes_after, (unsigned char**)&atoms);
     for( unsigned long i=0; i<num_items; ++i ) {
         if( atoms[i] == XInternAtom(resourceManager->dpy, "_NET_WM_STATE_HIDDEN", False) ) {
         	result |= ws_minimized;
@@ -122,25 +112,17 @@ void WindowImpl::setBorders(bool value)
 void WindowImpl::registerControl(std::shared_ptr<NativeControlImpl> control)
 {
 	controls[control->windowId] = control;
-	// do I need to register on resourceManager too?
+	ResourceManagerSingleton resourceManager;
+	resourceManager->registerControl(control);
 }
 
 void WindowImpl::unregisterControl(std::shared_ptr<NativeControlImpl> control)
 {
     if( controls.erase(control->windowId) > 0 ) {
-    	// do I need to unregister on resourceManager too?
+    	ResourceManagerSingleton resourceManager;
+    	resourceManager->unregisterControl(control);
         XDestroyWindow(resourceManager->dpy, control->windowId);
     }
-}
-
-Rect WindowImpl::rect() const
-{
-	int tx,ty;
-	::Window child;
-	XTranslateCoordinates(resourceManager->dpy, windowId, resourceManager->root(), 0, 0, &tx, &ty, &child);
-	XWindowAttributes attrs;
-	XGetWindowAttributes(resourceManager->dpy, windowId, &attrs);
-	return Rect::closed(Point(tx-attrs.x,ty-attrs.y),WDims(attrs.width,attrs.height));
 }
 
 NativeString WindowImpl::getText() const
@@ -247,11 +229,6 @@ void WindowImpl::maximize(bool yes)
 	xev.xclient.data.l[2] = XInternAtom(resourceManager->dpy,"_NET_WM_STATE_MAXIMIZED_VERT", False);
 	XSendEvent(resourceManager->dpy, resourceManager->root(),
 		False, SubstructureNotifyMask, &xev);
-}
-
-Canvas & WindowImpl::canvas()
-{
-	return windowCanvas;
 }
 
 }

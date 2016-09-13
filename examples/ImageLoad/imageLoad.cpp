@@ -21,15 +21,22 @@ int main()
 		explosion->drawInto(canvas,Point(5,5));
 		explosion3->drawInto(canvas,Point(80,5));
 		boss->drawInto(canvas,Point(20,100));
-		bugLeft->drawInto(canvas,Point(300,5));
-		gameTitle->drawInto(canvas,Point(200,40));
+		bugLeft->drawInto(canvas,Point(300,15));
+		gameTitle->drawInto(canvas,Point(300,40));
 	});
 
-	PaintBox p(window, ControlParams().start(5,40).dims(32,32));
+	PaintBox p(window, ControlParams().start(5,40).dims(40,40));
 	p.onPaint([&](Canvas & canvas, Rect rect) {
 		std::cout << rect << std::endl;
-		explosion->copyRectInto(canvas,rect,rect.topLeft());
+		//explosion->drawInto(canvas,Point(0,0));
+		// TODO X11 copy rect into fails with smaller rectangles
+		// TODO X11 PaintBox transparency fails
+		//explosion->copyRectInto(canvas,rect,rect.topLeft());
 	});
+	std::cout << p.rect() << std::endl;
+
+	// TODO remove this ifdef after implementing image
+#ifdef WIN32
 	// TODO make Image support transparent images - it is cloneBitmap()'s fault
 	Image i(window, ControlParams().start(p.pos().addY(32)).autosize());
 	i.setImage(explosion);
@@ -37,6 +44,7 @@ int main()
 	j.setBackground(RGBColor(120,0,0));
 	j.setPos(i.pos().addX(32));
 	j.setDims(WDims(40,40));
+#endif
 
 	do {
 		app.waitForMessages();

@@ -20,7 +20,7 @@ namespace tk {
 
 XPoint toXPoint(Point point)
 {
-	return { point.x, point.y };
+	return { static_cast<short>(point.x), static_cast<short>(point.y) };
 }
 
 std::array<XPoint,4> rectToPoints(const Rect & rect)
@@ -77,6 +77,7 @@ CanvasX11::CanvasX11(CanvasX11 && other):
 	other.gc = nullptr;
 }
 
+// TODO replace with copy and swap
 CanvasX11 & CanvasX11::operator=(CanvasX11 && other)
 {
 	if( this != &other ) {
@@ -198,9 +199,9 @@ void CanvasX11::drawPoly(const Points & polygon, const Pen & pen)
 
 	std::vector<XPoint> points;
 	std::transform(polygon.begin(),polygon.end(),std::back_inserter(points),[](auto p){
-		return XPoint{p.x, p.y};
+		return XPoint{static_cast<short>(p.x), static_cast<short>(p.y)};
 	});
-	points.push_back({polygon.front().x,polygon.front().y});
+	points.push_back({static_cast<short>(polygon.front().x),static_cast<short>(polygon.front().y)});
 	XDrawLines(resourceManager->dpy,drawable,gc,&points[0],polygon.size()+1,CoordModeOrigin);
 }
 

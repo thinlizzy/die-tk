@@ -1,13 +1,42 @@
 #include "NativeControlImpl.h"
 #include <X11/Xutil.h>
+#include <cassert>
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
-#include "../src/NullCanvas.h"
 #include "../src/log.h"
 
 namespace {
 
 tk::ResourceManagerSingleton resourceManager;
+
+Window createWindow(Window parentWindowId, tk::ControlParams const & params)
+{
+	// TODO convert params.cursor_, params.scrollbar_
+
+	// TODO check if child transparency window works by changing the parent window's depth to 32
+	int desiredDepth = 24; // works also with 32, but the image routines need to be changed
+	XVisualInfo vinfo;
+	auto visualMatched = XMatchVisualInfo(resourceManager->dpy, XDefaultScreen(resourceManager->dpy), desiredDepth, TrueColor, &vinfo);
+	assert(visualMatched);
+	int borderWidth = 0;
+	unsigned int windowClass = InputOutput;
+	int depth = vinfo.depth;
+	Visual * visual = vinfo.visual;
+	XSetWindowAttributes attributes;
+	attributes.colormap = XCreateColormap(resourceManager->dpy, resourceManager->root(), visual, AllocNone);
+	attributes.border_pixel = 0;
+	attributes.background_pixel = 0;
+	if(	params.backgroundColor_ ) {
+		// TODO convert params.backgroundColor_
+	}
+	Window windowId = XCreateWindow(
+		resourceManager->dpy,
+		parentWindowId,
+		params.start_.x, params.start_.y, params.dims_.width, params.dims_.height,
+		borderWidth, depth, windowClass, visual,
+		CWColormap | CWBorderPixel | CWBackPixel, &attributes);
+	return windowId;
+}
 
 }
 
@@ -18,6 +47,24 @@ ControlCallbackMap<HandleMouseButton> cbMouseDown,cbMouseUp;
 ControlCallbackMap<HandleMouseMove> cbMouseEnter,cbMouseOver,cbMouseLeave;
 ControlCallbackMap<ProcessKeyEvent> cbKeyDown,cbKeyUp;
 ControlCallbackMap<ProcessKeypress> cbKeypress;
+
+NativeControlImpl::NativeControlImpl(::Window parentWindowId, ::Window windowId):
+	parentWindowId(parentWindowId),
+	windowId(windowId),
+	windowCanvas(CanvasX11(windowId))
+{
+}
+
+NativeControlImpl::NativeControlImpl(::Window parentWindowId, ControlParams const & params, long event_mask):
+	parentWindowId(parentWindowId),
+	windowId(createWindow(parentWindowId,params)),
+	windowCanvas(CanvasX11(windowId))
+{
+	XSelectInput(resourceManager->dpy, windowId, event_mask);
+	if( params.visible_ ) {
+		show();
+	}
+}
 
 NativeControlImpl::~NativeControlImpl()
 {
@@ -98,6 +145,16 @@ void NativeControlImpl::setText(const NativeString& text)
 {
 }
 
+Rect NativeControlImpl::rect() const
+{
+	int tx,ty;
+	::Window child;
+	XTranslateCoordinates(resourceManager->dpy, windowId, parentWindowId, 0, 0, &tx, &ty, &child);
+	XWindowAttributes attrs;
+	XGetWindowAttributes(resourceManager->dpy, windowId, &attrs);
+	return Rect::closed(Point(tx-attrs.x,ty-attrs.y),WDims(attrs.width,attrs.height));
+}
+
 ClipboardType NativeControlImpl::copyToClipboard() const
 {
 	return ClipboardType::nothing;
@@ -105,7 +162,7 @@ ClipboardType NativeControlImpl::copyToClipboard() const
 
 Canvas & NativeControlImpl::canvas()
 {
-	return nullCanvas;
+	return windowCanvas;
 }
 
 void NativeControlImpl::repaint()
@@ -131,7 +188,7 @@ Point NativeControlImpl::screenToClient(Point const & point) const
 	Point result;
 	::Window child;
 	XTranslateCoordinates(resourceManager->dpy,
-		resourceManager->root(), windowId,
+		parentWindowId, windowId,
 		point.x, point.y,
 		&result.x, &result.y, &child);
 	return result;
@@ -139,6 +196,8 @@ Point NativeControlImpl::screenToClient(Point const & point) const
 
 ::Window NativeControlImpl::getParentHandle() const
 {
+	return parentWindowId;
+	/*
 	::Window root_return;
 	::Window parent_return;
 	::Window * children_return;
@@ -149,6 +208,7 @@ Point NativeControlImpl::screenToClient(Point const & point) const
 		XFree(children_return);
 	}
 	return parent_return;
+	*/
 }
 
 ControlParams NativeControlImpl::getControlData() const
@@ -224,7 +284,7 @@ void NativeControlImpl::processMessage(XEvent & e)
 		case Expose: {
 			auto & data = e.xexpose;
 			executeCallback(this, cbPaint, canvas(),
-				Rect::open(Point(data.x, data.y), WDims(data.width, data.height)));
+				Rect::closed(Point(data.x, data.y), WDims(data.width, data.height)));
 			// TODO check windowEnabled and gray the window over
 		} break;
 
@@ -329,4 +389,3 @@ void NativeControlImpl::keyReleaseEvent(XEvent & e)
 }
 
 }
-

@@ -4,21 +4,26 @@
 #include <memory>
 #include <unordered_map>
 #include <X11/Xlib.h>
+#include "NativeControlImpl.h"
 #include "WindowImplX11.h"
 #include "../src/util/singleton.h"
 
 namespace tk {
 
 class ResourceManager {
-	typedef std::unordered_map<::Window,std::weak_ptr<WindowImpl>> WindowMap;
+	using WindowedControlMap = std::unordered_map<::Window,std::weak_ptr<NativeControlImpl>>;
+	using WindowMap = std::unordered_map<::Window,std::weak_ptr<WindowImpl>>;
+	WindowedControlMap controlMap;
 	WindowMap windowMap;
-	// no control map here. only win32 version is registering controls for now
 public:
 	Display * dpy;
 	ResourceManager();
 	~ResourceManager();
 
 	void processMessages();
+	void registerControl(std::shared_ptr<NativeControlImpl> const & control);
+	void unregisterControl(std::shared_ptr<NativeControlImpl> const & control);
+	void registerClonedControl(std::shared_ptr<NativeControlImpl> const & control);
 	void registerWindow(std::shared_ptr<WindowImpl> const & window);
 	void unregisterWindow(std::shared_ptr<WindowImpl> const & window);
 	std::shared_ptr<WindowImpl> findWindow(::Window windowId);
@@ -27,6 +32,9 @@ public:
 	::Window root();
 
 	char const * getAtomName(Atom atom);
+	::Window createTopLevelWindow(int x, int y, int width, int height);
+private:
+	std::shared_ptr<NativeControlImpl> findWindowedControl(::Window windowId);
 };
 
 using ResourceManagerSingleton = singleton<ResourceManager>;

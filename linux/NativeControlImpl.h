@@ -3,6 +3,7 @@
 
 #include <X11/Xlib.h>
 #include "ScopedX11.h"
+#include "CanvasX11.h"
 #include "../src/objects/Rect.h"
 #include "../src/objects/Color.h"
 #include "../src/ControlParams.h"
@@ -26,18 +27,23 @@ private:
 	Cursor cursor = Cursor::defaultCursor;
 	optional<RGBColor> backgroundColor;
 protected:
-	NativeControlImpl() = default;
-	// TODO some code from WindowImplX11 ctor will be moved here for window-based controls
+	::Window parentWindowId;
+	NativeControlImpl(::Window parentWindowId, ::Window windowId);
+	NativeControlImpl(::Window parentWindowId, ControlParams const & params, long event_mask);
 public:
 	::Window windowId;
-
+private:
+	CanvasX11 windowCanvas;
+public:
 	virtual ~NativeControlImpl();
+
+	::Window getWindowId() const { return windowId; }
 
 	void setPos(Point pos);
 	void setDims(WDims dims);
 	void setRect(Rect rect);
 
-	virtual Rect rect() const = 0;
+	virtual Rect rect() const;
 
 	bool visible() const;
 	void show();

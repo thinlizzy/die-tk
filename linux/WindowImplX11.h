@@ -3,7 +3,6 @@
 
 #include <unordered_map>
 #include <memory>
-#include "CanvasX11.h"
 #include "NativeControlImpl.h"
 #include "../src/WindowParams.h"
 
@@ -12,12 +11,9 @@ namespace tk {
 class WindowImpl: public NativeControlImpl {
 	typedef std::unordered_map<::Window,std::shared_ptr<NativeControlImpl>> Controls;
 	Controls controls;
-	CanvasX11 windowCanvas;
 protected:
 	WindowImpl() = default;
 public:
-	static ::Window createWindow(int x, int y, int width, int height);
-
 	explicit WindowImpl(WindowParams const & params);
 	~WindowImpl();
 
@@ -28,12 +24,8 @@ public:
 	void registerControl(std::shared_ptr<NativeControlImpl> control);
     void unregisterControl(std::shared_ptr<NativeControlImpl> control);
 
-	Rect rect() const override;
-
 	NativeString getText() const override;
 	void setText(NativeString const & text) override;
-
-	Canvas & canvas() override;
 
 	void processMessage(XEvent & e) override;
 

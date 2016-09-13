@@ -1,8 +1,12 @@
 #ifndef CONTROL_PARAMS_H_gfu43983tgfff45kh03hjg312
 #define CONTROL_PARAMS_H_gfu43983tgfff45kh03hjg312
 
+#include <iosfwd>
 #include "WindowObjects.h"
 #include "NativeString.h"
+#include "objects/Color.h"
+#include "objects/Point.h"
+#include "objects/Dimension.h"
 #include "util/optional.h"
 
 namespace tk {
@@ -12,19 +16,11 @@ public:
 	NativeString text_;
 	Point start_;
 	WDims dims_;
-    bool visible_;
-	Scrollbar scrollbar_;
-	bool autosize_;
+    bool visible_ = true;
+	Scrollbar scrollbar_ = Scrollbar::none;
+	bool autosize_ = false;
     optional<RGBColor> backgroundColor_;
-    Cursor cursor_;
-
-	ControlParams():
-        visible_(true),
-        scrollbar_(Scrollbar::none),
-        autosize_(false),
-        cursor_(Cursor::defaultCursor)
-    {
-    }
+    Cursor cursor_ = Cursor::defaultCursor;
 
 	ControlParams & text(NativeString const & value) { text_ = value; return *this; }
 	ControlParams & start(Point value) { start_ = value; return *this; }
@@ -37,6 +33,8 @@ public:
 	ControlParams & backgroundColor(RGBColor value) { backgroundColor_ = value; return *this; }
 	ControlParams & cursor(Cursor value) { cursor_ = value; return *this; }
 };
+
+std::ostream & operator<<(std::ostream & os, ControlParams const & cp);
 
 }
 

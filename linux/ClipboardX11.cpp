@@ -25,7 +25,7 @@ Clipboard::Clipboard(char const * clipProperty):
 	sel(XInternAtom(resourceManager->dpy, clipProperty, False)),
 	XA_TARGETS(XInternAtom(resourceManager->dpy, "TARGETS", False))
 {
-	window.reset(WindowImpl::createWindow(0,0,100,100));
+	window.reset(resourceManager->createTopLevelWindow(0,0,100,100));
 	XConvertSelection(resourceManager->dpy, sel, XA_TARGETS, sel, window.get(), CurrentTime);
 	XFlush(resourceManager->dpy);
 }

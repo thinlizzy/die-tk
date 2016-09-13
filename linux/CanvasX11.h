@@ -19,6 +19,7 @@ class CanvasX11: public Canvas {
 public:
 	CanvasX11();
 	explicit CanvasX11(Drawable drawable);
+	CanvasX11(CanvasX11 const & other) = delete;
 	CanvasX11(CanvasX11 && other);
 	CanvasX11 & operator=(CanvasX11 && other);
 	~CanvasX11() override;
