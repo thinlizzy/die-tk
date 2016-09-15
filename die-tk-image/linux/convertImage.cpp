@@ -29,18 +29,18 @@ image::Ptr convertImage(img::Image const & image)
 	if( image.getTransparentColorIndex() >= 0 ) {
 		auto buf = image.toRawBits(32);
 		return image::createTransparentBGRA(dims,
-				getTransparentMask(image),
-				reinterpret_cast<char *>(buf.release()));
+			getTransparentMask(image),
+			reinterpret_cast<char *>(buf.release()));
 	} else
 	if( image.transparent() ) {
 		auto buf = image.toRawBits(32);
 		return image::createTransparentBGRA(dims,
-				reinterpret_cast<char *>(buf.release()));
+			reinterpret_cast<char *>(buf.release()));
 	} else
 	{
 		auto buf = image.toRawBits(32);
 		return image::createNativeBGRA(dims,
-				reinterpret_cast<char *>(buf.release()));
+			reinterpret_cast<char *>(buf.release()));
 	}
 }
 

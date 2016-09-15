@@ -31,6 +31,9 @@ public:
 	// the screen window
 	::Window root();
 
+	// it also works with depth 32, which enables transparency on composite WMs.
+	// the problem is children windows become transparent in relation to the desktop as well
+	// (literally they open a HOLE in the app)
 	constexpr static int defaultDepth = 24;
 
 	char const * getAtomName(Atom atom);
