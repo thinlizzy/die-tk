@@ -1,6 +1,6 @@
 #include "NativeControlImpl.h"
 #include <X11/Xutil.h>
-#include <cassert>
+#include <X11/Xatom.h>
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
 #include "../src/log.h"
@@ -11,30 +11,21 @@ tk::ResourceManagerSingleton resourceManager;
 
 Window createWindow(Window parentWindowId, tk::ControlParams const & params)
 {
+	Window windowId = resourceManager->createWindow(
+		params.start_.x,params.start_.y,params.dims_.width,params.dims_.height,
+		parentWindowId);
 	// TODO convert params.cursor_, params.scrollbar_
-
-	// TODO check if child transparency window works by changing the parent window's depth to 32
-	int desiredDepth = 24; // works also with 32, but the image routines need to be changed
-	XVisualInfo vinfo;
-	auto visualMatched = XMatchVisualInfo(resourceManager->dpy, XDefaultScreen(resourceManager->dpy), desiredDepth, TrueColor, &vinfo);
-	assert(visualMatched);
-	int borderWidth = 0;
-	unsigned int windowClass = InputOutput;
-	int depth = vinfo.depth;
-	Visual * visual = vinfo.visual;
-	XSetWindowAttributes attributes;
-	attributes.colormap = XCreateColormap(resourceManager->dpy, resourceManager->root(), visual, AllocNone);
-	attributes.border_pixel = 0;
-	attributes.background_pixel = 0;
 	if(	params.backgroundColor_ ) {
 		// TODO convert params.backgroundColor_
+	} else {
+		// I think this is doing nothing useful
+		/*
+		uint32_t cardinal_alpha = 0;
+		XChangeProperty(resourceManager->dpy, windowId,
+			XInternAtom(resourceManager->dpy, "_NET_WM_WINDOW_OPACITY", 0),
+			XA_CARDINAL, 32, PropModeReplace, reinterpret_cast<uint8_t *>(&cardinal_alpha), 1);
+		*/
 	}
-	Window windowId = XCreateWindow(
-		resourceManager->dpy,
-		parentWindowId,
-		params.start_.x, params.start_.y, params.dims_.width, params.dims_.height,
-		borderWidth, depth, windowClass, visual,
-		CWColormap | CWBorderPixel | CWBackPixel, &attributes);
 	return windowId;
 }
 

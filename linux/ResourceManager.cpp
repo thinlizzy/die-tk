@@ -1,4 +1,6 @@
 #include "ResourceManager.h"
+#include <cassert>
+#include <X11/Xutil.h>
 #include "../src/log.h"
 
 namespace {
@@ -93,7 +95,7 @@ char const * ResourceManager::getAtomName(Atom atom)
 {
 	if( atom == None ) return "None";
 	return XGetAtomName(dpy, atom);
-};
+}
 
 ::Window ResourceManager::createTopLevelWindow(int x, int y, int width, int height)
 {
@@ -103,6 +105,27 @@ char const * ResourceManager::getAtomName(Atom atom)
 	return XCreateSimpleWindow(dpy,root(),
 		x, y, width, height,
 		borderWidth, borderColor, backgroundColor);
+}
+
+::Window ResourceManager::createWindow(int x, int y, int width, int height, ::Window parentId, int depth)
+{
+	// TODO revert to XCreateSimpleWindow if this visual matching is not helping at all
+	XVisualInfo vinfo;
+	auto visualMatched = XMatchVisualInfo(dpy, XDefaultScreen(dpy), depth, TrueColor, &vinfo);
+	assert(visualMatched);
+	log::debug("Visual info: ",vinfo.visualid," class ",vinfo.c_class,
+		vinfo.c_class == TrueColor ? " (TrueColor)" : " (?)",
+		" depth ",vinfo.depth);
+	int borderWidth = 0;
+	unsigned int windowClass = InputOutput;
+	XSetWindowAttributes attributes;
+	attributes.colormap = XCreateColormap(dpy, root(), vinfo.visual, AllocNone);
+	attributes.border_pixel = 0;
+	attributes.background_pixel = 0;
+	return XCreateWindow(dpy, parentId,
+		x, y, width, height,
+		borderWidth, vinfo.depth, windowClass, vinfo.visual,
+		CWColormap | CWBorderPixel | CWBackPixel, &attributes);
 }
 
 }

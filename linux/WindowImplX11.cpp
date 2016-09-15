@@ -26,7 +26,7 @@ tk::ResourceManagerSingleton resourceManager;
 	} else {
 		dims = params.dims_;
 	}
-	return resourceManager->createTopLevelWindow(x, y, dims.width, dims.height);
+	return resourceManager->createWindow(x,y,dims.width,dims.height,resourceManager->root());
 }
 
 }

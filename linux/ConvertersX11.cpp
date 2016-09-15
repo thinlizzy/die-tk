@@ -99,7 +99,7 @@ unsigned int toShape(Cursor cursor)
 
 unsigned long rgb32(RGBColor const & color)
 {
-	return (color.r << 16) | (color.g << 8) | color.b;
+	return (0xFFU << 24) | (color.r << 16) | (color.g << 8) | color.b;
 }
 
 WindowKey fromKeySym(KeySym keySym)

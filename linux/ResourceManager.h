@@ -31,8 +31,11 @@ public:
 	// the screen window
 	::Window root();
 
+	constexpr static int defaultDepth = 24;
+
 	char const * getAtomName(Atom atom);
 	::Window createTopLevelWindow(int x, int y, int width, int height);
+	::Window createWindow(int x, int y, int width, int height, ::Window parentId, int depth = defaultDepth);
 private:
 	std::shared_ptr<NativeControlImpl> findWindowedControl(::Window windowId);
 };

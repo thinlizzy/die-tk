@@ -115,7 +115,7 @@ XImage * doCreateNativeBGRA(WDims dims, char * buffer)
 	auto imagePtr = XCreateImage(
 		resourceManager->dpy,
 		DefaultVisual(resourceManager->dpy,0),
-		24,
+		resourceManager->defaultDepth,
 		ZPixmap,
 		0,
 		buffer,

@@ -8,7 +8,7 @@ int main()
 {
 	Application app;
 
-	Window window(WindowParams("test image load and transparency").dims(500,400));
+	Window window(WindowParams("test image load and transparency!").dims(700,400));
 
 	auto boss = convertImage(img::Image("boss.png"));
 	auto diego = convertImage(img::Image("DIEGO1.jpg"));
@@ -28,7 +28,8 @@ int main()
 	PaintBox p(window, ControlParams().start(5,40).dims(40,40));
 	p.onPaint([&](Canvas & canvas, Rect rect) {
 		std::cout << rect << std::endl;
-		//explosion->drawInto(canvas,Point(0,0));
+		canvas.fillRect(Rect::open(Point(2,2),WDims(6,6)),RGBColor(100,0,0));
+		explosion->drawInto(canvas,Point(0,0));
 		// TODO X11 copy rect into fails with smaller rectangles
 		// TODO X11 PaintBox transparency fails
 		//explosion->copyRectInto(canvas,rect,rect.topLeft());
