@@ -34,6 +34,7 @@ public:
 	// it also works with depth 32, which enables transparency on composite WMs.
 	// the problem is children windows become transparent in relation to the desktop as well
 	// (literally they open a HOLE in the app)
+	// leaving this as a constant to allow finding another use case for 32-bit depth visuals
 	constexpr static int defaultDepth = 24;
 
 	char const * getAtomName(Atom atom);
