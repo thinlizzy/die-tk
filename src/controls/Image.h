@@ -13,6 +13,7 @@ namespace tk {
  * - a better constructor to specify an image upon creation
  * - create empty image if no image is specified
  * - resizing control also needs to resize the image or to increase the canvas size
+ * - add alignment and stretch in both dimensions
  * - research support for transparent image (not sure if that works with a drawable canvas. X11 is a challenge too)
  */
 class Image: public Control {

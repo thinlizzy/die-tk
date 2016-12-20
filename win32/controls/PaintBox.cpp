@@ -1,4 +1,4 @@
-#include "../../src/controls/Paintbox.h"
+#include "../../src/controls/PaintBox.h"
 #include "PaintBoxWin32.h"
 
 #define CONTROL_IMPL PaintBoxImpl

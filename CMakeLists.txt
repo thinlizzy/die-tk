@@ -93,7 +93,8 @@ set(SOURCE_FILES
         src/trace.h
         src/Window.h
         src/WindowObjects.h
-        src/WindowParams.h src/util/singleton.h)
+        src/WindowParams.h
+        src/util/singleton.h)
 
 IF(WIN32 AND NOT UNIX)
     FIND_LIBRARY(GDI32_LIB gdi32)
