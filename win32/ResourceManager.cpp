@@ -1,4 +1,5 @@
 #include "ResourceManager.h"
+#include "ConvertersWin32.h"
 #include "../src/trace.h"
 
 namespace {
@@ -35,8 +36,9 @@ void ResourceManager::processMessages()
 		    handleTopLevelWindowMessages(msg.hwnd,msg.message,msg.wParam,msg.lParam);
 			TRACE_M("AppProc -> CONTROL! hWnd = " << msg.hwnd << " message = " << windowsMessageToString(msg.message));
 			if( native->processMessage(msg.message,msg.wParam,msg.lParam) ) {
-                TRACE_M("AppProc HANDLED -> CONTROL processMessage! hWnd = " << msg.hwnd << 
+                TRACE_M("AppProc HANDLED -> CONTROL processMessage! hWnd = " << msg.hwnd <<
                         " message = " << windowsMessageToString(msg.message));
+                continue;
             }
 		}
 

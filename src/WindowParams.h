@@ -1,11 +1,13 @@
 #ifndef WINDOW_PARAMS_H_gfu43983tgfff45kh03hjg
 #define WINDOW_PARAMS_H_gfu43983tgfff45kh03hjg
 
-#include "objects/Point.h"
-#include "objects/Dimension.h"
-#include "WindowObjects.h"
 #include <limits>
 #include "NativeString.h"
+#include "WindowObjects.h"
+#include "objects/Color.h"
+#include "objects/Point.h"
+#include "objects/Dimension.h"
+#include "util/optional.h"
 
 namespace tk {
 
@@ -14,6 +16,7 @@ public:
 	NativeString text_;
 	Point start_;
 	WDims dims_;
+    optional<RGBColor> backgroundColor_;
 	int initialState;
 
 	static inline Point defaultPos() { int min = std::numeric_limits<int>::min(); return Point(min,min); }
@@ -29,9 +32,8 @@ public:
 
 	WindowParams & text(NativeString const & value) { text_ = value; return *this; }
 	WindowParams & start(Point value) { start_ = value; return *this; }
-	WindowParams & start(int x, int y) { start_ = Point(x,y); return *this; }
 	WindowParams & dims(WDims value) { dims_ = value; return *this; }
-	WindowParams & dims(int width, int height) { dims_ = WDims(width,height); return *this; }
+	WindowParams & backgroundColor(RGBColor value) { backgroundColor_ = value; return *this; }
 
 	WindowParams & addState(WindowState value) { initialState |= value; return *this; }
 	WindowParams & removeState(WindowState value) { initialState &= ~value; return *this; }
