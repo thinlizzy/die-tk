@@ -9,4 +9,14 @@ namespace tk {
 CONSTRUCTOR_IMPL(PaintBox);
 CLONE_IMPL(PaintBox);
 
+bool PaintBox::transparent() const
+{
+	return IMPL.transparent();
+}
+
+void PaintBox::setTransparentBackground()
+{
+	IMPL.setTransparentBackground();
+}
+
 }

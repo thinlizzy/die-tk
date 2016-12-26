@@ -10,6 +10,11 @@ public:
 	PaintBoxImpl(HWND parentHwnd, ControlParams const & params);
 
 	virtual PaintBoxImpl * clone() const;
+
+    bool transparent() const;
+    void setTransparentBackground();
+
+    void repaint() override;
 };
 
 }

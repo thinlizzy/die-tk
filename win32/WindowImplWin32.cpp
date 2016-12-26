@@ -79,6 +79,10 @@ WindowImpl::WindowImpl(WindowParams const & params):
 	}
 
 	hWnd = createWindow(Point(x,y),dims,params.text_.wstr.c_str(),windowClass.wc.lpszClassName,stateToWinStyle(params.initialState));
+
+	if( params.backgroundColor_ ) {
+		setBackground(*params.backgroundColor_);
+	}
 }
 
 HWND WindowImpl::createWindow(Point pos, WDims dims, wchar_t const windowname[], wchar_t const classname[], DWORD style)
