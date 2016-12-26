@@ -22,15 +22,16 @@ class NativeControlImpl {
 private:
    	Cursor cursor;
    	RGBColor backgroundColor;
-    scoped::Brush backgroundBrush;
     bool trackingMouse;
 protected:
 	CanvasImplWin canvasImpl;
+    scoped::Brush backgroundBrush;
 
 	NativeControlImpl();
     
 	scoped::DC getDC() const;
 	SIZE getTextDims();
+	RECT getClientRect() const;
 public:
 	HWND hWnd;
 
@@ -65,7 +66,7 @@ public:
 	void sendToBack();
 
 	Canvas & canvas();
-	void repaint();
+	virtual void repaint();
 
 	void setCursor(Cursor cursor);
 	void setBackground(RGBColor const & color);

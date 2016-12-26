@@ -97,15 +97,20 @@ Canvas & NativeControlImpl::canvas()
 	return canvasImpl;
 }
 
-Rect NativeControlImpl::rect() const
+RECT NativeControlImpl::getClientRect() const
 {
 	RECT rc;
 	GetClientRect(hWnd,&rc);
 	MapWindowPoints(hWnd,GetParent(hWnd),(LPPOINT)&rc,2);
+	return rc;
+}
+
+Rect NativeControlImpl::rect() const
+{
+	RECT rc = getClientRect();
 	--rc.right;
 	--rc.bottom;
-	Rect result = convertRect(rc);
-	return result;
+	return convertRect(rc);
 }
 
 void NativeControlImpl::setPos(Point pos)

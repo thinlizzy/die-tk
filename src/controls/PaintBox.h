@@ -12,6 +12,10 @@ public:
     PaintBox clone() const;
     
     using Control::onPaint;
+
+    bool transparent() const;
+
+    void setTransparentBackground();
 };
 
 }

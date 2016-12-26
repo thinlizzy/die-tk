@@ -9,7 +9,7 @@ int main()
 	auto bkColor = RGBColor{150,150,40};
 	auto pb1 = PaintBox{window,ControlParams{}.start({10,10}).dims({100,100}).backgroundColor(bkColor)};
 	auto color1 = RGBColor{10,10,200};
-	auto pb2 = PaintBox{window,ControlParams{}.start({pb1.x(),150}).dims(pb1.dims())};
+	auto pb2 = PaintBox{window,ControlParams{}.start({pb1.x(),pb1.rect().bottom + 10}).dims(pb1.dims())};
 	auto color2 = RGBColor{200,10,200};
 
 	auto painter = [](RGBColor & color) {
@@ -21,8 +21,18 @@ int main()
 	pb1.onPaint(painter(color1));
 	pb2.onPaint(painter(color2));
 
+	auto toggleTransparency = [&bkColor](PaintBox & pb) {
+		if( pb.transparent() ) {
+			pb.setBackground(bkColor);
+		} else {
+			pb.setTransparentBackground();
+		}
+	};
+
 	auto clicker = [&](MouseEvent e,Point) {
 		std::swap(color1,color2);
+		toggleTransparency(pb1);
+		toggleTransparency(pb2);
 		pb1.repaint();
 		pb2.repaint();
 	};

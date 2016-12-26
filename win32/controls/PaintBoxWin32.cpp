@@ -35,4 +35,20 @@ PaintBoxImpl * PaintBoxImpl::clone() const
 	return new PaintBoxImpl(getParentHandle(),getControlData());
 }
 
+bool PaintBoxImpl::transparent() const
+{
+	return ! static_cast<bool>(backgroundBrush); // it achieves transparency by not having a background
+}
+
+void PaintBoxImpl::setTransparentBackground()
+{
+	backgroundBrush.reset(0);
+}
+
+void PaintBoxImpl::repaint()
+{
+	RECT rc = getClientRect();
+	InvalidateRect(GetParent(hWnd),&rc,true); // needs to be true in order to support transparency
+}
+
 }
