@@ -15,17 +15,6 @@ Window createWindow(Window parentWindowId, tk::ControlParams const & params)
 		params.start_.x,params.start_.y,params.dims_.width,params.dims_.height,
 		parentWindowId);
 	// TODO convert params.cursor_, params.scrollbar_
-	if(	params.backgroundColor_ ) {
-		// TODO convert params.backgroundColor_
-	} else {
-		// I think this is doing nothing useful
-		/*
-		uint32_t cardinal_alpha = 0;
-		XChangeProperty(resourceManager->dpy, windowId,
-			XInternAtom(resourceManager->dpy, "_NET_WM_WINDOW_OPACITY", 0),
-			XA_CARDINAL, 32, PropModeReplace, reinterpret_cast<uint8_t *>(&cardinal_alpha), 1);
-		*/
-	}
 	return windowId;
 }
 
@@ -51,6 +40,9 @@ NativeControlImpl::NativeControlImpl(::Window parentWindowId, ControlParams cons
 	windowId(createWindow(parentWindowId,params)),
 	windowCanvas(CanvasX11(windowId))
 {
+	if(	params.backgroundColor_ ) {
+		setBackground(*params.backgroundColor_);
+	}
 	XSelectInput(resourceManager->dpy, windowId, event_mask);
 	if( params.visible_ ) {
 		show();
@@ -63,6 +55,7 @@ NativeControlImpl::~NativeControlImpl()
 
 void NativeControlImpl::setPos(Point pos)
 {
+	// TODO adjust the pos according to the window borders
 	XWindowChanges changes;
 	changes.x = pos.x;
 	changes.y = pos.y;
@@ -138,12 +131,9 @@ void NativeControlImpl::setText(const NativeString& text)
 
 Rect NativeControlImpl::rect() const
 {
-	int tx,ty;
-	::Window child;
-	XTranslateCoordinates(resourceManager->dpy, windowId, parentWindowId, 0, 0, &tx, &ty, &child);
 	XWindowAttributes attrs;
 	XGetWindowAttributes(resourceManager->dpy, windowId, &attrs);
-	return Rect::closed(Point(tx-attrs.x,ty-attrs.y),WDims(attrs.width,attrs.height));
+	return Rect::closed(Point(attrs.x,attrs.y),WDims(attrs.width,attrs.height));
 }
 
 ClipboardType NativeControlImpl::copyToClipboard() const
@@ -179,7 +169,7 @@ Point NativeControlImpl::screenToClient(Point const & point) const
 	Point result;
 	::Window child;
 	XTranslateCoordinates(resourceManager->dpy,
-		parentWindowId, windowId,
+		resourceManager->root(), windowId,
 		point.x, point.y,
 		&result.x, &result.y, &child);
 	return result;

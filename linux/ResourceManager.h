@@ -35,7 +35,7 @@ public:
 	// the problem is children windows become transparent in relation to the desktop as well
 	// (literally they open a HOLE in the app)
 	// leaving this as a constant to allow finding another use case for 32-bit depth visuals
-	constexpr static int defaultDepth = 24;
+	constexpr static int defaultDepth = 32;
 
 	char const * getAtomName(Atom atom);
 	::Window createTopLevelWindow(int x, int y, int width, int height);

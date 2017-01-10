@@ -22,4 +22,16 @@ PaintBox PaintBox::clone() const
 	return result;
 }
 
+bool PaintBox::transparent() const
+{
+	auto && ci = static_cast<PaintBoxX11 const &>(*impl);
+	return ci.transparent();
+}
+
+void PaintBox::setTransparentBackground()
+{
+	auto && ci = static_cast<PaintBoxX11 &>(*impl);
+	ci.setTransparentBackground();
+}
+
 }

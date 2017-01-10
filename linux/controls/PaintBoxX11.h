@@ -10,6 +10,11 @@ public:
 	PaintBoxX11(::Window parent, ControlParams const & params);
 
 	virtual PaintBoxX11 * clone() const;
+
+    bool transparent() const;
+
+    // TODO fix it! it is only setting the background to black
+    void setTransparentBackground();
 };
 
 }

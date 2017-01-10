@@ -25,9 +25,10 @@ private:
 	bool windowEnabled = true;  // poorman state control.
 
 	Cursor cursor = Cursor::defaultCursor;
-	optional<RGBColor> backgroundColor;
 protected:
 	::Window parentWindowId;
+	optional<RGBColor> backgroundColor;
+
 	NativeControlImpl(::Window parentWindowId, ::Window windowId);
 	NativeControlImpl(::Window parentWindowId, ControlParams const & params, long event_mask);
 public:

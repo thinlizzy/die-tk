@@ -27,6 +27,8 @@ public:
 	NativeString getText() const override;
 	void setText(NativeString const & text) override;
 
+	Rect rect() const override;
+
 	void processMessage(XEvent & e) override;
 
 	AllowOperation onClose(AllowOperation callback);

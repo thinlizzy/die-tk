@@ -45,6 +45,18 @@ Atom WM_DELETE_WINDOW = XInternAtom(resourceManager->dpy, "WM_DELETE_WINDOW", Fa
 WindowImpl::WindowImpl(WindowParams const & params):
 	NativeControlImpl(resourceManager->root(),createWindow(params))
 {
+	if(	params.backgroundColor_ ) {
+		setBackground(*params.backgroundColor_);
+	} else {
+		// I think this is doing nothing useful
+		/*
+		uint32_t cardinal_alpha = 0;
+		XChangeProperty(resourceManager->dpy, windowId,
+			XInternAtom(resourceManager->dpy, "_NET_WM_WINDOW_OPACITY", 0),
+			XA_CARDINAL, 32, PropModeReplace, reinterpret_cast<uint8_t *>(&cardinal_alpha), 1);
+		*/
+	}
+
 	XSetWMProtocols(resourceManager->dpy, windowId, &WM_DELETE_WINDOW, 1);
 
 	XSelectInput(resourceManager->dpy, windowId,
@@ -65,6 +77,11 @@ WindowImpl::WindowImpl(WindowParams const & params):
 	}
 	if( params.initialState & ws_minimized ) {
 		XIconifyWindow(resourceManager->dpy, windowId, DefaultScreen(resourceManager->dpy));
+	}
+	// sometimes XCreateWindow won't set an initial position
+	if( ! params.isDefaultPos()
+			&& (params.initialState & (ws_maximized | ws_minimized)) == 0 ) {
+		setPos(params.start_);
 	}
 }
 
@@ -140,6 +157,16 @@ NativeString WindowImpl::getText() const
 void WindowImpl::setText(NativeString const & text)
 {
 	XStoreName(resourceManager->dpy, windowId, text.str.c_str());
+}
+
+Rect WindowImpl::rect() const
+{
+	int tx,ty;
+	::Window child;
+	XTranslateCoordinates(resourceManager->dpy, windowId, parentWindowId, 0, 0, &tx, &ty, &child);
+	XWindowAttributes attrs;
+	XGetWindowAttributes(resourceManager->dpy, windowId, &attrs);
+	return Rect::closed(Point(tx-attrs.x,ty-attrs.y),WDims(attrs.width,attrs.height));
 }
 
 // callbacks & messages

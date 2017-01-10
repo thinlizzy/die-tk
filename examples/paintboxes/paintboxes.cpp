@@ -5,7 +5,7 @@ using namespace tk;
 
 int main()
 {
-	auto window = Window{WindowParams{"paintboxes"}.dims({200,400}).backgroundColor({100,0,0})};
+	auto window = Window{WindowParams{"paintboxes"}.start({150,150}).dims({200,400}).backgroundColor({100,0,0})};
 	auto bkColor = RGBColor{150,150,40};
 	auto pb1 = PaintBox{window,ControlParams{}.start({10,10}).dims({100,100}).backgroundColor(bkColor)};
 	auto color1 = RGBColor{10,10,200};
@@ -29,7 +29,8 @@ int main()
 		}
 	};
 
-	auto clicker = [&](MouseEvent e,Point) {
+	auto clicker = [&](MouseEvent e, Point p) {
+		std::cout << "Clicked on " << p << std::endl;
 		std::swap(color1,color2);
 		toggleTransparency(pb1);
 		toggleTransparency(pb2);
