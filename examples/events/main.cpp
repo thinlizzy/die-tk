@@ -17,7 +17,7 @@ int main()
 
 	// horizontal bounds are not being checked for simplicity and it is left as an exercise for the reader :)
 
-	Window logWindow{WindowParams("log").dims(320,200)};
+	Window logWindow{WindowParams("log").dims({320,200})};
 
 	TextLog log;
 	LinesView linesView{log,logWindow};
@@ -63,7 +63,7 @@ int main()
 	// an alternative would be to post user events as they were sync messages in order to have a continuous movement.
 	// this is left as an exercise for the reader :)
 
-	Window gameWindow{WindowParams("game").dims(200,200).start(300,300)};
+	Window gameWindow{WindowParams("game").dims({200,200}).start({300,300})};
 	Ball ball;
 	ball.setLimits(gameWindow.dims());
 	BallView ballView{ball,gameWindow};
@@ -113,7 +113,7 @@ int main()
 
 	// -----------------the user can paint with the mouse at the third window ----------------------------- //
 
-	Window painterWindow{WindowParams("paint").dims(200,200).start(50,300)};
+	Window painterWindow{WindowParams("paint").dims({200,200}).start({50,300})};
 	Painting painting{painterWindow.dims()};
 	PaintingView paintingView{painting,painterWindow};
 

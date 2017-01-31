@@ -22,7 +22,7 @@ private:
 		std::string line;
 	};
 	Line lastLine() const;
-	int linesFit() const;
+	size_t linesFit() const;
 	void drawLinesFrom(size_t startLine, size_t endLine, int startY);
 };
 

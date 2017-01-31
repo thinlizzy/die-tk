@@ -12,7 +12,7 @@ LinesView::LinesView(TextLog & log, Window & window):
 {
 }
 
-int LinesView::linesFit() const
+size_t LinesView::linesFit() const
 {
 	auto totalHeight = window.dims().height;
 	return std::max(1,totalHeight / lineHeight);
@@ -23,7 +23,7 @@ auto LinesView::lastLine() const -> Line
 	auto & lines = log.allLines();
 	Line result;
 	result.line = lines.back();
-	result.y = (std::min(int(lines.size()),linesFit())-1) * lineHeight;
+	result.y = (std::min(lines.size(),linesFit())-1) * lineHeight;
 	return result;
 }
 
