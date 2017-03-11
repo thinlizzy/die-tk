@@ -2,9 +2,7 @@
 This is an Alpha version of a portable GUI TK API. It supports WinApi and XLib bindings.
 
 # COMPILE
-I am experimenting with CMake now. Please let me know if it works for you.
-
-For the ones that don't want to use CMake, you need to set your favorite C++ compiler to C++14 and build a library with all files under src directory.
+I am experimenting with CMake and Bazel. If you don't want to use a build system, you need to set your favorite C++ compiler to C++14 and build a library with all files under src directory.
 Windows builds need to include win32 directory as well.
 Linux builds need to include linux directory likewise.
 
@@ -19,14 +17,33 @@ Applications that use die-tk will need to link with gdi32 (win32) or X11 (linux)
 
 If die-tk-image is included, then applications will need to link with libimage and FreeImage lib.
 
-If die-tk-controls is included, then applications will need to link with comdlg32 (win32). Linux is TBD
+If die-tk-controls is included, then applications will need to link with comdlg32 (win32). Linux is TBD for this lib
 
 # TEST
 The directory examples has some example applications to experiment with die-tk.
 
 # TODO
-- experiment with Bazel
-- add CMakeLists.txt to the example directories and to die-tk-image and die-tk-controls bindings
+- fix Bazel BUILD files for win32 ports after Windows support for Bazel improves
+- add CMakeLists.txt and BUILD files to the example directories, to die-tk-image and to die-tk-controls bindings
 - test X11 more and more. I think the image routines can be greatly improved
 - currently some of the Canvas functions are behaving differently in win32 and X11. They need to be normalized
 - add more example apps
+
+# Bazel WORKSPACE content
+
+Here are the relevant parts of my Bazel WORKSPACE file that allow the BUILD files to work:
+
+```python
+new_local_repository(
+	name = "system_libs",
+	# pkg-config --variable=libdir x11
+	path = "/usr/lib/x86_64-linux-gnu",
+	build_file_content = """
+cc_library(
+	name = "x11",
+	srcs = ["libX11.so"],
+	visibility = ["//visibility:public"],
+)
+""",
+)
+```
