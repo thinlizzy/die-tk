@@ -8,7 +8,7 @@ int main()
 {
 	Application app;
 
-	Window window(WindowParams("test image load and transparency!").dims(700,400));
+	Window window(WindowParams("test image load and transparency!").dims({700,400}));
 
 	auto boss = convertImage(img::Image("boss.png"));
 	auto diego = convertImage(img::Image("DIEGO1.jpg"));
@@ -25,7 +25,7 @@ int main()
 		gameTitle->drawInto(canvas,Point(300,40));
 	});
 
-	PaintBox p(window, ControlParams().start(5,40).dims(40,40));
+	PaintBox p(window, ControlParams().start({5,40}).dims({40,40}));
 	p.onPaint([&](Canvas & canvas, Rect rect) {
 		std::cout << rect << std::endl;
 		canvas.fillRect(Rect::open(Point(2,2),WDims(6,6)),RGBColor(100,0,0));
