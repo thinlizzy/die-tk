@@ -1,12 +1,8 @@
 cc_library(
-	name = "events",
-	srcs = glob([
-		"main.cpp",
-	]),
+	name = "clipboard",
+	srcs = ["clipboard.cpp"],
 	deps = [
 		"//die-tk:die-tk-base",
-		"//die-tk/examples/events/model",
-		"//die-tk/examples/events/view",
 	],
 	copts = [
 		"--std=c++1y",
@@ -15,9 +11,9 @@ cc_library(
 )
 
 cc_binary(
-	name = "events-win32",
+	name = "clipboard-win32",
 	deps = [
-		":events",
+		":clipboard",
 		"//die-tk:die-tk-win32",
 	],
 	copts = [
@@ -29,9 +25,9 @@ cc_binary(
 )
 
 cc_binary(
-	name = "events-linux",
+	name = "clipboard-linux",
 	deps = [
-		":events",
+		":clipboard",
 		"//die-tk:die-tk-linux",
 		"@linux_libs//:x11",
 	],

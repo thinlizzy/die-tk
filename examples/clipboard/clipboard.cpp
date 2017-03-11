@@ -6,7 +6,7 @@ int main()
 {
 	Application app;
 
-	Window window(WindowParams("test clipboard").dims(600,400));
+	Window window(WindowParams("test clipboard").dims({600,400}));
 	window.onPaint([](Canvas & canvas, Rect) {
 		canvas.drawText(Point(10,10),"click anywhere on the window to display pasted text from clipboard"_ns,RGBColor(0,200,0));
 	});

@@ -35,7 +35,7 @@ Here are the relevant parts of my Bazel WORKSPACE file that allow the BUILD file
 
 ```python
 new_local_repository(
-	name = "system_libs",
+	name = "linux_libs",
 	# pkg-config --variable=libdir x11
 	path = "/usr/lib/x86_64-linux-gnu",
 	build_file_content = """

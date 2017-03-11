@@ -1,12 +1,9 @@
 cc_library(
-	name = "events",
-	srcs = glob([
-		"main.cpp",
-	]),
+	name = "imageLoad",
+	srcs = ["imageLoad.cpp"],
 	deps = [
 		"//die-tk:die-tk-base",
-		"//die-tk/examples/events/model",
-		"//die-tk/examples/events/view",
+		"//libimage",
 	],
 	copts = [
 		"--std=c++1y",
@@ -15,25 +12,25 @@ cc_library(
 )
 
 cc_binary(
-	name = "events-win32",
+	name = "imageLoad-win32",
 	deps = [
-		":events",
+		":imageLoad",
 		"//die-tk:die-tk-win32",
+		"@win32_libs//:gdi32",
+		"@win32_user_libs//:freeimage",
 	],
 	copts = [
 		"--std=c++1y",
 	],
-	linkopts = [
-		"-lgdi32",
-	],
 )
 
 cc_binary(
-	name = "events-linux",
+	name = "imageLoad-linux",
 	deps = [
-		":events",
+		":imageLoad",
 		"//die-tk:die-tk-linux",
 		"@linux_libs//:x11",
+		"@linux_libs//:freeimage",
 	],
 	copts = [
 		"--std=c++1y",

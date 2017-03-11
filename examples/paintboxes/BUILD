@@ -29,7 +29,7 @@ cc_binary(
 	deps = [
 		":paintboxes",
 		"//die-tk:die-tk-linux",
-		"@system_libs//:x11",
+		"@linux_libs//:x11",
 	],
 	copts = [
 		"--std=c++1y",
