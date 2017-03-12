@@ -2,6 +2,10 @@
 #include <convert.h>
 #include <iostream>
 
+#ifndef RUN_DIR
+#define DATA_DIR "die-tk/examples/ImageLoad/"
+#endif
+
 using namespace tk;
 
 int main()
@@ -10,12 +14,12 @@ int main()
 
 	Window window(WindowParams("test image load and transparency!").dims({700,400}));
 
-	auto boss = convertImage(img::Image("boss.png"));
-	auto diego = convertImage(img::Image("DIEGO1.jpg"));
-	auto explosion = convertImage(img::Image("explosion0.png"));
-	auto explosion3 = convertImage(img::Image("explosion3.png"));
-	auto bugLeft = convertImage(img::Image("bugLeft.png"));
-	auto gameTitle = convertImage(img::Image("gameTitle.png"));
+	auto boss = convertImage(img::Image(DATA_DIR "boss.png"));
+	auto diego = convertImage(img::Image(DATA_DIR "DIEGO1.jpg"));
+	auto explosion = convertImage(img::Image(DATA_DIR "explosion0.png"));
+	auto explosion3 = convertImage(img::Image(DATA_DIR "explosion3.png"));
+	auto bugLeft = convertImage(img::Image(DATA_DIR "bugLeft.png"));
+	auto gameTitle = convertImage(img::Image(DATA_DIR "gameTitle.png"));
 	window.onPaint([&](Canvas & canvas, Rect) {
 		diego->drawInto(canvas,Point(0,0));
 		explosion->drawInto(canvas,Point(5,5));
