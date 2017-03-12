@@ -2,7 +2,7 @@
 #include <convert.h>
 #include <iostream>
 
-#ifndef RUN_DIR
+#ifndef DATA_DIR
 #define DATA_DIR "die-tk/examples/ImageLoad/"
 #endif
 
