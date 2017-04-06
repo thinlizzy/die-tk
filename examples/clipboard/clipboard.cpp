@@ -1,4 +1,4 @@
-#include <die-tk.h>
+#include "src/die-tk.h"
 
 using namespace tk;
 

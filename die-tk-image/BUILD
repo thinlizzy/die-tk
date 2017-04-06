@@ -6,8 +6,8 @@ cc_library(
 		"src/convert.h",
 	],
 	deps = [
-		"//die-tk:die-tk-base",
-		"//libimage",
+		"//:die-tk-base",
+		"@libimage//:libimage",
 	],
 	copts = [
 		"--std=c++1y",
@@ -22,7 +22,7 @@ cc_library(
 	],
 	deps = [
 		":die-tk-image-base",
-		"//die-tk:die-tk-win32",
+		"//:die-tk-win32",
 	],
 	copts = ["--std=c++1y"],
 	linkstatic = 1,
@@ -35,7 +35,7 @@ cc_library(
 	],
 	deps = [
 		":die-tk-image-base",
-		"//die-tk:die-tk-linux",
+		"//:die-tk-linux",
 	],
 	copts = ["--std=c++1y"],
 	linkstatic = 1,

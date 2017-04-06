@@ -53,7 +53,10 @@ cc_library(
 		"linux/controls/*.h",
 		"linux/utf8/*.h",
 	]),
-	deps = [":die-tk-base"],
+	deps = [
+		":die-tk-base",
+		"//external:window_system",
+	],
 	copts = ["--std=c++1y"],
 	linkstatic = 1,
 )

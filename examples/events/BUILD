@@ -1,39 +1,23 @@
 cc_library(
-	name = "events",
+	name = "events-lib",
 	srcs = glob([
 		"main.cpp",
 	]),
 	deps = [
-		"//die-tk:die-tk-base",
-		"//die-tk/examples/events/model",
-		"//die-tk/examples/events/view",
-	],
-	copts = [
-		"--std=c++1y",
-		"-Idie-tk/src",
-	],
-)
-
-cc_binary(
-	name = "events-win32",
-	deps = [
-		":events",
-		"//die-tk:die-tk-win32",
+		"//:die-tk-base",
+		"//examples/events/model",
+		"//examples/events/view",
 	],
 	copts = [
 		"--std=c++1y",
 	],
-	linkopts = [
-		"-lgdi32",
-	],
 )
 
 cc_binary(
-	name = "events-linux",
+	name = "events",
 	deps = [
-		":events",
-		"//die-tk:die-tk-linux",
-		"@linux_libs//:x11",
+		":events-lib",
+		"//external:die-tk",
 	],
 	copts = [
 		"--std=c++1y",

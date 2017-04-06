@@ -1,35 +1,19 @@
 cc_library(
-	name = "paintboxes",
+	name = "paintboxes-lib",
 	srcs = ["paintboxes.cpp"],
 	deps = [
-		"//die-tk:die-tk-base",
-	],
-	copts = [
-		"--std=c++1y",
-		"-Idie-tk/src",
-	],
-)
-
-cc_binary(
-	name = "paintboxes-win32",
-	deps = [
-		":paintboxes",
-		"//die-tk:die-tk-win32",
+		"//:die-tk-base",
 	],
 	copts = [
 		"--std=c++1y",
 	],
-	linkopts = [
-		"-lgdi32",
-	],
 )
 
 cc_binary(
-	name = "paintboxes-linux",
+	name = "paintboxes",
 	deps = [
-		":paintboxes",
-		"//die-tk:die-tk-linux",
-		"@linux_libs//:x11",
+		":paintboxes-lib",
+		"//external:die-tk",
 	],
 	copts = [
 		"--std=c++1y",

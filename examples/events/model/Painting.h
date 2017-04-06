@@ -1,7 +1,7 @@
 #ifndef PAINTING_H_
 #define PAINTING_H_
 
-#include <die-tk.h>
+#include "src/die-tk.h"
 
 class Painting {
 	tk::Point coordinates;

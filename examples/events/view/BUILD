@@ -7,12 +7,11 @@ cc_library(
 		"*.h",
 	]),
     deps = [
-        "//die-tk:die-tk-base",
-        "//die-tk/examples/events/model",
+        "//:die-tk-base",
+        "//examples/events/model",
     ],
 	copts = [
 		"--std=c++1y",
-		"-Idie-tk/src",
 	],
-	visibility = ["//die-tk/examples/events:__subpackages__"],
+	visibility = ["//examples/events:__subpackages__"],
 )
