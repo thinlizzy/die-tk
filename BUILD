@@ -34,7 +34,10 @@ cc_library(
 		"win32/components/*.h",
 		"win32/controls/*.h",
 	]),
-	deps = [":die-tk-base"],
+	deps = [
+		":die-tk-base",
+		"//external:window_system",
+	],
 	copts = ["--std=c++1y"],
 	linkstatic = 1,
 )

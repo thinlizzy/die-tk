@@ -1,9 +1,9 @@
-#include <die-tk.h>
-#include <convert.h>
+#include "src/die-tk.h"
+#include "die-tk-image/src/convert.h"
 #include <iostream>
 
 #ifndef DATA_DIR
-#define DATA_DIR "die-tk/examples/ImageLoad/"
+#define DATA_DIR "examples/ImageLoad/"
 #endif
 
 using namespace tk;
