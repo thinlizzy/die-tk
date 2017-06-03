@@ -19,7 +19,6 @@ cc_library(
 		"src/util/*.h",
 	]),
 	copts = ["--std=c++1y"],
-	linkstatic = 1,
 )
 
 cc_library(
@@ -39,7 +38,6 @@ cc_library(
 		"//external:window_system",
 	],
 	copts = ["--std=c++1y"],
-	linkstatic = 1,
 )
 
 cc_library(
@@ -61,5 +59,4 @@ cc_library(
 		"//external:window_system",
 	],
 	copts = ["--std=c++1y"],
-	linkstatic = 1,
 )
