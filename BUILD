@@ -17,8 +17,8 @@ cc_library(
 		"src/objects/*.h",
 		"src/portable/*.hpp",
 		"src/util/*.h",
+		"src/util/*.hpp",
 	]),
-	copts = ["--std=c++1y"],
 )
 
 cc_library(
@@ -35,9 +35,8 @@ cc_library(
 	]),
 	deps = [
 		":die-tk-base",
-		"//external:window_system",
+		"@win32_libs//:win32",
 	],
-	copts = ["--std=c++1y"],
 )
 
 cc_library(
@@ -56,7 +55,7 @@ cc_library(
 	]),
 	deps = [
 		":die-tk-base",
-		"//external:window_system",
+		"@linux_libs//:x11",
 	],
 	copts = ["--std=c++1y"],
 )

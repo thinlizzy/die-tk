@@ -29,7 +29,7 @@ public:
 
 	static constexpr Rect closed(Point p, WDims dims) { return open(p,dims+WDims(-1,-1)); }
     
-	static constexpr Rect square(Point p, int size) { return open(p,WDims(size-1,size-1)); }
+	static constexpr Rect square(Point p, int size) { return closed(p,WDims(size,size)); }
 
     constexpr int width() const { return right-left+1; }
     constexpr int height() const { return bottom-top+1; }

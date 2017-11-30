@@ -17,11 +17,14 @@ cc_library(
 
 new_local_repository(
 	name = "win32_libs",
-	path = "/c/mingw-dists/mingw-w64/x86_64-6.2.0-release-posix-seh-rt_v5-rev1/mingw64/x86_64-w64-mingw32/lib",
+	path = "/c/Program Files (x86)/Windows Kits/10/Lib/10.0.14393.0/um/x64",
 	build_file_content = """
 cc_library(
-	name = "gdi32",
-	srcs = ["libgdi32.a"],
+	name = "win32",
+	srcs = [
+		"Gdi32.lib",
+		"User32.lib",
+	],
 	visibility = ["//visibility:public"],
 )
 """,
@@ -60,7 +63,7 @@ bind(
 
 # bind(
 #     name = "window_system",
-#     actual = "@win32_libs//:gdi32",
+#     actual = "@win32_libs//:win32",
 # )
 
 # end if
