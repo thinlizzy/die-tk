@@ -50,6 +50,20 @@ public:
 
 using Point = basic_point<int>;
 
+namespace point_literals {
+
+constexpr Point operator""_x(unsigned long long v)
+{
+    return Point{}.setX(v);
+}
+
+constexpr Point operator""_y(unsigned long long v)
+{
+    return Point{}.setY(v);
+}
+
+}
+
 }
 
 #endif

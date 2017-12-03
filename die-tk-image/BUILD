@@ -9,10 +9,6 @@ cc_library(
 		"//:die-tk-base",
 		"@libimage//:libimage",
 	],
-	copts = [
-		"--std=c++1y",
-	],
-	linkstatic = 1,
 )
 
 cc_library(
@@ -24,8 +20,6 @@ cc_library(
 		":die-tk-image-base",
 		"//:die-tk-win32",
 	],
-	copts = ["--std=c++1y"],
-	linkstatic = 1,
 )
 
 cc_library(
@@ -37,6 +31,4 @@ cc_library(
 		":die-tk-image-base",
 		"//:die-tk-linux",
 	],
-	copts = ["--std=c++1y"],
-	linkstatic = 1,
 )
