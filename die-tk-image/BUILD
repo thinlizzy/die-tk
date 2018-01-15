@@ -7,7 +7,7 @@ cc_library(
 	],
 	deps = [
 		"//:die-tk-base",
-		"@libimage//:libimage",
+		"@libimage//image",
 	],
 )
 

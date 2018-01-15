@@ -2,7 +2,7 @@
 #define CONVERTIMAGE_DIE_TK_2015_12_03_H
 
 #include "../../src/die-tk.h"
-#include "src/image.h"
+#include "image/image.h"
 
 namespace tk {
 
