@@ -3,7 +3,7 @@
 #include <X11/Xatom.h>
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
-#include "../src/log.h"
+#include "../log.h"
 
 namespace {
 

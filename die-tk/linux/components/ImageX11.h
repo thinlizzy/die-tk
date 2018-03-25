@@ -6,7 +6,7 @@
 #include <X11/Xutil.h>
 #include "../ScopedX11.h"
 #include "../CanvasX11.h"
-#include "../../src/components/Image.h"
+#include "../../components/Image.h"
 
 namespace tk {
 

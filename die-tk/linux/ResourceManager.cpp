@@ -1,7 +1,7 @@
 #include "ResourceManager.h"
 #include <cassert>
 #include <X11/Xutil.h>
-#include "../src/log.h"
+#include "../log.h"
 
 namespace {
 std::shared_ptr<tk::NativeControlImpl> nullControl;

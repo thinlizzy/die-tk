@@ -2,7 +2,7 @@
 #include <cstring>
 #include <algorithm>
 #include "ResourceManager.h"
-#include "../src/log.h"
+#include "../log.h"
 
 namespace tk {
 

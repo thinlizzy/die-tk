@@ -1,8 +1,8 @@
-#include "../../src/controls/PaintBox.h"
+#include "../../controls/PaintBox.h"
 #include "PaintBoxX11.h"
 #include "../ResourceManager.h"
 #include "../WindowImplX11.h"
-#include "../../src/Window.h"
+#include "../../Window.h"
 
 namespace tk {
 

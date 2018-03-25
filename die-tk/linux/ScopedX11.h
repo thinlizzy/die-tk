@@ -2,7 +2,7 @@
 #define LINUX_SCOPEDX11_H_DIETK_2015_06_21
 
 #include <X11/Xlib.h>
-#include "../src/util/ScopedHandle.h"
+#include "../util/ScopedHandle.h"
 
 namespace tk {
 

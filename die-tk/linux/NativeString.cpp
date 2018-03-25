@@ -1,4 +1,4 @@
-#include "../src/NativeString.h"
+#include "../NativeString.h"
 #include "utf8.h"
 #include <iostream>
 #include <sstream>

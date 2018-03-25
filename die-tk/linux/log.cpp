@@ -1,4 +1,4 @@
-#include "../src/log.h"
+#include "../log.h"
 
 namespace tk {
 namespace log {

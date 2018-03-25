@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <memory>
 #include "NativeControlImpl.h"
-#include "../src/WindowParams.h"
+#include "../WindowParams.h"
 
 namespace tk {
 

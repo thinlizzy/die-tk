@@ -3,9 +3,9 @@
 
 #include <string>
 #include <X11/Xlib.h>
-#include "../src/Event.h"
-#include "../src/WindowObjects.h"
-#include "../src/objects/Color.h"
+#include "../Event.h"
+#include "../WindowObjects.h"
+#include "../objects/Color.h"
 
 namespace tk {
 

@@ -4,8 +4,8 @@
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
 #include "Property.h"
-#include "../src/CallbackUtils.h"
-#include "../src/log.h"
+#include "../CallbackUtils.h"
+#include "../log.h"
 
 namespace {
 

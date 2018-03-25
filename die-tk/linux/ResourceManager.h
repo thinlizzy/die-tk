@@ -6,7 +6,7 @@
 #include <X11/Xlib.h>
 #include "NativeControlImpl.h"
 #include "WindowImplX11.h"
-#include "../src/util/singleton.h"
+#include "../util/singleton.h"
 
 namespace tk {
 

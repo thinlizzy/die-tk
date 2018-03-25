@@ -4,13 +4,13 @@
 #include <X11/Xlib.h>
 #include "ScopedX11.h"
 #include "CanvasX11.h"
-#include "../src/objects/Rect.h"
-#include "../src/objects/Color.h"
-#include "../src/ControlParams.h"
-#include "../src/Canvas.h"
-#include "../src/Callbacks.h"
-#include "../src/CallbackUtils.h"
-#include "../src/util/optional.h"
+#include "../objects/Rect.h"
+#include "../objects/Color.h"
+#include "../ControlParams.h"
+#include "../Canvas.h"
+#include "../Callbacks.h"
+#include "../CallbackUtils.h"
+#include "../util/optional.h"
 
 namespace tk {
 

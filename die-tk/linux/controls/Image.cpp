@@ -1,5 +1,5 @@
-#include "../../src/controls/Image.h"
-#include "../../src/NullCanvas.h"
+#include "../../controls/Image.h"
+#include "../../NullCanvas.h"
 // #include "ImageX11.h"
 
 namespace tk {

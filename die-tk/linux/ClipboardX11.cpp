@@ -4,7 +4,7 @@
 #include <iostream>
 #include <X11/Xatom.h>
 #include "ResourceManager.h"
-#include "../src/log.h"
+#include "../log.h"
 using std::cerr;
 using std::hex;
 using std::dec;

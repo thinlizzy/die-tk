@@ -1,4 +1,4 @@
-#include "../src/Application.h"
+#include "../Application.h"
 
 #include "ClipboardX11.h"
 #include "ResourceManager.h"

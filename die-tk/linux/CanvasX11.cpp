@@ -8,7 +8,7 @@
 #include <X11/Xutil.h>
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
-#include "../src/log.h"
+#include "../log.h"
 
 namespace {
 

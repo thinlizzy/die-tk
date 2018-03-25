@@ -1,3 +1,3 @@
 #include "ResourceManager.h"
-#include "../src/portable/Control.hpp"
+#include "../portable/Control.hpp"
 
