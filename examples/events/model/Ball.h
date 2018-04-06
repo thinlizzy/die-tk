@@ -1,7 +1,7 @@
 #ifndef BALL_H_
 #define BALL_H_
 
-#include "src/die-tk.h"
+#include "die-tk.h"
 
 class Ball {
 public:

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <algorithm>
-#include "src/die-tk.h"
+#include "die-tk.h"
 using namespace tk;
 
 int main()

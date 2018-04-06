@@ -1,10 +1,21 @@
-#include "src/die-tk.h"
-#include "die-tk-image/src/convert.h"
+#include "die-tk.h"
+#include "die-tk-image/convert.h"
 #include <iostream>
+#include <string>
+using namespace std::literals::string_literals;
 
-#ifndef DATA_DIR
-#define DATA_DIR "examples/ImageLoad/"
+namespace {
+
+#ifdef BAZEL_FOR_WINDOWS
+std::string baseDir = "../../../../../../"s;
+#else
+std::string baseDir = "";
 #endif
+
+// from data dir dependency. see how to relocate it
+std::string imageDir = baseDir + "examples/imageLoad/"s;
+
+}
 
 using namespace tk;
 
@@ -14,12 +25,12 @@ int main()
 
 	Window window(WindowParams("test image load and transparency!").dims({700,400}));
 
-	auto boss = convertImage(img::Image(DATA_DIR "boss.png"));
-	auto diego = convertImage(img::Image(DATA_DIR "DIEGO1.jpg"));
-	auto explosion = convertImage(img::Image(DATA_DIR "explosion0.png"));
-	auto explosion3 = convertImage(img::Image(DATA_DIR "explosion3.png"));
-	auto bugLeft = convertImage(img::Image(DATA_DIR "bugLeft.png"));
-	auto gameTitle = convertImage(img::Image(DATA_DIR "gameTitle.png"));
+	auto boss = convertImage(img::Image(imageDir + "boss.png"));
+	auto diego = convertImage(img::Image(imageDir + "DIEGO1.jpg"));
+	auto explosion = convertImage(img::Image(imageDir + "explosion0.png"));
+	auto explosion3 = convertImage(img::Image(imageDir + "explosion3.png"));
+	auto bugLeft = convertImage(img::Image(imageDir + "bugLeft.png"));
+	auto gameTitle = convertImage(img::Image(imageDir + "gameTitle.png"));
 	window.onPaint([&](Canvas & canvas, Rect) {
 		diego->drawInto(canvas,Point(0,0));
 		explosion->drawInto(canvas,Point(5,5));
@@ -40,7 +51,7 @@ int main()
 	});
 	std::cout << p.rect() << std::endl;
 
-	// TODO remove this ifdef after implementing image
+	// TODO remove this ifdef after implementing image in X11
 #ifdef WIN32
 	// TODO make Image support transparent images - it is cloneBitmap()'s fault
 	Image i(window, ControlParams().start(p.pos().addY(32)).autosize());

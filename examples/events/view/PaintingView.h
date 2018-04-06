@@ -1,7 +1,7 @@
 #ifndef PAINTINGVIEW_H_
 #define PAINTINGVIEW_H_
 
-#include "src/die-tk.h"
+#include "die-tk.h"
 #include "../model/Painting.h"
 
 class PaintingView {

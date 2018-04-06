@@ -31,7 +31,7 @@ HDC ResourceManager::screenDC()
 void ResourceManager::processMessages()
 {
 	MSG msg;
-	while( PeekMessage(&msg,NULL,0,0,PM_REMOVE) != 0 ) {
+	while( PeekMessageW(&msg,NULL,0,0,PM_REMOVE) != 0 ) {
 		if( auto native = findControl(msg.hwnd) ) {
 		    handleTopLevelWindowMessages(msg.hwnd,msg.message,msg.wParam,msg.lParam);
 			TRACE_M("AppProc -> CONTROL! hWnd = " << msg.hwnd << " message = " << windowsMessageToString(msg.message));
@@ -44,7 +44,7 @@ void ResourceManager::processMessages()
 
 		TRACE_M("AppProc -> DISPATCHED! handle = " << msg.hwnd << " message = " << windowsMessageToString(msg.message));
 		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		DispatchMessageW(&msg);
 	}
 }
 
@@ -66,7 +66,7 @@ LRESULT ResourceManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     }
     
 	TRACE_M("WndProc -> DEFAULT. handle = " << hWnd << " message = " << windowsMessageToString(message));
-	return DefWindowProc(hWnd,message,wParam,lParam);
+	return DefWindowProcW(hWnd,message,wParam,lParam);
 }
 
 void ResourceManager::handleTopLevelWindowMessages(HWND hWnd, UINT message, WPARAM & wParam, LPARAM & lParam)

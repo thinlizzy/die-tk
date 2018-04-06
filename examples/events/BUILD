@@ -8,18 +8,12 @@ cc_library(
 		"//examples/events/model",
 		"//examples/events/view",
 	],
-	copts = [
-		"--std=c++1y",
-	],
 )
 
 cc_binary(
 	name = "events",
 	deps = [
 		":events-lib",
-		"//external:die-tk",
-	],
-	copts = [
-		"--std=c++1y",
+		"//:die-tk",
 	],
 )

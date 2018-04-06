@@ -13,9 +13,7 @@ cc_library(
 		"//:die-tk-base",
 		"//die-tk-image:die-tk-image-base",
 	],
-	copts = [
-		"--std=c++1y",
-	],
+	copts = ["-DBAZEL_FOR_WINDOWS"],
 )
 
 cc_binary(
@@ -23,10 +21,7 @@ cc_binary(
 	data = [":images"],
 	deps = [
 		":imageload-lib",
-		"//external:die-tk-image",
-		"//external:die-tk",
-	],
-	copts = [
-		"--std=c++1y",
+		"//die-tk-image",
+		"//:die-tk",
 	],
 )

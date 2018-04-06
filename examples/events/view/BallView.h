@@ -1,7 +1,7 @@
 #ifndef BALLVIEW_H_
 #define BALLVIEW_H_
 
-#include "src/die-tk.h"
+#include "die-tk.h"
 #include "../model/Ball.h"
 
 class BallView {

@@ -1,7 +1,7 @@
-// a random retarded example with some events and raw image buffer that I am not sure if it still works properly
+// a random dumb example with some events and raw image buffer that I am not sure if it still works properly
 
-#include <die-tk.h>
 #include <iostream>
+#include "die-tk.h"
 using namespace std;
 using namespace tk;
 
@@ -51,8 +51,8 @@ int main()
     auto imgRgb2 = image::create(image::Params(image::Type::RGB,WDims(12,12),rgbbuffer2));
 
     bool big = false;
-	Window window(WindowParams("testex").dims(200,100));
-	Window window2(WindowParams("draw").dims(400,400));
+	Window window(WindowParams("testex").dims({200,100}));
+	Window window2(WindowParams("draw").dims({400,400}));
 	bool closed = false;
 	window.onMouseDown([&](MouseEvent e, Point pt) {
 		switch(e.button) {

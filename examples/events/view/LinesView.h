@@ -2,7 +2,7 @@
 #define LINESVIEW_H_
 
 #include <string>
-#include "src/die-tk.h"
+#include "die-tk.h"
 #include "../model/TextLog.h"
 
 class LinesView {

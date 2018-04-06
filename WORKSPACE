@@ -30,44 +30,6 @@ cc_library(
 """,
 )
 
-# bindings for multiplatform
-
-# if linux then
-
-# bind(
-#     name = "die-tk",
-#     actual = "//:die-tk-linux",
-# )
-
-# bind(
-#     name = "die-tk-image",
-#     actual = "//die-tk-image:die-tk-image-linux",
-# )
-
-# bind(
-#     name = "window_system",
-#     actual = "@linux_libs//:x11",
-# )
-
-# else if win32 then
-
-bind(
-    name = "die-tk",
-    actual = "//:die-tk-win32",
-)
-
-bind(
-    name = "die-tk-image",
-    actual = "//die-tk-image:die-tk-image-win32",
-)
-
-bind(
-    name = "window_system",
-    actual = "@win32_libs//:win32",
-)
-
-# end if
-
 # make libimage visible for die-tk-image
 
 # git_repository(
@@ -112,21 +74,3 @@ cc_library(
 )
 """,
 )
-
-# bindings for multiplatform
-
-# if linux then
-
-# bind(
-#     name = "freeimage",
-#     actual = "@linux_freeimage//:freeimage",
-# )
-
-# else if win32 then
-
-bind(
-    name = "freeimage",
-    actual = "@win32_freeimage//:freeimage",
-)
-
-# end if

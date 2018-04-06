@@ -1,5 +1,5 @@
-#include "../src/convert.h"
-#include "../../linux/die-tk-linux.h"
+#include "die-tk-image/convert.h"
+#include "die-tk/linux/die-tk-linux.h"
 #include <vector>
 
 namespace tk {

@@ -4,18 +4,12 @@ cc_library(
 	deps = [
 		"//:die-tk-base",
 	],
-	copts = [
-		"--std=c++1y",
-	],
 )
 
 cc_binary(
 	name = "paintboxes",
 	deps = [
 		":paintboxes-lib",
-		"//external:die-tk",
-	],
-	copts = [
-		"--std=c++1y",
+		"//:die-tk",
 	],
 )

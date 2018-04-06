@@ -57,5 +57,12 @@ cc_library(
 		":die-tk-base",
 		"@linux_libs//:x11",
 	],
-	copts = ["--std=c++1y"],
+)
+
+cc_library(
+	name = "die-tk",
+	deps = select({
+		"@bazel_tools//src/conditions:windows": [":die-tk-win32"],
+		"//conditions:default": [":die-tk-linux"],
+	}),
 )

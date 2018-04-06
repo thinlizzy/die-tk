@@ -3,7 +3,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
 	name = "die-tk-image-base",
 	hdrs = [
-		"src/convert.h",
+		"convert.h",
 	],
 	deps = [
 		"//:die-tk-base",
@@ -31,4 +31,12 @@ cc_library(
 		":die-tk-image-base",
 		"//:die-tk-linux",
 	],
+)
+
+cc_library(
+	name = "die-tk-image",
+	deps = select({
+		"@bazel_tools//src/conditions:windows": [":die-tk-image-win32"],
+		"//conditions:default": [":die-tk-image-linux"],
+	}),
 )

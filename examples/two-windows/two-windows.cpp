@@ -1,5 +1,6 @@
-#include <die-tk.h>
 #include <iostream>
+#include "die-tk.h"
+
 using namespace std;
 using namespace tk;
 
@@ -16,8 +17,8 @@ int main()
 		w1.setDims(getDims(firstWindowWide));
 	};
 
-	Window window(WindowParams("first").start(10,10).dims(200,100));
-	Window window2(WindowParams("second").start(250,10).dims(100,200));
+	Window window(WindowParams("first").start({10,10}).dims({200,100}));
+	Window window2(WindowParams("second").start({250,10}).dims({100,200}));
 	window.onMouseDown([&](MouseEvent e, Point pt) {
 		switch(e.button) {
 			case MouseButton::left: {

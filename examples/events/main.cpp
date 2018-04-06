@@ -1,5 +1,5 @@
 #include <iostream>
-#include "src/die-tk.h"
+#include "die-tk.h"
 #include "model/TextLog.h"
 #include "model/Ball.h"
 #include "model/Painting.h"
