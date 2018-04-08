@@ -11,6 +11,7 @@ cc_library(
 		"die-tk/util/*.cpp",
 	]),
 	hdrs = glob([
+		"die-tk.h",
 		"die-tk/*.h",
 		"die-tk/components/*.h",
 		"die-tk/controls/*.h",
