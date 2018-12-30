@@ -49,6 +49,8 @@ public:
     
 	constexpr Rect move(Point p) const { return Rect(p.x,p.y,p.x+right-left,p.y+bottom-top); }
 
+	constexpr Rect shift(Point p) const { return move(topLeft()+p); }
+
 	constexpr Rect resize(WDims dims) const { return closed(topLeft(),dims); }
 
 	constexpr Rect resizeBottomRight(WDims dims) const { return Rect(right-dims.width+1,bottom-dims.height+1,right,bottom); }
@@ -56,56 +58,32 @@ public:
     constexpr Point posDown(int margin) const { return topLeft().addY(height() + margin); }
     constexpr Point posRight(int margin) const { return topLeft().addX(width() + margin); }
 
-    constexpr Point fitPoint(Point point) const
-    {
+    constexpr Point fitPoint(Point point) const {
     	return Point(
 			std::max(this->left,std::min(this->right,point.x)),
 			std::max(this->top,std::min(this->bottom,point.y)));
     }
 
-    constexpr Rect fitInRect(Rect rect) const
-    {
+    constexpr Rect fitInRect(Rect rect) const {
     	return Rect(
 			this->left >= rect.left ? this->left : rect.left, this->top >= rect.top ? this->top : rect.top,
 			this->right <= rect.right ? this-> right : rect.right, this->bottom <= rect.bottom ? this-> bottom : rect.bottom
     			);
     }
 
-	constexpr bool contains(Rect const & rect) const
-	{
+	constexpr bool contains(Rect const & rect) const {
 		return top <= rect.top && left <= rect.left && bottom >= rect.bottom && right >= rect.right;
 	}
 
-	constexpr bool intersect(Point const & p) const
-	{
-		return left <= p.x && p.x <= right &&
-			top <= p.y && p.y <= bottom;
+	constexpr bool intersect(Point const & p) const	{
+		return left <= p.x && p.x <= right && top <= p.y && p.y <= bottom;
 	}
     
-	bool intersect(Rect const & rect) const
-	{
-		if( left <= rect.left ) {
-			if( right >= rect.left ) {
-				if( top <= rect.top ) {
-					return bottom >= rect.top;
-				} else {
-					return top <= rect.bottom;
-				}
-			}
-		} else {
-			if( left <= rect.right ) {
-				if( top <= rect.top ) {
-					return bottom >= rect.top;
-				} else {
-					return top <= rect.bottom;
-				}
-			}
-		}
-		return false;
+	constexpr bool intersect(Rect const & rect) const {
+		return ! (right < rect.left || left > rect.right || bottom < rect.top || top > rect.bottom);
 	}
 
-	friend bool operator==(Rect const & r1, Rect const & r2)
-	{
+	friend bool operator==(Rect const & r1, Rect const & r2) {
 	    return
             r1.left == r2.left &&
             r1.right == r2.right &&
@@ -113,13 +91,11 @@ public:
             r1.bottom == r2.bottom;
 	}
     
-    friend bool operator!=(Rect const & r1, Rect const & r2)
-    {
+    friend bool operator!=(Rect const & r1, Rect const & r2) {
         return ! (r1 == r2);
     }
 
-	friend std::ostream & operator<<(std::ostream & os, Rect const & rect)
-	{
+	friend std::ostream & operator<<(std::ostream & os, Rect const & rect) {
 	    os << '(' << rect.left << ',' << rect.top << ")-(" << rect.right << ',' << rect.bottom << ')';
 	    return os;
     }
@@ -134,8 +110,7 @@ struct Intersection {
     explicit operator bool() const { return ! dims.empty(); }
 };
 
-inline Intersection getIntersection(Rect const & rect1, Rect const & rect2)
-{
+inline Intersection getIntersection(Rect const & rect1, Rect const & rect2) {
     int l,r,t,b;
     l = std::max(rect1.left,rect2.left);
     r = std::min(rect1.right,rect2.right);
