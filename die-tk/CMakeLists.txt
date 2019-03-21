@@ -14,7 +14,6 @@ add_library(die-tk-base
         portable/Control.hpp
         portable/Surface.hpp
         portable/Window.hpp
-        util/ClonePtr.h
         util/optional.h
         util/optional.hpp
         util/ScopedHandle.h

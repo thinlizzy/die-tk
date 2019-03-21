@@ -10,5 +10,3 @@
 
 #include "die-tk/controls/Image.h"
 #include "die-tk/controls/PaintBox.h"
-
-#include "die-tk/util/ClonePtr.h"

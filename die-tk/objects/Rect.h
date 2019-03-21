@@ -48,13 +48,11 @@ public:
     constexpr Rect add(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
     
 	constexpr Rect move(Point p) const { return Rect(p.x,p.y,p.x+right-left,p.y+bottom-top); }
-
 	constexpr Rect shift(Point p) const { return move(topLeft()+p); }
-
 	constexpr Rect resize(WDims dims) const { return closed(topLeft(),dims); }
-
 	constexpr Rect resizeBottomRight(WDims dims) const { return Rect(right-dims.width+1,bottom-dims.height+1,right,bottom); }
-    
+	constexpr Rect zoom(float s) const { return Rect::closed(topLeft()*s,dims()*s); }
+
     constexpr Point posDown(int margin) const { return topLeft().addY(height() + margin); }
     constexpr Point posRight(int margin) const { return topLeft().addX(width() + margin); }
 
@@ -108,6 +106,7 @@ struct Intersection {
     WDims dims;
     Point point;
     explicit operator bool() const { return ! dims.empty(); }
+    Rect rect() const { return Rect::closed(point,dims); }
 };
 
 inline Intersection getIntersection(Rect const & rect1, Rect const & rect2) {
