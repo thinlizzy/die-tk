@@ -1,4 +1,5 @@
 #define WINVER 0x0500
+
 #include "NativeControlWin32.h"
 #include <winuser.h>
 #include <stdexcept>
@@ -11,34 +12,36 @@
 namespace tk {
 
 ControlCallbackMap<HandlePaint> cbPaint;
-ControlCallbackMap<HandleMouseButton> cbMouseDown,cbMouseUp;
-ControlCallbackMap<HandleMouseMove> cbMouseEnter,cbMouseOver,cbMouseLeave;
-ControlCallbackMap<ProcessKeyEvent> cbKeyDown,cbKeyUp;
+ControlCallbackMap<HandleMouseButton> cbMouseDown, cbMouseUp;
+ControlCallbackMap<HandleMouseMove> cbMouseEnter, cbMouseOver, cbMouseLeave;
+ControlCallbackMap<ProcessKeyEvent> cbKeyDown, cbKeyUp;
 ControlCallbackMap<ProcessKeypress> cbKeypress;
 
-DWORD scrollbarToWinStyle(Scrollbar sb)
-{
+DWORD scrollbarToWinStyle(Scrollbar sb) {
 	switch(sb) {
-		case Scrollbar::both: return WS_HSCROLL | WS_VSCROLL;
-		case Scrollbar::horizontal: return WS_HSCROLL;
-		case Scrollbar::vertical: return WS_VSCROLL;
-		default: return 0;
+		case Scrollbar::both:
+			return WS_HSCROLL | WS_VSCROLL;
+		case Scrollbar::horizontal:
+			return WS_HSCROLL;
+		case Scrollbar::vertical:
+			return WS_VSCROLL;
+		default:
+			return 0;
 	}
 }
 
-Scrollbar getScrollbarStatus(HWND hWnd)
-{
+Scrollbar getScrollbarStatus(HWND hWnd) {
 	int const state_system_invisible = 0x8000; // STATE_SYSTEM_INVISIBLE is not defined...
 
 	Scrollbar sb = Scrollbar::none;
 	SCROLLBARINFO sbi;
 	sbi.cbSize = sizeof(SCROLLBARINFO);
-	if( GetScrollBarInfo(hWnd,OBJID_HSCROLL,&sbi) ) {
+	if( GetScrollBarInfo(hWnd, OBJID_HSCROLL, &sbi)) {
 		if( (sbi.rgstate[0] & state_system_invisible) == 0 ) {
 			sb = Scrollbar::horizontal;
 		}
 	}
-	if( GetScrollBarInfo(hWnd,OBJID_VSCROLL,&sbi) ) {
+	if( GetScrollBarInfo(hWnd, OBJID_VSCROLL, &sbi)) {
 		if( (sbi.rgstate[0] & state_system_invisible) == 0 ) {
 			sb = sb == Scrollbar::none ? Scrollbar::vertical : Scrollbar::both;
 		}
@@ -49,25 +52,23 @@ Scrollbar getScrollbarStatus(HWND hWnd)
 
 NativeControlImpl::NativeControlImpl():
 	cursor(Cursor::defaultCursor),
-	trackingMouse(false)
-{
+	trackingMouse(false) {
 }
 
 // parent.getImpl().hWnd
-NativeControlImpl::NativeControlImpl(HWND parentHwnd, ControlParams const & params, wchar_t const classname[], DWORD style):
-	cursor(params.cursor_)
-{
-	hWnd = CreateWindowW(classname, NULL,
-		WS_CHILD | WS_CLIPSIBLINGS |
-			style |
-			(params.visible_ ? WS_VISIBLE : 0) |
-			scrollbarToWinStyle(params.scrollbar_)
-			,
+NativeControlImpl::NativeControlImpl(
+		HWND parentHwnd, ControlParams const & params, wchar_t const classname[], DWORD style):
+	cursor(params.cursor_) {
+	hWnd = CreateWindowW(
+		classname,
+		NULL,
+		WS_CHILD | WS_CLIPSIBLINGS | style | (params.visible_ ? WS_VISIBLE : 0) | scrollbarToWinStyle(params.scrollbar_),
 		params.start_.x, params.start_.y,
 		params.dims_.width, params.dims_.height,
 		parentHwnd,
 		NULL,
-		GetModuleHandle(NULL), NULL
+		GetModuleHandle(NULL),
+		NULL
 	);
 	if( hWnd == NULL ) {
 		throw std::runtime_error(log::nativeErrorString());
@@ -78,8 +79,7 @@ NativeControlImpl::NativeControlImpl(HWND parentHwnd, ControlParams const & para
 	}
 }
 
-NativeControlImpl::~NativeControlImpl()
-{
+NativeControlImpl::~NativeControlImpl() {
 	removeFromCb(this,cbPaint);
 	removeFromCb(this,cbMouseDown);
 	removeFromCb(this,cbMouseUp);
@@ -91,114 +91,98 @@ NativeControlImpl::~NativeControlImpl()
 	removeFromCb(this,cbKeypress);
 }
 
-Canvas & NativeControlImpl::canvas()
-{
+Canvas & NativeControlImpl::canvas() {
 	canvasImpl.getDC(hWnd);
 	return canvasImpl;
 }
 
-RECT NativeControlImpl::getClientRect() const
-{
+RECT NativeControlImpl::getClientRect() const {
 	RECT rc;
-	GetClientRect(hWnd,&rc);
-	MapWindowPoints(hWnd,GetParent(hWnd),(LPPOINT)&rc,2);
+	GetClientRect(hWnd, &rc);
+	MapWindowPoints(hWnd, GetParent(hWnd), (LPPOINT) &rc, 2);
 	return rc;
 }
 
-Rect NativeControlImpl::rect() const
-{
+Rect NativeControlImpl::rect() const {
 	RECT rc = getClientRect();
 	--rc.right;
 	--rc.bottom;
 	return convertRect(rc);
 }
 
-void NativeControlImpl::setPos(Point pos)
-{
-	SetWindowPos(hWnd,0,pos.x,pos.y,0,0,SWP_NOSIZE | SWP_NOZORDER);
+void NativeControlImpl::setPos(Point pos) {
+	SetWindowPos(hWnd, 0, pos.x, pos.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
-void NativeControlImpl::setDims(WDims dims)
-{
-	SetWindowPos(hWnd,0,0,0,dims.width,dims.height,SWP_NOMOVE | SWP_NOZORDER);
+void NativeControlImpl::setDims(WDims dims) {
+	SetWindowPos(hWnd, 0, 0, 0, dims.width, dims.height, SWP_NOMOVE | SWP_NOZORDER);
 }
 
-void NativeControlImpl::setRect(Rect rect)
-{
-	SetWindowPos(hWnd,0,rect.left,rect.top,rect.dims().width,rect.dims().height,SWP_NOZORDER);
+void NativeControlImpl::setRect(Rect rect) {
+	SetWindowPos(hWnd, 0, rect.left, rect.top, rect.dims().width, rect.dims().height, SWP_NOZORDER);
 }
 
-bool NativeControlImpl::enabled() const
-{
+bool NativeControlImpl::enabled() const {
 	return IsWindowEnabled(hWnd);
 }
 
-void NativeControlImpl::enable()
-{
-	EnableWindow(hWnd,true);
+void NativeControlImpl::enable() {
+	EnableWindow(hWnd, true);
 }
 
-void NativeControlImpl::disable()
-{
-	EnableWindow(hWnd,false);
+void NativeControlImpl::disable() {
+	EnableWindow(hWnd, false);
 }
 
-bool NativeControlImpl::visible() const
-{
+bool NativeControlImpl::visible() const {
 	return IsWindowVisible(hWnd);
 }
 
-void NativeControlImpl::show()
-{
-	ShowWindow(hWnd,SW_SHOW);
+void NativeControlImpl::show() {
+	ShowWindow(hWnd, SW_SHOW);
 }
 
-void NativeControlImpl::hide()
-{
-	ShowWindow(hWnd,SW_HIDE);
+void NativeControlImpl::hide() {
+	ShowWindow(hWnd, SW_HIDE);
 }
 
-void NativeControlImpl::bringToFront()
-{
-	SetWindowPos(hWnd,HWND_TOP,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE);
+void NativeControlImpl::bringToFront() {
+	SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
-void NativeControlImpl::sendToBack()
-{
-	SetWindowPos(hWnd,HWND_BOTTOM,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE);
+void NativeControlImpl::sendToBack() {
+	SetWindowPos(hWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
-void NativeControlImpl::setText(NativeString const & text)
-{
-	SetWindowTextW(hWnd,text.wstr.c_str());
+void NativeControlImpl::setText(NativeString const & text) {
+	SetWindowTextW(hWnd, text.wstr.c_str());
 }
 
-ClipboardType NativeControlImpl::copyToClipboard() const
-{
+ClipboardType NativeControlImpl::copyToClipboard() const {
 	ClipboardType result = ClipboardType::nothing;
 	auto len = GetWindowTextLengthW(hWnd);
 	if( len == 0 ) return result;
 
-	if( ! OpenClipboard(hWnd) ) {
-		log::error("OpenClipboard failed for hWnd ",hWnd);
+	if( !OpenClipboard(hWnd)) {
+		log::error("OpenClipboard failed for hWnd ", hWnd);
 		return result;
 	}
 
-	if( EmptyClipboard() ) {
-		HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, (len+1) * sizeof(wchar_t));
+	if( EmptyClipboard()) {
+		HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, (len + 1) * sizeof(wchar_t));
 		if( hglbCopy != NULL ) {
 			auto lptstrCopy = reinterpret_cast<wchar_t *>(GlobalLock(hglbCopy));
-			GetWindowTextW(hWnd,lptstrCopy,len+1);
+			GetWindowTextW(hWnd, lptstrCopy, len + 1);
 			GlobalUnlock(hglbCopy);
 
-			if( SetClipboardData(CF_UNICODETEXT,hglbCopy) != NULL ) {
+			if( SetClipboardData(CF_UNICODETEXT, hglbCopy) != NULL ) {
 				result = ClipboardType::text;
 			} else {
-				log::error("SetClipboardData failed for hWnd ",hWnd);
+				log::error("SetClipboardData failed for hWnd ", hWnd);
 			}
 		}
 	} else {
-		log::error("EmptyClipboard failed for hWnd ",hWnd);
+		log::error("EmptyClipboard failed for hWnd ", hWnd);
 	}
 
 	CloseClipboard();
@@ -206,76 +190,71 @@ ClipboardType NativeControlImpl::copyToClipboard() const
 }
 
 
-NativeString NativeControlImpl::getText() const
-{
+NativeString NativeControlImpl::getText() const {
 	auto len = GetWindowTextLengthW(hWnd);
 	if( len == 0 ) return NativeString();
 
 	NativeString result;
-	result.wstr.resize(len+1,0);
-	GetWindowTextW(hWnd,&result.wstr[0],len+1);
+	result.wstr.resize(len + 1, 0);
+	GetWindowTextW(hWnd, &result.wstr[0], len + 1);
 	result.wstr.pop_back();
 	return result;
 }
 
-SIZE NativeControlImpl::getTextDims()
-{
+SIZE NativeControlImpl::getTextDims() {
 	auto sdc = getDC();
 	auto text = getText();
 	SIZE size;
-	GetTextExtentPoint32W(sdc.hdc,text.wstr.data(),text.wstr.length(),&size);
+	GetTextExtentPoint32W(sdc.hdc, text.wstr.data(), text.wstr.length(), &size);
 	return size;
 }
 
-void NativeControlImpl::repaint()
-{
-	InvalidateRect(hWnd,0,true);
+void NativeControlImpl::repaint() {
+	InvalidateRect(hWnd, 0, true);
 }
 
-scoped::DC NativeControlImpl::getDC() const
-{
+void NativeControlImpl::invalidate(Rect const & rect) {
+	auto winRect = convertOpenRect(rect);
+	InvalidateRect(hWnd, &winRect, false);
+}
+
+scoped::DC NativeControlImpl::getDC() const {
 	return scoped::DC(hWnd);
 }
 
 // TODO call winapi SetCursor() if mouse is hovering the control
-void NativeControlImpl::setCursor(Cursor cursor)
-{
+void NativeControlImpl::setCursor(Cursor cursor) {
 	this->cursor = cursor;
 }
 
-void NativeControlImpl::setBackground(RGBColor const & color)
-{
+void NativeControlImpl::setBackground(RGBColor const & color) {
 	this->backgroundColor = color;
 	backgroundBrush.reset(CreateSolidBrush(colorWin(backgroundColor)));
 }
 
-Point NativeControlImpl::screenToClient(Point const & point) const
-{
+Point NativeControlImpl::screenToClient(Point const & point) const {
 	auto p = convertPoint(point);
-	ScreenToClient(hWnd,&p);
+	ScreenToClient(hWnd, &p);
 	return convertPoint(p);
 }
 
-HWND NativeControlImpl::getParentHandle() const
-{
+HWND NativeControlImpl::getParentHandle() const {
 	HWND result = GetParent(hWnd);
 	if( result == NULL ) {
-		log::error("getParentHwnd() failed for hWnd ",hWnd);
+		log::error("getParentHwnd() failed for hWnd ", hWnd);
 	}
 	return result;
 }
 
 // TODO add enabled state
-ControlParams NativeControlImpl::getControlData() const
-{
+ControlParams NativeControlImpl::getControlData() const {
 	ControlParams result = ControlParams()
 		.start(rect().topLeft())
 		.dims(rect().dims())
 		.text(getText())
 		.visible(visible())
 		.scrollbar(getScrollbarStatus(hWnd))
-		.cursor(cursor)
-	;
+		.cursor(cursor);
 	if( backgroundBrush ) {
 		result.backgroundColor(backgroundColor);
 	}
@@ -285,57 +264,47 @@ ControlParams NativeControlImpl::getControlData() const
 
 // callbacks & messages
 
-HandleMouseButton NativeControlImpl::onMouseDown(HandleMouseButton callback)
-{
-	return setCallback(this,cbMouseDown,callback);
+HandleMouseButton NativeControlImpl::onMouseDown(HandleMouseButton callback) {
+	return setCallback(this, cbMouseDown, callback);
 }
 
-HandleMouseButton NativeControlImpl::onMouseUp(HandleMouseButton callback)
-{
-	return setCallback(this,cbMouseUp,callback);
+HandleMouseButton NativeControlImpl::onMouseUp(HandleMouseButton callback) {
+	return setCallback(this, cbMouseUp, callback);
 }
 
-HandleMouseMove NativeControlImpl::onMouseEnter(HandleMouseMove callback)
-{
-	return setCallback(this,cbMouseEnter,callback);
+HandleMouseMove NativeControlImpl::onMouseEnter(HandleMouseMove callback) {
+	return setCallback(this, cbMouseEnter, callback);
 }
 
-HandleMouseMove NativeControlImpl::onMouseOver(HandleMouseMove callback)
-{
-	return setCallback(this,cbMouseOver,callback);
+HandleMouseMove NativeControlImpl::onMouseOver(HandleMouseMove callback) {
+	return setCallback(this, cbMouseOver, callback);
 }
 
-HandleMouseMove NativeControlImpl::onMouseLeave(HandleMouseMove callback)
-{
-	return setCallback(this,cbMouseLeave,callback);
+HandleMouseMove NativeControlImpl::onMouseLeave(HandleMouseMove callback) {
+	return setCallback(this, cbMouseLeave, callback);
 }
 
-ProcessKeyEvent NativeControlImpl::onKeyDown(ProcessKeyEvent callback)
-{
-	return setCallback(this,cbKeyDown,callback);
+ProcessKeyEvent NativeControlImpl::onKeyDown(ProcessKeyEvent callback) {
+	return setCallback(this, cbKeyDown, callback);
 }
 
-ProcessKeyEvent NativeControlImpl::onKeyUp(ProcessKeyEvent callback)
-{
-	return setCallback(this,cbKeyUp,callback);
+ProcessKeyEvent NativeControlImpl::onKeyUp(ProcessKeyEvent callback) {
+	return setCallback(this, cbKeyUp, callback);
 }
 
-ProcessKeypress NativeControlImpl::onKeypress(ProcessKeypress callback)
-{
-	return setCallback(this,cbKeypress,callback);
+ProcessKeypress NativeControlImpl::onKeypress(ProcessKeypress callback) {
+	return setCallback(this, cbKeypress, callback);
 }
 
-HandlePaint NativeControlImpl::onPaint(HandlePaint callback)
-{
-	return setCallback(this,cbPaint,callback);
+HandlePaint NativeControlImpl::onPaint(HandlePaint callback) {
+	return setCallback(this, cbPaint, callback);
 }
 
-#define GETCB(mapname,varname) \
-	auto varname = fetchCallback(this,mapname); \
-	if( varname == nullptr ) return optional<LRESULT>();
+#define GETCB(mapname, varname) \
+auto varname = fetchCallback(this,mapname); \
+if( varname == nullptr ) return optional<LRESULT>();
 
-optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wParam, LPARAM & lParam)
-{
+optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wParam, LPARAM & lParam) {
 	optional<LRESULT> result;
 	switch(message) {
 		case WM_SETCURSOR:
@@ -344,7 +313,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 				ResourceManagerSingleton resourceManager;
 				SetCursor(resourceManager->cursors[int(cursor)]);
 			}
-		break;
+			break;
 		case WM_ERASEBKGND:
 			if( backgroundBrush ) {
 				result = 0;
@@ -353,53 +322,57 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 				GetClientRect(hWnd, &rc);
 				FillRect(hdc, &rc, backgroundBrush.get());
 			}
-		break;
+			break;
 
 		case WM_PAINT: {
-			GETCB(cbPaint,on_paint);
+			GETCB(cbPaint, on_paint);
 			scoped::PaintSection sps(hWnd);
 			CanvasImpl canvas(sps.ps.hdc);
 			auto rect = convertRect(sps.ps.rcPaint);
-			on_paint(canvas,rect);
+			on_paint(canvas, rect);
 			return 0;
-		} break;
+		}
+			break;
 
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN: {
-			GETCB(cbKeyDown,on_key_down);
-			WindowKey key = on_key_down(fromWindowsKey(wParam,lParam));
+			GETCB(cbKeyDown, on_key_down);
+			WindowKey key = on_key_down(fromWindowsKey(wParam, lParam));
 			if( key == k_NONE ) return 0;
 
 			wParam = toWindowsKey(key);
-		} break;
+		}
+			break;
 		case WM_SYSKEYUP:
 		case WM_KEYUP: {
-			GETCB(cbKeyUp,on_key_up);
-			WindowKey key = on_key_up(fromWindowsKey(wParam,lParam));
+			GETCB(cbKeyUp, on_key_up);
+			WindowKey key = on_key_up(fromWindowsKey(wParam, lParam));
 			if( key == k_NONE ) return 0;
 
 			wParam = toWindowsKey(key);
-		} break;
+		}
+			break;
 
-		case WM_CHAR:{
-			GETCB(cbKeypress,on_keypress);
+		case WM_CHAR: {
+			GETCB(cbKeypress, on_keypress);
 			char key = on_keypress(wParam);
 			if( key == 0 ) return 0;
 
 			wParam = key;
-		} break;
+		}
+			break;
 
 		case WM_LBUTTONDOWN:
 		case WM_RBUTTONDOWN:
 		case WM_MBUTTONDOWN:
-			return doMouseButton(cbMouseDown,message,wParam,lParam);
+			return doMouseButton(cbMouseDown, message, wParam, lParam);
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
 		case WM_MBUTTONUP:
-			return doMouseButton(cbMouseUp,message,wParam,lParam);
+			return doMouseButton(cbMouseUp, message, wParam, lParam);
 
 		case WM_MOUSEMOVE:
-			if( trackingMouse ) return doMouseMove(cbMouseOver,lParam);
+			if( trackingMouse ) return doMouseMove(cbMouseOver, lParam);
 
 			trackingMouse = true;
 			{
@@ -408,38 +381,36 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 				tme.dwFlags = TME_LEAVE;
 				tme.hwndTrack = hWnd;
 				if( TrackMouseEvent(&tme) == 0 ) {
-					log::error("TrackMouseEvent() failed for hWnd ",hWnd);
+					log::error("TrackMouseEvent() failed for hWnd ", hWnd);
 				}
 			}
-			return doMouseMove(cbMouseEnter,lParam);
+			return doMouseMove(cbMouseEnter, lParam);
 
 		case WM_MOUSELEAVE:
 			trackingMouse = false;
-			return doMouseMove(cbMouseLeave,lParam);
+			return doMouseMove(cbMouseLeave, lParam);
 	}
 	return result;
 }
 
 optional<LRESULT> NativeControlImpl::doMouseButton(
-	ControlCallbackMap<HandleMouseButton> & callbacks, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	GETCB(callbacks,callback);
+	ControlCallbackMap<HandleMouseButton> & callbacks, UINT message, WPARAM wParam, LPARAM lParam) {
+	GETCB(callbacks, callback);
 	auto p = lParamToPoint(lParam);
-	auto mouseEvent = toMouseEvent(message,wParam);
-	callback(mouseEvent,p);
+	auto mouseEvent = toMouseEvent(message, wParam);
+	callback(mouseEvent, p);
 	return 0;
 }
 
-optional<LRESULT> NativeControlImpl::doMouseMove(ControlCallbackMap<HandleMouseMove> & callbacks, LPARAM lParam)
-{
-	GETCB(callbacks,callback);
+optional<LRESULT> NativeControlImpl::doMouseMove(ControlCallbackMap<HandleMouseMove> & callbacks, LPARAM lParam) {
+	GETCB(callbacks, callback);
 	auto p = lParamToPoint(lParam);
 	callback(p);
 	return 0;
 }
 
-optional<LRESULT> NativeControlImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam)
-{
+optional<LRESULT>
+NativeControlImpl::processNotification(UINT message, UINT notification, WPARAM wParam, LPARAM lParam) {
 	return optional<LRESULT>();
 }
 

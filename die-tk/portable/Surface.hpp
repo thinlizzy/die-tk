@@ -1,159 +1,133 @@
 #include "../Surface.h"
 
 namespace tk {
-    
-Rect Surface::rect() const
-{
-    return impl->rect();
+
+Rect Surface::rect() const {
+	return impl->rect();
 }
 
-Surface & Surface::setPos(Point pos)
-{
-    impl->setPos(pos);
-    return *this;
+Surface & Surface::setPos(Point pos) {
+	impl->setPos(pos);
+	return *this;
 }
 
-Surface & Surface::setDims(WDims dims)
-{
-    impl->setDims(dims);
-    return *this;
+Surface & Surface::setDims(WDims dims) {
+	impl->setDims(dims);
+	return *this;
 }
 
-Surface & Surface::setRect(Rect rect)
-{
-    impl->setRect(rect);
-    return *this;
+Surface & Surface::setRect(Rect rect) {
+	impl->setRect(rect);
+	return *this;
 }
 
-void Surface::bringToFront()
-{
-    impl->bringToFront();
+void Surface::bringToFront() {
+	impl->bringToFront();
 }
 
-void Surface::sendToBack()
-{
-    impl->sendToBack();
-}
-    
-bool Surface::enabled() const
-{
-    return impl->enabled();
+void Surface::sendToBack() {
+	impl->sendToBack();
 }
 
-void Surface::enable()
-{
-    impl->enable();
+bool Surface::enabled() const {
+	return impl->enabled();
 }
 
-void Surface::disable()
-{
-    impl->disable();
+void Surface::enable() {
+	impl->enable();
 }
 
-bool Surface::visible() const
-{
-    return impl->visible();
+void Surface::disable() {
+	impl->disable();
 }
 
-void Surface::show()
-{
-    impl->show();
+bool Surface::visible() const {
+	return impl->visible();
 }
 
-void Surface::hide()
-{
-    impl->hide();
+void Surface::show() {
+	impl->show();
 }
 
-Canvas & Surface::canvas()
-{
-    return impl->canvas();
+void Surface::hide() {
+	impl->hide();
 }
 
-void Surface::repaint()
-{
-    impl->repaint();
+Canvas & Surface::canvas() {
+	return impl->canvas();
 }
 
-void Surface::setCursor(Cursor cursor)
-{
-    impl->setCursor(cursor);
+void Surface::repaint() {
+	impl->repaint();
 }
 
-void Surface::setBackground(RGBColor const & color)
-{
-    impl->setBackground(color);
+void Surface::invalidate(Rect const & rect) {
+	impl->invalidate(rect);
 }
 
-Point Surface::screenToClient(Point const & point) const
-{
-    return impl->screenToClient(point);
+void Surface::setCursor(Cursor cursor) {
+	impl->setCursor(cursor);
 }
 
-Surface::operator bool() const
-{
-    return impl.operator bool();
+void Surface::setBackground(RGBColor const & color) {
+	impl->setBackground(color);
 }
 
-NativeString Surface::getText() const
-{
-    return impl->getText();
+Point Surface::screenToClient(Point const & point) const {
+	return impl->screenToClient(point);
 }
 
-Surface & Surface::setText(NativeString const & text)
-{
-    impl->setText(text);
-    return *this;
+Surface::operator bool() const {
+	return impl.operator bool();
 }
 
-ClipboardType Surface::copyToClipboard() const
-{
-    return impl->copyToClipboard();
+NativeString Surface::getText() const {
+	return impl->getText();
 }
 
-HandleMouseButton Surface::onMouseDown(HandleMouseButton callback)
-{
-    return impl->onMouseDown(callback);
+Surface & Surface::setText(NativeString const & text) {
+	impl->setText(text);
+	return *this;
 }
 
-HandleMouseButton Surface::onMouseUp(HandleMouseButton callback)
-{
-    return impl->onMouseUp(callback);
+ClipboardType Surface::copyToClipboard() const {
+	return impl->copyToClipboard();
 }
 
-HandleMouseMove Surface::onMouseEnter(HandleMouseMove callback)
-{
-    return impl->onMouseEnter(callback);
+HandleMouseButton Surface::onMouseDown(HandleMouseButton callback) {
+	return impl->onMouseDown(callback);
 }
 
-HandleMouseMove Surface::onMouseOver(HandleMouseMove callback)
-{
-    return impl->onMouseOver(callback);
+HandleMouseButton Surface::onMouseUp(HandleMouseButton callback) {
+	return impl->onMouseUp(callback);
 }
 
-HandleMouseMove Surface::onMouseLeave(HandleMouseMove callback)
-{
-    return impl->onMouseLeave(callback);
+HandleMouseMove Surface::onMouseEnter(HandleMouseMove callback) {
+	return impl->onMouseEnter(callback);
 }
 
-ProcessKeyEvent Surface::onKeyDown(ProcessKeyEvent callback)
-{
-    return impl->onKeyDown(callback);
+HandleMouseMove Surface::onMouseOver(HandleMouseMove callback) {
+	return impl->onMouseOver(callback);
 }
 
-ProcessKeyEvent Surface::onKeyUp(ProcessKeyEvent callback)
-{
-    return impl->onKeyUp(callback);
+HandleMouseMove Surface::onMouseLeave(HandleMouseMove callback) {
+	return impl->onMouseLeave(callback);
 }
 
-ProcessKeypress Surface::onKeypress(ProcessKeypress callback)
-{
-    return impl->onKeypress(callback);
+ProcessKeyEvent Surface::onKeyDown(ProcessKeyEvent callback) {
+	return impl->onKeyDown(callback);
 }
 
-HandlePaint Surface::onPaint(HandlePaint callback)
-{
-    return impl->onPaint(callback);
+ProcessKeyEvent Surface::onKeyUp(ProcessKeyEvent callback) {
+	return impl->onKeyUp(callback);
+}
+
+ProcessKeypress Surface::onKeypress(ProcessKeypress callback) {
+	return impl->onKeypress(callback);
+}
+
+HandlePaint Surface::onPaint(HandlePaint callback) {
+	return impl->onPaint(callback);
 }
 
 }

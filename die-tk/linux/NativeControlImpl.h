@@ -64,6 +64,7 @@ public:
 
 	virtual Canvas & canvas();
 	void repaint();
+	void invalidate(Rect const & rect);
 
 	void setCursor(Cursor cursor);
 	void setBackground(RGBColor const & color);

@@ -11,8 +11,7 @@ using namespace std;
 using namespace tk;
 
 // the main function acts as a controller
-int main()
-{
+int main() {
 	// -----------------the user can type at the first window---------------------------------------------- //
 
 	// horizontal bounds are not being checked for simplicity and it is left as an exercise for the reader :)
@@ -20,28 +19,28 @@ int main()
 	Window logWindow{WindowParams("log").dims({320,200})};
 
 	TextLog log;
-	LinesView linesView{log,logWindow};
+	LinesView linesView{log, logWindow};
 
 	// key press = write stuff on the screen, like it were a log
 	logWindow.onKeypress([&](char key) {
 		auto status = log.processChar(key);
 		switch(status) {
-		case TextLog::Status::newChar:
-			linesView.drawCharLastLine(key);
-			break;
-		case TextLog::Status::deleteChar:
-			linesView.removeCharLastLine(key);
-			break;
-		case TextLog::Status::newLine:
-			linesView.verifyScroll();
-			break;
+			case TextLog::Status::newChar:
+				linesView.drawCharLastLine(key);
+				break;
+			case TextLog::Status::deleteChar:
+				linesView.removeCharLastLine(key);
+				break;
+			case TextLog::Status::newLine:
+				linesView.verifyScroll();
+				break;
 		}
 		return '\0';
 	});
 
 	// resize = limit to 800,600
 	logWindow.onResize([](WDims newDims) {
-		return newDims.fitInto(WDims(800,600));
+		return newDims.fitInto(WDims(800, 600));
 	});
 	// redraw lines if the height is bigger, scroll if the height is smaller
 	auto lastHeight = logWindow.dims().height;
@@ -63,18 +62,18 @@ int main()
 	// an alternative would be to post user events as they were sync messages in order to have a continuous movement.
 	// this is left as an exercise for the reader :)
 
-	Window gameWindow{WindowParams("game").dims({200,200}).start({300,300})};
+	Window gameWindow{WindowParams("game").dims({200, 200}).start({300, 300})};
 	Ball ball;
 	ball.setLimits(gameWindow.dims());
-	BallView ballView{ball,gameWindow};
+	BallView ballView{ball, gameWindow};
 
 	// key down = start moving the ball in a direction
 	gameWindow.onKeyDown([&](WindowKey key) {
 		auto result = ball.processKey(key);
 		switch(result.status) {
-		case Ball::Status::shift:
-			ballView.moveBall(result.offset);
-			break;
+			case Ball::Status::shift:
+				ballView.moveBall(result.offset);
+				break;
 		}
 		return k_NONE;
 	});
@@ -83,9 +82,9 @@ int main()
 	gameWindow.onKeyUp([&](WindowKey key) {
 		auto result = ball.processKeyRelease(key);
 		switch(result.status) {
-		case Ball::Status::shift:
-			ballView.moveBall(result.offset);
-			break;
+			case Ball::Status::shift:
+				ballView.moveBall(result.offset);
+				break;
 		}
 		return k_NONE;
 	});
@@ -96,12 +95,12 @@ int main()
 
 		auto pos = ball.rect().topLeft();
 		if( newDims.width <= ball.rect().right ) {
-			ball.setRight(newDims.width-1);
+			ball.setRight(newDims.width - 1);
 		}
 		if( newDims.height <= ball.rect().bottom ) {
-			ball.setBottom(newDims.height-1);
+			ball.setBottom(newDims.height - 1);
 		}
-		if( pos != ball.rect().topLeft() ) {
+		if( pos != ball.rect().topLeft()) {
 			ballView.moveBall(ball.rect().topLeft() - pos);
 		}
 	});
@@ -113,9 +112,9 @@ int main()
 
 	// -----------------the user can paint with the mouse at the third window ----------------------------- //
 
-	Window painterWindow{WindowParams("paint").dims({200,200}).start({50,300})};
+	Window painterWindow{WindowParams("paint").dims({200, 200}).start({50, 300})};
 	Painting painting{painterWindow.dims()};
-	PaintingView paintingView{painting,painterWindow};
+	PaintingView paintingView{painting, painterWindow};
 
 	painterWindow.onMouseEnter([&](Point point) {
 		painting.setCrosshair(point);
@@ -125,7 +124,7 @@ int main()
 	painterWindow.onMouseOver([&](Point point) {
 		auto pos = painting.posCrosshair();
 		painting.setCrosshair(point);
-		paintingView.move(pos,point);
+		paintingView.move(pos, point);
 	});
 
 	painterWindow.onMouseDown([&](MouseEvent evt, Point pt) {
@@ -152,7 +151,7 @@ int main()
 
 	// onPaint = redraw correct rect from imagebuf
 	painterWindow.onPaint([&](Canvas & canvas, Rect rect) {
-		paintingView.redraw(canvas,rect);
+		paintingView.redraw(canvas, rect);
 	});
 
 	// TODO image canvas resizing is a little buggy on X11, leaving garbage in the new image
@@ -164,21 +163,30 @@ int main()
 		if( newDims.width > oldPainterDims.width ) {
 			auto rect = painterWindow.rect();
 			rect.left = oldPainterDims.width;
-			paintingView.redraw(painterWindow.canvas(),rect);
+			paintingView.redraw(painterWindow.canvas(), rect);
 		}
 		if( newDims.height > oldPainterDims.height ) {
 			auto rect = painterWindow.rect();
 			rect.top = oldPainterDims.height;
-			paintingView.redraw(painterWindow.canvas(),rect);
+			paintingView.redraw(painterWindow.canvas(), rect);
 		}
 		oldPainterDims = newDims;
 	});
 
 	// exit the app when any of its windows is closed
 	bool open = true;
-	logWindow.onClose([&open]() -> bool { open = false; return true; });
-	gameWindow.onClose([&open]() -> bool { open = false; return true; });
-	painterWindow.onClose([&open]() -> bool { open = false; return true; });
+	logWindow.onClose([&open]() -> bool {
+		open = false;
+		return true;
+	});
+	gameWindow.onClose([&open]() -> bool {
+		open = false;
+		return true;
+	});
+	painterWindow.onClose([&open]() -> bool {
+		open = false;
+		return true;
+	});
 
 	// simple message loop that most applications will use
 
