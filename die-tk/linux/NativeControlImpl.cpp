@@ -131,7 +131,7 @@ void NativeControlImpl::repaint() {
 }
 
 void NativeControlImpl::invalidate(Rect const & rect) {
-	XClearArea(resourceManager->dpy, windowId, rect.left, rect.top, rect.dims().width, rect().dims().height, True);
+	XClearArea(resourceManager->dpy, windowId, rect.left, rect.top, rect.dims().width, rect.dims().height, True);
 }
 
 void NativeControlImpl::setCursor(Cursor cursor) {
