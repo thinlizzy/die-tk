@@ -48,6 +48,8 @@ public:
     constexpr Rect add(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
     
 	constexpr Rect move(Point p) const { return Rect(p.x,p.y,p.x+right-left,p.y+bottom-top); }
+	constexpr Rect moveLeft(int x) const { return move(Point(x,this->top)); }
+	constexpr Rect moveTop(int y) const { return move(Point(this->left,y)); }
 	constexpr Rect shift(Point p) const { return move(topLeft()+p); }
 	constexpr Rect resize(WDims dims) const { return closed(topLeft(),dims); }
 	constexpr Rect resizeBottomRight(WDims dims) const { return Rect(right-dims.width+1,bottom-dims.height+1,right,bottom); }
