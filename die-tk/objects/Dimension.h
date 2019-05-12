@@ -87,14 +87,12 @@ template<typename T>
 bool operator!=(basic_dimension<T> const & d1, basic_dimension<T> const & d2);
 
 template<typename T>
-constexpr basic_dimension<T> operator+(basic_dimension<T> const & d1, basic_dimension<T> const & d2)
-{
+constexpr basic_dimension<T> operator+(basic_dimension<T> const & d1, basic_dimension<T> const & d2) {
     return basic_dimension<T>(d1.width+d2.width,d1.height+d2.height);
 }
 
 template<typename T>
-constexpr basic_dimension<T> operator-(basic_dimension<T> const & d1, basic_dimension<T> const & d2)
-{
+constexpr basic_dimension<T> operator-(basic_dimension<T> const & d1, basic_dimension<T> const & d2) {
     return basic_dimension<T>(d1.width-d2.width,d1.height-d2.height);
 }
 
