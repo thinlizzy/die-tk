@@ -78,6 +78,9 @@ WindowImpl::WindowImpl(WindowParams const & params):
 	if( params.initialState & ws_minimized ) {
 		XIconifyWindow(resourceManager->dpy, windowId, DefaultScreen(resourceManager->dpy));
 	}
+	if( params.initialState & ws_noresize ) {
+		// TODO prevent resizing the window
+	}
 	// sometimes XCreateWindow won't set an initial position
 	if( ! params.isDefaultPos()
 			&& (params.initialState & (ws_maximized | ws_minimized)) == 0 ) {
@@ -214,7 +217,7 @@ void WindowImpl::processMessage(XEvent & e)
 				break;
 			}
 			auto & data = e.xconfigure;
-			WDims newDims(data.width,data.height);
+			auto newDims = WDims(data.width,data.height);
 
 			if( newDims != cachedDims ) {
 				cachedDims = newDims;

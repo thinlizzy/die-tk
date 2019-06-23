@@ -6,19 +6,18 @@ using namespace tk;
 
 WDims getDims(bool big) { return big ? WDims(200,100) : WDims(100,200); }
 
-int main()
-{
+int main() {
 	Application app;
 
-	bool firstWindowWide = true;
+	auto firstWindowWide = true;
 	auto swapWindowSizes = [&firstWindowWide](Window & w1, Window & w2) {
 		w2.setDims(getDims(firstWindowWide));
 		firstWindowWide = ! firstWindowWide;
 		w1.setDims(getDims(firstWindowWide));
 	};
 
-	Window window(WindowParams("first").start({10,10}).dims({200,100}));
-	Window window2(WindowParams("second").start({250,10}).dims({100,200}));
+	auto window = Window(WindowParams("first").start({10,10}).dims({200,100}));
+	auto window2 = Window(WindowParams("second").start({250,10}).dims({100,200}).addState(ws_noresize));
 	window.onMouseDown([&](MouseEvent e, Point pt) {
 		switch(e.button) {
 			case MouseButton::left: {
@@ -45,7 +44,7 @@ int main()
 		}
 	});
 
-	bool open = true;
+	auto open = true;
 	auto closeFn = [&open]() -> bool { open = false; return true; };
 	window.onClose(closeFn);
 	window2.onClose(closeFn);
@@ -53,11 +52,6 @@ int main()
 	window.onResize([](WDims d) -> WDims {
 		if( d.width > 200 ) d.width = 200;
 		if( d.height > 400 ) d.height = 400;
-		return d;
-	});
-	window2.onResize([](WDims d) -> WDims {
-		if( d.width < 100 ) d.width = 100;
-		if( d.height < 100 ) d.height = 100;
 		return d;
 	});
 

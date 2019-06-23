@@ -3,7 +3,12 @@
 
 namespace tk {
 
-enum WindowState { ws_visible=2, ws_minimized=4, ws_maximized=8, };
+enum WindowState: unsigned {
+	ws_visible=2,
+	ws_minimized=4,
+	ws_maximized=8,
+	ws_noresize=16,
+};
 
 enum class Cursor {
     defaultCursor = -1,

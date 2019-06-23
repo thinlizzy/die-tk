@@ -17,7 +17,7 @@ public:
 	Point start_;
 	WDims dims_;
     optional<RGBColor> backgroundColor_;
-	int initialState;
+	unsigned initialState;
 
 	static inline Point defaultPos() { int min = std::numeric_limits<int>::min(); return Point(min,min); }
 	static inline WDims defaultDims() { int min = std::numeric_limits<int>::min(); return WDims(min,min); }
@@ -36,7 +36,7 @@ public:
 
 	WindowParams & addState(WindowState value) { initialState |= value; return *this; }
 	WindowParams & removeState(WindowState value) { initialState &= ~value; return *this; }
-	WindowParams & states(int value) { initialState = value; return *this; }
+	WindowParams & states(unsigned value) { initialState = value; return *this; }
 
 	bool isDefaultPos() const { return start_ == WindowParams::defaultPos(); }
 	bool isDefaultDims() const { return dims_ == WindowParams::defaultDims(); }

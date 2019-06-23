@@ -43,9 +43,9 @@ WindowClass WindowImpl::windowClass;
 
 
 
-DWORD stateToWinStyle(int state)
-{
-	DWORD result = 0;
+DWORD stateToWinStyle(unsigned state) {
+	// WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW
+	DWORD result = WS_OVERLAPPEDWINDOW;
 	if( state & ws_visible ) {
         result |= WS_VISIBLE;
     }
@@ -54,6 +54,9 @@ DWORD stateToWinStyle(int state)
 	} else
 	if( state & ws_maximized ) {
 		result |= WS_MAXIMIZE;
+	}
+	if( state & ws_noresize ) {
+		result ^= WS_SIZEBOX;
 	}
 
 	return result;
@@ -85,13 +88,11 @@ WindowImpl::WindowImpl(WindowParams const & params):
 	}
 }
 
-HWND WindowImpl::createWindow(Point pos, WDims dims, wchar_t const windowname[], wchar_t const classname[], DWORD style)
-{
+HWND WindowImpl::createWindow(Point pos, WDims dims, wchar_t const windowname[], wchar_t const classname[], DWORD style) {
 	HWND hWnd = CreateWindowExW(
 		WS_EX_APPWINDOW,
 		classname, windowname,
-//		WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | style,
-		WS_OVERLAPPEDWINDOW | style,
+		style,
 		pos.x, pos.y,
 		dims.width, dims.height,
 		NULL, NULL,

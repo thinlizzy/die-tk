@@ -13,13 +13,13 @@ using namespace tk;
 // the main function acts as a controller
 int main() {
 	// -----------------the user can type at the first window---------------------------------------------- //
-
+	
 	// horizontal bounds are not being checked for simplicity and it is left as an exercise for the reader :)
+	
+	auto logWindow = Window(WindowParams("log").dims({320,200}));
 
-	Window logWindow{WindowParams("log").dims({320,200})};
-
-	TextLog log;
-	LinesView linesView{log, logWindow};
+	auto log = TextLog();
+	auto linesView = LinesView(log, logWindow);
 
 	// key press = write stuff on the screen, like it were a log
 	logWindow.onKeypress([&](char key) {
@@ -62,10 +62,10 @@ int main() {
 	// an alternative would be to post user events as they were sync messages in order to have a continuous movement.
 	// this is left as an exercise for the reader :)
 
-	Window gameWindow{WindowParams("game").dims({200, 200}).start({300, 300})};
-	Ball ball;
+	auto gameWindow = Window(WindowParams("game").dims({200, 200}).start({300, 300}));
+	auto ball = Ball();
 	ball.setLimits(gameWindow.dims());
-	BallView ballView{ball, gameWindow};
+	auto ballView = BallView(ball, gameWindow);
 
 	// key down = start moving the ball in a direction
 	gameWindow.onKeyDown([&](WindowKey key) {
@@ -112,9 +112,9 @@ int main() {
 
 	// -----------------the user can paint with the mouse at the third window ----------------------------- //
 
-	Window painterWindow{WindowParams("paint").dims({200, 200}).start({50, 300})};
-	Painting painting{painterWindow.dims()};
-	PaintingView paintingView{painting, painterWindow};
+	auto painterWindow = Window(WindowParams("paint").dims({200, 200}).start({50, 300}));
+	auto painting = Painting(painterWindow.dims());
+	auto paintingView = PaintingView(painting,painterWindow);
 
 	painterWindow.onMouseEnter([&](Point point) {
 		painting.setCrosshair(point);
@@ -157,7 +157,7 @@ int main() {
 	// TODO image canvas resizing is a little buggy on X11, leaving garbage in the new image
 	// resize canvas if any dimension is greater to the previous one
 	// redraw new rects if window is bigger
-	WDims oldPainterDims = painterWindow.dims();
+	auto oldPainterDims = painterWindow.dims();
 	painterWindow.afterResize([&](WDims newDims) {
 		painting.resize(newDims);
 		if( newDims.width > oldPainterDims.width ) {
@@ -174,7 +174,7 @@ int main() {
 	});
 
 	// exit the app when any of its windows is closed
-	bool open = true;
+	auto open = true;
 	logWindow.onClose([&open]() -> bool {
 		open = false;
 		return true;
