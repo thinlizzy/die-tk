@@ -18,7 +18,9 @@ public:
     NativeString();
     ~NativeString();
     NativeString(NativeString const & other);
+	NativeString(NativeString && other);
     NativeString & operator=(NativeString const & other);
+	NativeString & operator=(NativeString && other);
     NativeString(std::string const & strUTF8);
     NativeString(std::wstring const & strUTF16);
     NativeString(char ch);

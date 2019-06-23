@@ -23,12 +23,11 @@ public:
 	static inline WDims defaultDims() { int min = std::numeric_limits<int>::min(); return WDims(min,min); }
 
 	explicit WindowParams(NativeString text_ = NativeString()):
-		text_(text_),
+		text_(std::move(text_)),
 		start_(defaultPos()),
 		dims_(defaultDims()),
 		initialState(ws_visible)
-	{
-	}
+	{}
 
 	WindowParams & text(NativeString const & value) { text_ = value; return *this; }
 	WindowParams & start(Point value) { start_ = value; return *this; }

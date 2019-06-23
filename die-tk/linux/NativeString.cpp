@@ -58,10 +58,18 @@ NativeString::NativeString(NativeString const & other):
     str(other.str)
 {}
 
-NativeString & NativeString::operator=(NativeString const & other)
-{
+NativeString::NativeString(NativeString && other):
+	str(std::move(other.str))
+{}
+
+NativeString & NativeString::operator=(NativeString const & other) {
     str = other.str;
     return *this;
+}
+
+NativeString & NativeString::operator=(NativeString && other) {
+	str = std::move(other.str);
+	return *this;
 }
 
 NativeString::NativeString(std::string const & strUTF8):
