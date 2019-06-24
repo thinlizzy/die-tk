@@ -16,7 +16,7 @@ typedef std::vector<Point> Points;
 
 class Canvas {
 public:
-	virtual ~Canvas() {}
+	virtual ~Canvas() = default;
 
 	virtual void translate(Point p) = 0;
 	virtual void clearTranslate() = 0;
@@ -29,6 +29,7 @@ public:
 
 	virtual void rectangle(Rect const & rect, Pen const & pen) = 0;
 	virtual void fillRect(Rect const & openrect, Brush const & brush) = 0;
+	virtual void roundRect(Rect const & openrect, Brush const & brush, WDims ellipseDims) = 0;
 
 	virtual void drawText(Point p, NativeString const & text, RGBColor const & color) = 0;
 	virtual void drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor) = 0;

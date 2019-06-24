@@ -35,8 +35,8 @@ int main() {
 		switch(e.button) {
 			case MouseButton::left:
 				swapWindowSizes(window,window2);
-				app.processMessages(); // makes setDims to execute now, before drawing the poly
-				window2.canvas().fillRect(Rect::closed(Point(10,10),WDims(80,80)),RGBColor(180,180,0));
+				app.processMessages(); // makes setDims to execute now, before drawing the rect
+				window2.canvas().roundRect(Rect::closed(Point(10,10),WDims(70,80)),RGBColor(180,180,0),WDims(10,20));
 				break;
 			case MouseButton::right:
 				swapWindowSizes(window,window2);

@@ -17,6 +17,7 @@ class NullCanvas: public Canvas {
 
 	void rectangle(Rect const & rect, Pen const & pen) override {}
 	void fillRect(Rect const & openrect, Brush const & brush) override {}
+	void roundRect(Rect const & openrect, Brush const & brush, WDims ellipseDims) override {}
 
 	void drawText(Point p, NativeString const & text, RGBColor const & color) override {}
 	void drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor) override {}

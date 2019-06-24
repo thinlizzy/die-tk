@@ -26,18 +26,15 @@ CanvasImpl::CanvasImpl(CanvasImpl && temp):
 	temp.dc = 0;
 }
 
-CanvasImpl::~CanvasImpl()
-{
+CanvasImpl::~CanvasImpl() {
     restoreObjects();
 }
 
-HDC CanvasImpl::getHDC() const
-{
+HDC CanvasImpl::getHDC() const {
     return dc;
 }
 
-void CanvasImpl::restoreObjects()
-{
+void CanvasImpl::restoreObjects() {
 	if( dc == 0 ) return;
 
     if( hpenOrig != 0 ) {
@@ -53,8 +50,7 @@ void CanvasImpl::restoreObjects()
 }
 
 
-void CanvasImpl::setPen(Pen const & pen)
-{
+void CanvasImpl::setPen(Pen const & pen) {
 	HPEN hpen = CreatePen(convertPenStyle(pen.style),pen.width,colorWin(pen.color));
 	HPEN hpenold = (HPEN) SelectObject(dc,hpen);
 	if( hpenOrig == 0 ) {
@@ -65,8 +61,7 @@ void CanvasImpl::setPen(Pen const & pen)
 }
 
 // TODO this function will be used in the future for operations than need a selected HBRUSH
-void CanvasImpl::setBrush(Brush const & brush)
-{
+void CanvasImpl::setBrush(Brush const & brush) {
 	HBRUSH hbrush = CreateSolidBrush(colorWin(brush.color));
 	HBRUSH hbrushold = (HBRUSH) SelectObject(dc,hbrush);
 	if( hbrushOrig == 0 ) {
@@ -76,42 +71,35 @@ void CanvasImpl::setBrush(Brush const & brush)
 	}
 }
 
-void CanvasImpl::addClipRect(Rect const & openrect)
-{
+void CanvasImpl::addClipRect(Rect const & openrect) {
 	IntersectClipRect(dc,openrect.left,openrect.top,openrect.right,openrect.bottom);
 }
 
-void CanvasImpl::clearClipping()
-{
+void CanvasImpl::clearClipping() {
 	SelectClipRgn(dc,NULL);
 }
 
-void CanvasImpl::translate(Point p)
-{
+void CanvasImpl::translate(Point p) {
 	SetViewportOrgEx(dc,p.x,p.y,0);
 }
 
-void CanvasImpl::clearTranslate()
-{
+void CanvasImpl::clearTranslate() {
 	SetViewportOrgEx(dc,0,0,0);
 }
 
 
 
-void CanvasImpl::plot(Point p1, RGBColor const & color)
-{
+void CanvasImpl::plot(Point p1, RGBColor const & color) {
 	SetPixel(dc,p1.x,p1.y,colorWin(color));
 }
 
-void CanvasImpl::drawLine(Point p1, Point p2, Pen const & pen)
-{
+void CanvasImpl::drawLine(Point p1, Point p2, Pen const & pen) {
     setPen(pen);
 	MoveToEx(dc,p1.x,p1.y,NULL);
 	LineTo(dc,p2.x,p2.y);
 }
 
-void CanvasImpl::rectangle(Rect const & rect, Pen const & pen)
-{
+void CanvasImpl::rectangle(Rect const & rect, Pen const & pen) {
     setPen(pen);
 	MoveToEx(dc,rect.left,rect.top,NULL);
 	LineTo(dc,rect.right,rect.top);
@@ -120,13 +108,17 @@ void CanvasImpl::rectangle(Rect const & rect, Pen const & pen)
 	LineTo(dc,rect.left,rect.top);
 }
 
-void CanvasImpl::fillRect(Rect const & rect, Brush const & brush)
-{
+void CanvasImpl::fillRect(Rect const & rect, Brush const & brush) {
     auto cv = convertOpenRect(rect);
     scoped::Brush hbrush = CreateSolidBrush(colorWin(brush.color));
     FillRect(dc,&cv,hbrush.get());
 }
 //     HBRUSH hbrush = reinterpret_cast<HBRUSH>(GetCurrentObject(dc,OBJ_BRUSH));
+
+void CanvasImpl::roundRect(Rect const & rect, Brush const & brush, WDims ellipseDims) {
+	setBrush(brush);
+	RoundRect(dc,rect.left,rect.top,rect.right,rect.bottom,ellipseDims.width,ellipseDims.height);
+}
 
 POINT makeWindowsPointFromGuiPoint(Point point)
 {
