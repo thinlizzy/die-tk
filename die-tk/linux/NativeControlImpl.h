@@ -41,8 +41,9 @@ public:
 	::Window getWindowId() const { return windowId; }
 
 	void setPos(Point pos);
-	void setDims(WDims dims);
-	void setRect(Rect rect);
+
+	virtual void setDims(WDims dims);
+	virtual void setRect(Rect rect);
 
 	virtual Rect rect() const;
 

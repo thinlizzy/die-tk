@@ -1,8 +1,8 @@
 #ifndef WINDOWIMPLX11_H_DIE_TK_LINUX_DIEGO_2014_SEP_02
 #define WINDOWIMPLX11_H_DIE_TK_LINUX_DIEGO_2014_SEP_02
 
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 #include "NativeControlImpl.h"
 #include "../WindowParams.h"
 
@@ -27,6 +27,9 @@ public:
 	NativeString getText() const override;
 	void setText(NativeString const & text) override;
 
+	void setDims(WDims dims) override;
+	void setRect(Rect rect) override;
+
 	Rect rect() const override;
 
 	void processMessage(XEvent & e) override;
@@ -41,6 +44,8 @@ private:
 	bool maximized() const;
 	WDims cachedDims;
 	int ignoreConfigureNotify = 0;
+	bool manualResizing = true;
+	optional<WDims> fixedDimensions;
 };
 
 }

@@ -11,8 +11,7 @@ namespace {
 
 tk::ResourceManagerSingleton resourceManager;
 
-::Window createWindow(tk::WindowParams const & params)
-{
+::Window createWindow(tk::WindowParams const & params) {
 	int x,y;
 	tk::WDims dims;
 	if( params.isDefaultPos() ) {
@@ -28,6 +27,25 @@ tk::ResourceManagerSingleton resourceManager;
 	}
 	return resourceManager->createWindow(x,y,dims.width,dims.height,resourceManager->root());
 }
+
+//struct MwmHints {
+//    unsigned long flags;
+//    unsigned long functions;
+//    unsigned long decorations;
+//    long input_mode;
+//    unsigned long status;
+//};
+//enum {
+//    MWM_HINTS_FUNCTIONS = (1L << 0),
+//    MWM_HINTS_DECORATIONS =  (1L << 1),
+//
+//    MWM_FUNC_ALL = (1L << 0),
+//    MWM_FUNC_RESIZE = (1L << 1),
+//    MWM_FUNC_MOVE = (1L << 2),
+//    MWM_FUNC_MINIMIZE = (1L << 3),
+//    MWM_FUNC_MAXIMIZE = (1L << 4),
+//    MWM_FUNC_CLOSE = (1L << 5)
+//};
 
 }
 
@@ -79,7 +97,13 @@ WindowImpl::WindowImpl(WindowParams const & params):
 		XIconifyWindow(resourceManager->dpy, windowId, DefaultScreen(resourceManager->dpy));
 	}
 	if( params.initialState & ws_noresize ) {
-		// TODO prevent resizing the window
+		fixedDimensions = params.dims_;
+		// MOTIF sucks balls
+//		auto hints = MwmHints{};
+//		hints.flags = MWM_HINTS_FUNCTIONS;
+//		hints.functions = MWM_FUNC_MOVE | MWM_FUNC_MINIMIZE | MWM_FUNC_MAXIMIZE | MWM_FUNC_CLOSE;
+//		auto wm = XInternAtom(resourceManager->dpy, "_MOTIF_WM_HINTS", False);
+//		XChangeProperty(resourceManager->dpy, windowId, wm, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char *>(&hints), 5);
 	}
 	// sometimes XCreateWindow won't set an initial position
 	if( ! params.isDefaultPos()
@@ -88,8 +112,7 @@ WindowImpl::WindowImpl(WindowParams const & params):
 	}
 }
 
-WindowImpl::~WindowImpl()
-{
+WindowImpl::~WindowImpl() {
     removeFromCb(this,cbClose);
     removeFromCb(this,cbResize);
     removeFromCb(this,cbUserEvent);
@@ -97,8 +120,7 @@ WindowImpl::~WindowImpl()
 	XDestroyWindow(resourceManager->dpy, windowId);
 }
 
-int WindowImpl::state() const
-{
+int WindowImpl::state() const {
 	int result = 0;
 	if( visible() ) result |= ws_visible;
 
@@ -122,22 +144,19 @@ int WindowImpl::state() const
 	return result;
 }
 
-void WindowImpl::setBorders(bool value)
-{
+void WindowImpl::setBorders(bool value) {
 	XSetWindowAttributes attr;
 	attr.override_redirect = value ? False : True;
 	XChangeWindowAttributes(resourceManager->dpy, windowId, CWOverrideRedirect, &attr);
 }
 
-void WindowImpl::registerControl(std::shared_ptr<NativeControlImpl> control)
-{
+void WindowImpl::registerControl(std::shared_ptr<NativeControlImpl> control) {
 	controls[control->windowId] = control;
 	ResourceManagerSingleton resourceManager;
 	resourceManager->registerControl(control);
 }
 
-void WindowImpl::unregisterControl(std::shared_ptr<NativeControlImpl> control)
-{
+void WindowImpl::unregisterControl(std::shared_ptr<NativeControlImpl> control) {
     if( controls.erase(control->windowId) > 0 ) {
     	ResourceManagerSingleton resourceManager;
     	resourceManager->unregisterControl(control);
@@ -145,8 +164,7 @@ void WindowImpl::unregisterControl(std::shared_ptr<NativeControlImpl> control)
     }
 }
 
-NativeString WindowImpl::getText() const
-{
+NativeString WindowImpl::getText() const {
 	char * windowName;
 	XFetchName(resourceManager->dpy, windowId, &windowName);
 	if( windowName == nullptr ) return {};
@@ -157,13 +175,23 @@ NativeString WindowImpl::getText() const
 	return result;
 }
 
-void WindowImpl::setText(NativeString const & text)
-{
+void WindowImpl::setText(NativeString const & text) {
 	XStoreName(resourceManager->dpy, windowId, text.str.c_str());
 }
 
-Rect WindowImpl::rect() const
-{
+void WindowImpl::setDims(WDims dims) {
+	manualResizing = true;
+	if( fixedDimensions ) fixedDimensions = dims;
+	NativeControlImpl::setDims(dims);
+}
+
+void WindowImpl::setRect(Rect rect) {
+	manualResizing = true;
+	if( fixedDimensions ) fixedDimensions = rect.dims();
+	NativeControlImpl::setRect(rect);
+}
+
+Rect WindowImpl::rect() const {
 	int tx,ty;
 	::Window child;
 	XTranslateCoordinates(resourceManager->dpy, windowId, parentWindowId, 0, 0, &tx, &ty, &child);
@@ -174,28 +202,23 @@ Rect WindowImpl::rect() const
 
 // callbacks & messages
 
-AllowOperation WindowImpl::onClose(AllowOperation callback)
-{
+AllowOperation WindowImpl::onClose(AllowOperation callback) {
     return setCallback(this,cbClose,callback);
 }
 
-ProcessResize WindowImpl::onResize(ProcessResize callback)
-{
+ProcessResize WindowImpl::onResize(ProcessResize callback) {
     return setCallback(this,cbResize,callback);
 }
 
-HandleResize WindowImpl::afterResize(HandleResize callback)
-{
+HandleResize WindowImpl::afterResize(HandleResize callback) {
     return setCallback(this,cbAfterResize,callback);
 }
 
-HandleEvent WindowImpl::onUserEvent(HandleEvent callback)
-{
+HandleEvent WindowImpl::onUserEvent(HandleEvent callback) {
     return setCallback(this,cbUserEvent,callback);
 }
 
-void WindowImpl::processMessage(XEvent & e)
-{
+void WindowImpl::processMessage(XEvent & e) {
 	//log::info("window ",e.xany.window," got event ",xEventToStr(e.type));
 
 	switch(e.type) {
@@ -216,9 +239,19 @@ void WindowImpl::processMessage(XEvent & e)
 				--ignoreConfigureNotify;
 				break;
 			}
+
 			auto & data = e.xconfigure;
 			auto newDims = WDims(data.width,data.height);
 
+			// log::info("ConfigureNotify newDims ",newDims," manual resizing = ",manualResizing);
+
+			if( !manualResizing && fixedDimensions ) {
+				if( *fixedDimensions != newDims ) {
+					// log::info("ConfigureNotify newDims ",newDims," resizing back to ",*fixedDimensions);
+					// restore to the fixed set of dimensions
+					setDims(*fixedDimensions);
+				}
+			} else
 			if( newDims != cachedDims ) {
 				cachedDims = newDims;
 				auto resNewDims = findExec(this,cbResize,newDims);
@@ -234,6 +267,10 @@ void WindowImpl::processMessage(XEvent & e)
 					executeCallback(this, cbAfterResize, newDims);
 				}
 			}
+
+			if( manualResizing ) {
+				manualResizing = false;
+			}
 		} break;
 
 		default:
@@ -241,14 +278,12 @@ void WindowImpl::processMessage(XEvent & e)
 	}
 }
 
-bool WindowImpl::maximized() const
-{
-	Property p{windowId,XInternAtom(resourceManager->dpy,"_NET_WM_STATE", False)};
+bool WindowImpl::maximized() const {
+	Property p{ windowId, XInternAtom(resourceManager->dpy,"_NET_WM_STATE",False) };
 	return p.hasItem("_NET_WM_STATE_MAXIMIZED_HORZ");   // it will have VERT as well
 }
 
-void WindowImpl::maximize(bool yes)
-{
+void WindowImpl::maximize(bool yes) {
 	XEvent xev{};
 	xev.type = ClientMessage;
 	xev.xclient.window = windowId;
@@ -257,8 +292,7 @@ void WindowImpl::maximize(bool yes)
 	xev.xclient.data.l[0] = yes ? 1: 0;
 	xev.xclient.data.l[1] = XInternAtom(resourceManager->dpy,"_NET_WM_STATE_MAXIMIZED_HORZ", False);
 	xev.xclient.data.l[2] = XInternAtom(resourceManager->dpy,"_NET_WM_STATE_MAXIMIZED_VERT", False);
-	XSendEvent(resourceManager->dpy, resourceManager->root(),
-		False, SubstructureNotifyMask, &xev);
+	XSendEvent(resourceManager->dpy, resourceManager->root(), False, SubstructureNotifyMask, &xev);
 }
 
 }
