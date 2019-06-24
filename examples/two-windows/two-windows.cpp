@@ -22,9 +22,6 @@ int main() {
 		switch(e.button) {
 			case MouseButton::left: {
 				swapWindowSizes(window,window2);
-				app.processMessages(); // makes setDims to execute now, before drawing the poly
-				Points points = { {40,10}, {80,40}, {40,80}, {10,40}, };
-				window.canvas().drawPoly(points,RGBColor(0,180,0));
 			} break;
 			case MouseButton::right:
 				swapWindowSizes(window,window2);
@@ -35,13 +32,18 @@ int main() {
 		switch(e.button) {
 			case MouseButton::left:
 				swapWindowSizes(window,window2);
-				app.processMessages(); // makes setDims to execute now, before drawing the rect
-				window2.canvas().roundRect(Rect::closed(Point(10,10),WDims(70,80)),RGBColor(180,180,0),WDims(10,20));
 				break;
 			case MouseButton::right:
 				swapWindowSizes(window,window2);
 				break;
 		}
+	});
+	window.onPaint([](Canvas & canvas, Rect rect) {
+		Points points = { {40,10}, {80,40}, {40,80}, {10,40}, };
+		canvas.drawPoly(points,RGBColor(0,180,0));
+	});
+	window2.onPaint([](Canvas & canvas, Rect rect) {
+		canvas.roundRect(Rect::closed(Point(10,10),WDims(70,80)),RGBColor(180,180,0),WDims(10,20));
 	});
 
 	auto open = true;

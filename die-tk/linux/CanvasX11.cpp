@@ -205,16 +205,31 @@ void CanvasX11::drawPoly(const Points & polygon, const Pen & pen)
 	XDrawLines(resourceManager->dpy,drawable,gc,&points[0],polygon.size()+1,CoordModeOrigin);
 }
 
-void CanvasX11::rectangle(const Rect & rect, const Pen & pen)
-{
+void CanvasX11::rectangle(Rect const & rect, const Pen & pen) {
 	setPen(pen);
 	XDrawRectangle(resourceManager->dpy,drawable,gc,rect.left,rect.top,rect.width(),rect.height());
 }
 
-void CanvasX11::fillRect(const Rect & openrect, const Brush & brush)
-{
+void CanvasX11::fillRect(Rect const & openrect, const Brush & brush) {
 	setBrush(brush);
 	XFillRectangle(resourceManager->dpy,drawable,gc,openrect.left,openrect.top,openrect.width(),openrect.height());
+}
+
+void CanvasX11::roundRect(Rect const & openrect, Brush const & brush, WDims ellipseDims) {
+	setBrush(brush);
+	XArc arcs[] = {
+		{openrect.right-ellipseDims.width,openrect.top,ellipseDims.width,ellipseDims.height,0*64,90*64},
+		{openrect.left,openrect.top,ellipseDims.width,ellipseDims.height,90*64,90*64},
+		{openrect.left,openrect.bottom-ellipseDims.height,ellipseDims.width,ellipseDims.height,180*64,90*64},
+		{openrect.right-ellipseDims.width,openrect.bottom-ellipseDims.height,ellipseDims.width,ellipseDims.height,270*64,90*64},
+	};
+	XFillArcs(resourceManager->dpy,drawable,gc,arcs,4);
+	auto rectOffs = ellipseDims/2;
+	XRectangle rectangles[] = {
+		{openrect.left+rectOffs.width,openrect.top,openrect.width()-ellipseDims.width,openrect.height()},
+		{openrect.left,openrect.top+rectOffs.height,openrect.width(),openrect.height()-ellipseDims.height},
+	};
+	XFillRectangles(resourceManager->dpy,drawable,gc,rectangles,2);
 }
 
 void CanvasX11::drawText(Point p, NativeString const & text, RGBColor const & color)
