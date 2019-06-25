@@ -115,9 +115,10 @@ void CanvasImpl::fillRect(Rect const & rect, Brush const & brush) {
 }
 //     HBRUSH hbrush = reinterpret_cast<HBRUSH>(GetCurrentObject(dc,OBJ_BRUSH));
 
-void CanvasImpl::roundRect(Rect const & rect, Brush const & brush, WDims ellipseDims) {
+void CanvasImpl::roundRect(Rect const & openrect, WDims ellipseDims, Pen const & pen, Brush const & brush) {
+	setPen(pen);
 	setBrush(brush);
-	RoundRect(dc,rect.left,rect.top,rect.right,rect.bottom,ellipseDims.width,ellipseDims.height);
+	RoundRect(dc,openrect.left,openrect.top,openrect.right,openrect.bottom,ellipseDims.width,ellipseDims.height);
 }
 
 POINT makeWindowsPointFromGuiPoint(Point point)

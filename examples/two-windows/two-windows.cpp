@@ -43,7 +43,7 @@ int main() {
 		canvas.drawPoly(points,RGBColor(0,180,0));
 	});
 	window2.onPaint([](Canvas & canvas, Rect rect) {
-		canvas.roundRect(Rect::closed(Point(10,10),WDims(70,80)),RGBColor(180,180,0),WDims(10,20));
+		canvas.roundRect(Rect::closed(Point(10,10),WDims(70,80)),WDims(10,20),RGBColor(180,180,0),RGBColor(180,180,0));
 	});
 
 	auto open = true;

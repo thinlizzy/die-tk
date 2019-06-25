@@ -30,7 +30,7 @@ public:
 
 	void rectangle(Rect const & rect, Pen const & pen) override;
 	void fillRect(Rect const & openrect, Brush const & brush) override;
-	void roundRect(Rect const & openrect, Brush const & brush, WDims ellipseDims) override;
+	void roundRect(Rect const & openrect, WDims ellipseDims, Pen const & pen, Brush const & brush) override;
 
     // TODO use some sort of caching on pens and brushes
 	void setPen(Pen const & pen);

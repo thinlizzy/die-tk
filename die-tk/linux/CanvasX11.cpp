@@ -215,7 +215,8 @@ void CanvasX11::fillRect(Rect const & openrect, const Brush & brush) {
 	XFillRectangle(resourceManager->dpy,drawable,gc,openrect.left,openrect.top,openrect.width(),openrect.height());
 }
 
-void CanvasX11::roundRect(Rect const & openrect, Brush const & brush, WDims ellipseDims) {
+void CanvasX11::roundRect(Rect const & openrect, WDims ellipseDims, Pen const & pen, Brush const & brush) {
+	setPen(pen);
 	setBrush(brush);
 	XArc arcs[] = {
 		{openrect.right-ellipseDims.width,openrect.top,ellipseDims.width,ellipseDims.height,0*64,90*64},
