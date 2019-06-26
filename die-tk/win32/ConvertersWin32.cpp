@@ -359,13 +359,11 @@ MouseEvent toMouseEvent(UINT message, WPARAM wParam)
 	return result;
 }
 
-COLORREF colorWin(RGBColor const & color)
-{
+COLORREF colorWin(RGBColor const & color) {
 	return RGB(color.r,color.g,color.b);
 }
 
-UINT convertTextAlign(HTextAlign hta, VTextAlign vta)
-{
+UINT convertTextAlign(HTextAlign hta, VTextAlign vta) {
 	UINT format = 0;
 	switch( hta ) {
 		case HTextAlign::left:

@@ -49,6 +49,8 @@ void CanvasImpl::restoreObjects() {
     }
 }
 
+// TODO use stock objects and color instead of creating new pens and brushes
+// see https://docs.microsoft.com/en-us/windows/desktop/gdi/setting-the-pen-or-brush-color
 
 void CanvasImpl::setPen(Pen const & pen) {
 	HPEN hpen = CreatePen(convertPenStyle(pen.style),pen.width,colorWin(pen.color));
