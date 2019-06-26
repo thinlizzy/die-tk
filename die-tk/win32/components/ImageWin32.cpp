@@ -370,6 +370,18 @@ void BitmapAlpha::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
 	bd.unselect();
 }
 
+void BitmapAlpha::replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {
+//	auto bitmap = getBitmap();
+//
+//	auto * p = reinterpret_cast<unsigned char *>(bitmap.bmBits);
+//	for( auto r = 0; r < bitmap.bmHeight; ++r ) {
+//		auto * q = reinterpret_cast<RGBQUAD *>(p + r*bitmap.bmWidthBytes);
+//		for( auto c = 0; c < bitmap.bmWidth; ++c ) {
+//			replacer(q[c]);
+//		}
+//	}
+}
+
 // BitmapPallete
 
 COLORREF transpColor = RGB(254,253,255);

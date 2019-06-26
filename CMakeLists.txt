@@ -11,5 +11,6 @@ target_link_libraries(die-tk die-tk-base die-tk-win)
 add_subdirectory(die-tk)
 add_subdirectory(die-tk-image)
 add_subdirectory(examples/events)
+add_subdirectory(examples/ImageCanvas)
 add_subdirectory(examples/two-windows)
 #add other examples

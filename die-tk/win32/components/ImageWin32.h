@@ -4,6 +4,7 @@
 #include "../../components/Image.h"
 #include "../ScopedObjects.h"
 #include "../CanvasImplWin32.h"
+#include <functional>
 #include <ostream>
 #include <windows.h>
 
@@ -90,6 +91,7 @@ public:
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
     void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+	void replaceAllQuads(std::function<void(RGBQUAD &)> replacer);
 private:
     void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
 };

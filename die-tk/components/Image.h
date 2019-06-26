@@ -26,7 +26,7 @@ public:
     virtual void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) = 0;
 };
 
-typedef std::shared_ptr<Image> Ptr;
+using Ptr = std::shared_ptr<Image>;
 
 Ptr create(Params const & params);
 

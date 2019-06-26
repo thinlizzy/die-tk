@@ -6,6 +6,7 @@
 #include "die-tk/log.h"
 
 #include "die-tk/components/Image.h"
+#include "die-tk/components/ImageCanvas.h"
 #include "die-tk/components/NullImage.h"
 
 #include "die-tk/controls/Image.h"
