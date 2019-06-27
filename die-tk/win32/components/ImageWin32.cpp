@@ -372,6 +372,12 @@ void BitmapAlpha::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
 	bd.unselect();
 }
 
+// workaround to skip GdiAlphaBlend, since it does not work when drawing into an image canvas
+void BitmapAlpha::drawTransparent(Canvas & canvas, Point dest) {
+	// TODO replace with a manual kind of blending somehow
+	Bitmap::drawInto(canvas,dest);
+}
+
 // https://parnassus.co/transparent-graphics-with-pure-gdi-part-2-and-introducing-the-ttransparentcanvas-class/
 // uncomment this code if needed. need to GetDIBits and SetDIBits later
 // void BitmapAlpha::replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {

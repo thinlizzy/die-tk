@@ -29,9 +29,9 @@ int main() {
 	auto imageTonTopaque = imageCanvasTonTopaque->finishAndCreateImage();
 
 	// TODO lack of alpha blending is replacing the white color with total transparent pixels from the image
-	auto imageCanvasTonTopaqueW = ImageCanvas::create({90,100},true);
-	imageCanvasTonTopaqueW->fillRect(Rect::open({0,0},{90,100}),RGBColor(255,255,255));
-	imageCanvasTonTopaqueW->drawImage(imageT,{0,0});
+	auto imageCanvasTonTopaqueW = ImageCanvas::create({100,100},true);
+	imageCanvasTonTopaqueW->fillRect(Rect::open({0,0},{100,100}),RGBColor(255,255,255));
+	imageCanvasTonTopaqueW->drawImage(imageT,{5,0});
 	auto imageTonTopaqueW = imageCanvasTonTopaqueW->finishAndCreateImage();
 
 	window.onPaint([&](Canvas & canvas, Rect rect) {
@@ -41,8 +41,8 @@ int main() {
 		canvas.drawImage(image,Point(60,30));
 		canvas.drawImage(image,Point(60,60));
 		canvas.drawImage(imageT,Point(100,30));
-		canvas.drawImage(imageTonT,Point(200,30));
-		canvas.drawImage(imageTonTopaque,Point(200,150));
+		canvas.drawImage(imageTonT,Point(210,30));
+		canvas.drawImage(imageTonTopaque,Point(210,150));
 		canvas.drawImage(imageTonTopaqueW,Point(100,150));
 	});
 

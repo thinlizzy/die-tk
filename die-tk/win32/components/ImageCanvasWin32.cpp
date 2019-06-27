@@ -26,11 +26,9 @@ tk::Canvas & ImageCanvasWin::imageCanvas() {
 
 void ImageCanvasWin::drawImage(tk::image::Ptr const & image, tk::Point pos) {
 	// log::info("ImageCanvasWin::drawImage at ",pos," src ",image::info(image)," target ",image::info(imageBuffer));
-	// TODO investigate this problem, which must be something related with DCs
 	// workaround to skip GdiAlphaBlend, since it does not work when drawing into an image canvas
-	if( typeid(*image) == typeid(image::BitmapAlpha) ) {
-		auto & bitmap = dynamic_cast<image::Bitmap &>(*image);
-		bitmap.Bitmap::drawInto(imageCanvas(),pos);
+	if( auto * bitmapAlpha = dynamic_cast<image::BitmapAlpha *>(&*image) ) {
+		bitmapAlpha->drawTransparent(imageCanvas(),pos);
 	} else {
 		image->drawInto(imageCanvas(),pos);
 	}

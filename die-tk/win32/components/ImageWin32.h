@@ -92,6 +92,8 @@ public:
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
     void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+
+    void drawTransparent(Canvas & canvas, Point dest);
 private:
     void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
 };
