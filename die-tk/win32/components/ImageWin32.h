@@ -81,6 +81,7 @@ public:
     void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
     
     HBITMAP getHbitmap() const;
+	void replaceAllQuads(std::function<void(RGBQUAD &)> replacer);
 private:
     BITMAP getBitmap() const;
 };
@@ -92,10 +93,8 @@ public:
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
     void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
-
-    void drawTransparent(Canvas & canvas, Point dest);
 private:
-    void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
+    void alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect, BYTE alphaFormat = AC_SRC_ALPHA);
 };
 
 class BitmapPallete: public Bitmap {

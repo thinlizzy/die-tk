@@ -10,6 +10,72 @@
 namespace tk {
 	
 namespace image {
+
+// adapted from http://www.drdobbs.com/transparentblt-and-alphablend-for-window/184416353?pgno=11
+bool AlphaBlendU(HDC dcDest, int x, int y, int cx, int cy,
+				 HDC dcSrc, int sx, int sy, int scx, int scy, int alpha) {
+	BITMAPINFOHEADER BMI;
+	// Fill in the header info.
+	BMI.biSize = sizeof(BITMAPINFOHEADER);
+	BMI.biWidth = cx;
+	BMI.biHeight = cy;
+	BMI.biPlanes = 1;
+	BMI.biBitCount = 32;
+	BMI.biCompression = BI_RGB;   // No compression
+	BMI.biSizeImage = 0;
+	BMI.biXPelsPerMeter = 0;
+	BMI.biYPelsPerMeter = 0;
+	BMI.biClrUsed = 0;           // Always use the whole palette.
+	BMI.biClrImportant = 0;
+
+	BYTE * pSrcBits;
+	HBITMAP hbmSrc;
+	// Create DIB section in shared memory
+	hbmSrc = CreateDIBSection(dcSrc, (BITMAPINFO *) &BMI, DIB_RGB_COLORS, (void **) &pSrcBits, 0, 0l);
+
+	BYTE * pDestBits;
+	HBITMAP hbmDest;
+	// Create DIB section in shared memory
+	hbmDest = CreateDIBSection(dcDest, (BITMAPINFO *) &BMI, DIB_RGB_COLORS, (void **) &pDestBits, 0, 0l);
+
+	// Copy our source and destination bitmaps onto our DIBSections,
+	// so we can get access to their bits using the BYTE *'s we
+	// passed into CreateDIBSection
+	HDC dc = CreateCompatibleDC(NULL);
+	HBITMAP dcOld = (HBITMAP) SelectObject(dc, hbmSrc);
+	if( !StretchBlt(dc, 0, 0, cx, cy, dcSrc, sx, sy, scx, scy, SRCCOPY)) return false;
+	SelectObject(dc, hbmDest);
+	if( !StretchBlt(dc, 0, 0, cx, cy, dcDest, x, y, cx, cy, SRCCOPY)) return false;
+	SelectObject(dc, dcOld);
+	DeleteDC(dc);
+
+	auto blend = [](BYTE src, BYTE dst, unsigned char a) {
+		return (src * a + dst * (255-a)) / 256;
+	};
+
+	for( int j = 0; j < cy; ++j ) {
+		LPBYTE pbDestRGB = (LPBYTE) &((DWORD *) pDestBits)[j * cx];
+		LPBYTE pbSrcRGB = (LPBYTE) &((DWORD *) pSrcBits)[j * cx];
+		for( int i = 0; i < cx; ++i ) {
+			pbSrcRGB[0] = blend(pbSrcRGB[0],pbDestRGB[0],alpha);
+			pbSrcRGB[1] = blend(pbSrcRGB[1],pbDestRGB[1],alpha);
+			pbSrcRGB[2] = blend(pbSrcRGB[2],pbDestRGB[2],alpha);
+			pbSrcRGB += 4;
+			pbDestRGB += 4;
+		}
+	}
+
+	dc = CreateCompatibleDC(NULL);
+
+	SelectObject(dc, hbmSrc);
+	if( !BitBlt(dcDest, x, y, cx, cy, dc, 0, 0, SRCCOPY) ) return false;
+	DeleteDC(dc);
+
+	DeleteObject(hbmSrc);
+	DeleteObject(hbmDest);
+
+	return true;
+}
 	
 BITMAPINFO createBitmapInfo(int width, int height, int bpp) {
 	BITMAPINFO info;
@@ -118,6 +184,15 @@ std::vector<Byte> grayToBgr(WDims dims, Byte const * buffer) {
 	return alignBuf;
 }
 
+HDC hdc(Canvas & canvas) {
+	if( &canvas == &nullCanvas ) return 0;
+
+	auto & canvasWin = static_cast<CanvasImpl &>(canvas);
+	return canvasWin.getHDC();
+}
+
+// create //
+
 std::shared_ptr<Image> create(Params const & params) {
 	if( params.tryTransparent_ && params.bpp() == 32 ) {
 		auto info = createBitmapInfo(params.dimensions_.width,params.dimensions_.height,32);
@@ -163,13 +238,6 @@ std::shared_ptr<Image> create(Params const & params) {
 	}
 	
 	return nullImage;
-}
-
-HDC hdc(Canvas & canvas) {
-	if( &canvas == &nullCanvas ) return 0;
-
-	auto & canvasWin = static_cast<CanvasImpl &>(canvas);
-	return canvasWin.getHDC();
 }
 
 // External buffer
@@ -334,6 +402,59 @@ void Bitmap::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
 	bd.unselect();
 }
 
+// https://parnassus.co/transparent-graphics-with-pure-gdi-part-2-and-introducing-the-ttransparentcanvas-class/
+// TODO fix the readability of this function
+void Bitmap::replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {
+	auto cx = dims().width;
+	auto cy = dims().height;
+	bd.select();
+	BITMAPINFOHEADER BMI = {};
+	// Fill in the header info.
+	BMI.biSize = sizeof(BITMAPINFOHEADER);
+	BMI.biWidth = cx;
+	BMI.biHeight = cy;
+	BMI.biPlanes = 1;
+	BMI.biBitCount = 32;
+	BMI.biCompression = BI_RGB;   // No compression
+
+	// Create DIB section in shared memory
+	BYTE * pSrcBits;
+	HBITMAP hbmSrc = CreateDIBSection(bd.hdc, (BITMAPINFO *) &BMI, DIB_RGB_COLORS, (void **) &pSrcBits, 0, 0l);
+	// copy the bitmap pixels to the DIB
+	HDC dc = CreateCompatibleDC(NULL);
+	HBITMAP dcOld = (HBITMAP) SelectObject(dc, hbmSrc);
+	BitBlt(dc,0,0,cx,cy,bd.hdc,0,0,SRCCOPY);
+	SelectObject(dc, dcOld);
+	DeleteDC(dc);
+
+	// iterate over all DIB pixels
+	for( int j = 0; j < cy; ++j ) {
+		LPBYTE pbSrcRGBA = (LPBYTE) &((DWORD *) pSrcBits)[j * cx];
+		for( int i = 0; i < cx; ++i ) {
+			auto * q = reinterpret_cast<RGBQUAD *>(pbSrcRGBA);
+			replacer(*q);
+			pbSrcRGBA += 4;
+		}
+	}
+//	auto * p = reinterpret_cast<unsigned char *>(bitmap.bmBits);
+//	for( auto r = 0; r < bitmap.bmHeight; ++r ) {
+//		auto * q = reinterpret_cast<RGBQUAD *>(p + r*bitmap.bmWidthBytes);
+//		for( auto c = 0; c < bitmap.bmWidth; ++c ) {
+//			replacer(q[c]);
+//		}
+//	}
+
+	// copy the DIB pixels to the bitmap
+	HDC dc2 = CreateCompatibleDC(NULL);
+	SelectObject(dc2, hbmSrc);
+	BitBlt(bd.hdc, 0, 0, cx, cy, dc2, 0, 0, SRCCOPY);
+	DeleteDC(dc2);
+
+	DeleteObject(hbmSrc);
+
+	bd.unselect();
+}
+
 // BitmapAlpha
 
 BitmapAlpha::BitmapAlpha(BITMAPINFO * info, Byte const * buffer):
@@ -346,15 +467,15 @@ void BitmapAlpha::drawInto(Canvas & canvas, Point dest) {
 }
 
 void BitmapAlpha::drawInto(Canvas & canvas, Rect destrect) {
-	drawInto(canvas,Rect::closed(Point(0,0),dims()),destrect);
+	alphaBlend(canvas,Rect::closed(Point(0,0),dims()),destrect);
 }
 
 void BitmapAlpha::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
 	srcrect = srcrect.fitInRect(Rect::closed(Point(),dims()));
-	drawInto(canvas,srcrect,srcrect.move(dest));
+	alphaBlend(canvas,srcrect,srcrect.move(dest));
 }
 
-void BitmapAlpha::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
+void BitmapAlpha::alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect, BYTE alphaFormat) {
 	auto srcDims = srcrect.dims();
 	auto destDims = destrect.dims();
 
@@ -362,7 +483,7 @@ void BitmapAlpha::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
 	blendFunction.BlendOp = AC_SRC_OVER;
 	blendFunction.BlendFlags = 0;
 	blendFunction.SourceConstantAlpha = 0xFF;
-	blendFunction.AlphaFormat = AC_SRC_ALPHA;
+	blendFunction.AlphaFormat = alphaFormat;
 	bd.select();
 	if( GdiAlphaBlend(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
 		bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,
@@ -371,24 +492,6 @@ void BitmapAlpha::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
 	}
 	bd.unselect();
 }
-
-// workaround to skip GdiAlphaBlend, since it does not work when drawing into an image canvas
-void BitmapAlpha::drawTransparent(Canvas & canvas, Point dest) {
-	// TODO replace with a manual kind of blending somehow
-	Bitmap::drawInto(canvas,dest);
-}
-
-// https://parnassus.co/transparent-graphics-with-pure-gdi-part-2-and-introducing-the-ttransparentcanvas-class/
-// uncomment this code if needed. need to GetDIBits and SetDIBits later
-// void BitmapAlpha::replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {
-//	auto * p = reinterpret_cast<unsigned char *>(bitmap.bmBits);
-//	for( auto r = 0; r < bitmap.bmHeight; ++r ) {
-//		auto * q = reinterpret_cast<RGBQUAD *>(p + r*bitmap.bmWidthBytes);
-//		for( auto c = 0; c < bitmap.bmWidth; ++c ) {
-//			replacer(q[c]);
-//		}
-//	}
-// }
 
 // BitmapPallete
 
