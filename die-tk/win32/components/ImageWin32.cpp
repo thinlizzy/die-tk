@@ -1,10 +1,11 @@
 #include "ImageWin32.h"
+#include <sstream>
 #include "../ResourceManager.h"
 #include "../ConvertersWin32.h"
 #include "../../components/Image.h"
+#include "../../components/NullImage.h"
 #include "../../log.h"
 #include "../../NullCanvas.h"
-#include "../../components/NullImage.h"
 
 namespace tk {
 	
@@ -371,9 +372,9 @@ void BitmapAlpha::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
 	bd.unselect();
 }
 
-void BitmapAlpha::replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {
-//	auto bitmap = getBitmap();
-//
+// https://parnassus.co/transparent-graphics-with-pure-gdi-part-2-and-introducing-the-ttransparentcanvas-class/
+// uncomment this code if needed. need to GetDIBits and SetDIBits later
+// void BitmapAlpha::replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {
 //	auto * p = reinterpret_cast<unsigned char *>(bitmap.bmBits);
 //	for( auto r = 0; r < bitmap.bmHeight; ++r ) {
 //		auto * q = reinterpret_cast<RGBQUAD *>(p + r*bitmap.bmWidthBytes);
@@ -381,7 +382,7 @@ void BitmapAlpha::replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {
 //			replacer(q[c]);
 //		}
 //	}
-}
+// }
 
 // BitmapPallete
 
@@ -422,6 +423,13 @@ void BitmapPallete::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
 		bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,transpColor);
 	bd.unselect();
 }
+
+std::string info(Ptr const & image) {
+	auto ss = std::ostringstream();
+	ss << "dims " << image->dims() << " bpp " << image->bpp() << " type " << typeid(*image).name();
+	return ss.str();
+}
+
 
 } // namespace image
 

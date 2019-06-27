@@ -23,9 +23,16 @@ int main() {
 	imageCanvasTonT->drawLine({80,10},{10,90},RGBColor(0,0,200));
 	auto imageTonT = imageCanvasTonT->finishAndCreateImage();
 
+	// TODO colors changed when drawing on a non transparent canvas
 	auto imageCanvasTonTopaque = ImageCanvas::create({90,100});
 	imageCanvasTonTopaque->drawImage(imageT,{0,0});
 	auto imageTonTopaque = imageCanvasTonTopaque->finishAndCreateImage();
+
+	// TODO lack of alpha blending is replacing the white color with total transparent pixels from the image
+	auto imageCanvasTonTopaqueW = ImageCanvas::create({90,100},true);
+	imageCanvasTonTopaqueW->fillRect(Rect::open({0,0},{90,100}),RGBColor(255,255,255));
+	imageCanvasTonTopaqueW->drawImage(imageT,{0,0});
+	auto imageTonTopaqueW = imageCanvasTonTopaqueW->finishAndCreateImage();
 
 	window.onPaint([&](Canvas & canvas, Rect rect) {
 		canvas.fillRect(rect,RGBColor(0,0,100));
@@ -36,6 +43,7 @@ int main() {
 		canvas.drawImage(imageT,Point(100,30));
 		canvas.drawImage(imageTonT,Point(200,30));
 		canvas.drawImage(imageTonTopaque,Point(200,150));
+		canvas.drawImage(imageTonTopaqueW,Point(100,150));
 	});
 
 	do {

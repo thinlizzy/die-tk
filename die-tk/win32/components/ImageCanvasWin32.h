@@ -14,6 +14,7 @@ public:
 private:
 	tk::Canvas & imageCanvas() override;
 	tk::image::Ptr finishAndCreateImage() override;
+	void drawImage(tk::image::Ptr const & image, tk::Point pos) override;
 };
 
 }

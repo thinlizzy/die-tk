@@ -5,6 +5,7 @@
 #include "../ScopedObjects.h"
 #include "../CanvasImplWin32.h"
 #include <functional>
+#include <string>
 #include <ostream>
 #include <windows.h>
 
@@ -80,8 +81,6 @@ public:
     void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
     
     HBITMAP getHbitmap() const;
-
-	virtual void replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {}
 private:
     BITMAP getBitmap() const;
 };
@@ -93,7 +92,6 @@ public:
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
     void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
-	void replaceAllQuads(std::function<void(RGBQUAD &)> replacer) override;
 private:
     void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
 };
@@ -109,12 +107,14 @@ private:
     void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
 };
 
-typedef std::shared_ptr<Bitmap> BitmapPtr;
+using BitmapPtr = std::shared_ptr<Bitmap>;
 
 inline BitmapPtr createBitmap(HBITMAP hbmp) { return std::make_shared<Bitmap>(hbmp); }
-inline BitmapPtr cloneBitmap(std::shared_ptr<ImageImpl> image) { return createBitmap(image->cloneHbitmap()); }
+inline BitmapPtr cloneBitmap(std::shared_ptr<ImageImpl> const & image) { return createBitmap(image->cloneHbitmap()); }
 
 HBITMAP cloneBitmap(HDC dc, HBITMAP hbmp);
+
+std::string info(Ptr const & image);
 
 }
 
