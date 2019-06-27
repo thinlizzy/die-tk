@@ -80,6 +80,8 @@ public:
     void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
     
     HBITMAP getHbitmap() const;
+
+	virtual void replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {}
 private:
     BITMAP getBitmap() const;
 };
@@ -91,7 +93,7 @@ public:
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
     void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
-	void replaceAllQuads(std::function<void(RGBQUAD &)> replacer);
+	void replaceAllQuads(std::function<void(RGBQUAD &)> replacer) override;
 private:
     void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
 };

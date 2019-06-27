@@ -41,6 +41,8 @@ public:
 	void textRect(Rect const & openrect, NativeString const & text, TextParams const & params) override;
     WDims measureText(NativeString const & text) override;
 
+	void drawImage(tk::image::Ptr const & image, tk::Point pos) override;
+
 	void restoreObjects();
 };
 

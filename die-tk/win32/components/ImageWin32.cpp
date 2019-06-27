@@ -329,8 +329,7 @@ void Bitmap::drawInto(Canvas & canvas, Rect destrect) {
 void Bitmap::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
 	auto srcDims = srcrect.dims();
 	bd.select();
-	StretchBlt(hdc(canvas),dest.x,dest.y,srcDims.width,srcDims.height,
-			bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,SRCCOPY);
+	StretchBlt(hdc(canvas),dest.x,dest.y,srcDims.width,srcDims.height,bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,SRCCOPY);
 	bd.unselect();
 }
 
@@ -364,9 +363,11 @@ void BitmapAlpha::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
 	blendFunction.SourceConstantAlpha = 0xFF;
 	blendFunction.AlphaFormat = AC_SRC_ALPHA;
 	bd.select();
-	::GdiAlphaBlend(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
+	if( GdiAlphaBlend(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
 		bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,
-		blendFunction);
+		blendFunction) == 0 ) {
+		log::error("GdiAlphaBlend failed: ",srcrect,destrect);
+	}
 	bd.unselect();
 }
 

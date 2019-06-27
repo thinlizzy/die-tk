@@ -5,10 +5,8 @@ namespace tk {
 
 std::shared_ptr<ImageCanvas> ImageCanvas::create(tk::WDims dims, bool transparent) {
 	auto imageBuffer = tk::image::create(tk::image::Params(tk::image::Type::BGRA,dims).tryTransparent(transparent));
-	if( transparent ) {
-		auto & bitmap = dynamic_cast<image::BitmapAlpha &>(*imageBuffer);
-		bitmap.replaceAllQuads([](RGBQUAD & quad) { quad.rgbReserved = 255; });
-	}
+	auto & bitmap = dynamic_cast<image::Bitmap &>(*imageBuffer);
+	bitmap.replaceAllQuads([](RGBQUAD & quad) { quad.rgbReserved = 255; });
 	return std::make_shared<ImageCanvasWin>(imageBuffer);
 }
 
@@ -29,9 +27,8 @@ tk::Canvas & ImageCanvasWin::imageCanvas() {
 
 tk::image::Ptr ImageCanvasWin::finishAndCreateImage() {
 	imageBuffer->endDraw();
-	if( auto * bitmap = dynamic_cast<image::BitmapAlpha *>(&*imageBuffer) ) {
-		bitmap->replaceAllQuads([](RGBQUAD & quad) { quad.rgbReserved = 255 - quad.rgbReserved; });
-	}
+	auto & bitmap = dynamic_cast<image::Bitmap &>(*imageBuffer);
+	bitmap.replaceAllQuads([](RGBQUAD & quad) { if( quad.rgbReserved == 0 ) quad.rgbReserved = 255; });
 	return imageBuffer;
 }
 

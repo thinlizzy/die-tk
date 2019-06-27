@@ -167,6 +167,10 @@ WDims CanvasImpl::measureText(NativeString const & text)
     return sizeToWDims(size);
 }
 
+void CanvasImpl::drawImage(tk::image::Ptr const & image, tk::Point pos) {
+	image->drawInto(*this,pos);
+}
+
 // CanvasImplWin
 
 CanvasImplWin::CanvasImplWin():

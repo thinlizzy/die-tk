@@ -1,14 +1,15 @@
 #ifndef CANVAS_H_6CD1490B_F5E5_4985_8494_ADEE0B297978
 #define CANVAS_H_6CD1490B_F5E5_4985_8494_ADEE0B297978
 
+#include "NativeString.h"
 #include "TextParams.h"
+#include "components/Image.h"
 #include "objects/Color.h"
 #include "objects/Dimension.h"
 #include "objects/Point.h"
 #include "objects/Rect.h"
 #include "objects/Drawing.h"
 #include <vector>
-#include "NativeString.h"
 
 namespace tk {
 
@@ -35,8 +36,9 @@ public:
 	virtual void drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor) = 0;
 	virtual void textRect(Rect const & openrect, NativeString const & text, TextParams const & params = TextParams()) = 0;
     virtual WDims measureText(NativeString const & text) = 0;
-};
 
+    virtual void drawImage(tk::image::Ptr const & image, tk::Point pos) = 0;
+};
 
 }
 
