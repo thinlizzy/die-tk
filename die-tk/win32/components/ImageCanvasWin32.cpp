@@ -29,19 +29,6 @@ tk::Canvas & ImageCanvasWin::imageCanvas() {
 	return canvas;
 }
 
-void ImageCanvasWin::drawImage(tk::image::Ptr const & image, tk::Point pos) {
-	// log::info("ImageCanvasWin::drawImage at ",pos," src ",image::info(image)," target ",image::info(imageBuffer));
-	// workaround to skip GdiAlphaBlend, since it does not work when drawing into an image canvas
-//	if( auto * bitmapAlpha = dynamic_cast<image::BitmapAlpha *>(&*image) ) {
-//		bitmapAlpha->drawTransparent(imageCanvas(),pos);
-//	} else {
-//		image->drawInto(imageCanvas(),pos);
-//	}
-
-	// TODO blend in a different way when both image and imageBuffer are transparent because the colors are changing a bit
-	image->drawInto(imageCanvas(),pos);
-}
-
 tk::image::Ptr ImageCanvasWin::finishAndCreateImage() {
 	imageBuffer->endDraw();
 	auto & bitmap = dynamic_cast<image::Bitmap &>(*imageBuffer);
@@ -54,15 +41,27 @@ tk::image::Ptr ImageCanvasWin::finishAndCreateImage() {
 				case 255:
 					quad.rgbReserved = 0;
 					break;
+				default:
+					std::cout << int(quad.rgbReserved) << ',';
+					// quad.rgbReserved = 0;
 			}
-//			quad.rgbReserved = 255 - quad.rgbReserved;
 		});
 	} else {
+		// non transparent images need to clean up all left over alpha values from previous blending operations
 		bitmap.replaceAllQuads([](RGBQUAD & quad) {
 			quad.rgbReserved = 0;
 		});
 	}
 	return imageBuffer;
+}
+
+void ImageCanvasWin::drawImage(tk::image::Ptr const & image, tk::Point pos) {
+	auto * srcBitmapAlpha = dynamic_cast<image::BitmapAlpha *>(&*image);
+	if( srcBitmapAlpha && typeid(*imageBuffer) == typeid(image::BitmapAlpha) ) {
+		srcBitmapAlpha->drawTonT(imageCanvas(),pos);
+	} else {
+		ImageCanvas::drawImage(image,pos);
+	}
 }
 
 }

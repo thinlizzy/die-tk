@@ -93,8 +93,11 @@ public:
     void drawInto(Canvas & canvas, Point dest) override;
     void drawInto(Canvas & canvas, Rect destrect) override;
     void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+
+    void drawTonT(Canvas & canvas, Point dest);
 private:
-    void alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect, BYTE alphaFormat = AC_SRC_ALPHA);
+    void alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect);
+	void alphaBlendTonT(Canvas & canvas, Rect srcrect, Rect destrect);
 };
 
 class BitmapPallete: public Bitmap {

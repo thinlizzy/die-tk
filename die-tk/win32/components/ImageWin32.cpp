@@ -8,75 +8,11 @@
 #include "../../NullCanvas.h"
 
 namespace tk {
-	
 namespace image {
 
-// adapted from http://www.drdobbs.com/transparentblt-and-alphablend-for-window/184416353?pgno=11
-bool AlphaBlendU(HDC dcDest, int x, int y, int cx, int cy,
-				 HDC dcSrc, int sx, int sy, int scx, int scy, int alpha) {
-	BITMAPINFOHEADER BMI;
-	// Fill in the header info.
-	BMI.biSize = sizeof(BITMAPINFOHEADER);
-	BMI.biWidth = cx;
-	BMI.biHeight = cy;
-	BMI.biPlanes = 1;
-	BMI.biBitCount = 32;
-	BMI.biCompression = BI_RGB;   // No compression
-	BMI.biSizeImage = 0;
-	BMI.biXPelsPerMeter = 0;
-	BMI.biYPelsPerMeter = 0;
-	BMI.biClrUsed = 0;           // Always use the whole palette.
-	BMI.biClrImportant = 0;
+bool AlphaBlendTonT(HDC dcDest, int x, int y, int cx, int cy,
+					HDC dcSrc, int sx, int sy, int scx, int scy);
 
-	BYTE * pSrcBits;
-	HBITMAP hbmSrc;
-	// Create DIB section in shared memory
-	hbmSrc = CreateDIBSection(dcSrc, (BITMAPINFO *) &BMI, DIB_RGB_COLORS, (void **) &pSrcBits, 0, 0l);
-
-	BYTE * pDestBits;
-	HBITMAP hbmDest;
-	// Create DIB section in shared memory
-	hbmDest = CreateDIBSection(dcDest, (BITMAPINFO *) &BMI, DIB_RGB_COLORS, (void **) &pDestBits, 0, 0l);
-
-	// Copy our source and destination bitmaps onto our DIBSections,
-	// so we can get access to their bits using the BYTE *'s we
-	// passed into CreateDIBSection
-	HDC dc = CreateCompatibleDC(NULL);
-	HBITMAP dcOld = (HBITMAP) SelectObject(dc, hbmSrc);
-	if( !StretchBlt(dc, 0, 0, cx, cy, dcSrc, sx, sy, scx, scy, SRCCOPY)) return false;
-	SelectObject(dc, hbmDest);
-	if( !StretchBlt(dc, 0, 0, cx, cy, dcDest, x, y, cx, cy, SRCCOPY)) return false;
-	SelectObject(dc, dcOld);
-	DeleteDC(dc);
-
-	auto blend = [](BYTE src, BYTE dst, unsigned char a) {
-		return (src * a + dst * (255-a)) / 256;
-	};
-
-	for( int j = 0; j < cy; ++j ) {
-		LPBYTE pbDestRGB = (LPBYTE) &((DWORD *) pDestBits)[j * cx];
-		LPBYTE pbSrcRGB = (LPBYTE) &((DWORD *) pSrcBits)[j * cx];
-		for( int i = 0; i < cx; ++i ) {
-			pbSrcRGB[0] = blend(pbSrcRGB[0],pbDestRGB[0],alpha);
-			pbSrcRGB[1] = blend(pbSrcRGB[1],pbDestRGB[1],alpha);
-			pbSrcRGB[2] = blend(pbSrcRGB[2],pbDestRGB[2],alpha);
-			pbSrcRGB += 4;
-			pbDestRGB += 4;
-		}
-	}
-
-	dc = CreateCompatibleDC(NULL);
-
-	SelectObject(dc, hbmSrc);
-	if( !BitBlt(dcDest, x, y, cx, cy, dc, 0, 0, SRCCOPY) ) return false;
-	DeleteDC(dc);
-
-	DeleteObject(hbmSrc);
-	DeleteObject(hbmDest);
-
-	return true;
-}
-	
 BITMAPINFO createBitmapInfo(int width, int height, int bpp) {
 	BITMAPINFO info;
 	ZeroMemory(&info,sizeof(BITMAPINFO));
@@ -475,20 +411,37 @@ void BitmapAlpha::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
 	alphaBlend(canvas,srcrect,srcrect.move(dest));
 }
 
-void BitmapAlpha::alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect, BYTE alphaFormat) {
+void BitmapAlpha::alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect) {
 	auto srcDims = srcrect.dims();
 	auto destDims = destrect.dims();
 
+	bd.select();
 	BLENDFUNCTION blendFunction;
 	blendFunction.BlendOp = AC_SRC_OVER;
 	blendFunction.BlendFlags = 0;
 	blendFunction.SourceConstantAlpha = 0xFF;
-	blendFunction.AlphaFormat = alphaFormat;
-	bd.select();
+	blendFunction.AlphaFormat = AC_SRC_ALPHA;
 	if( GdiAlphaBlend(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
 		bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,
 		blendFunction) == 0 ) {
 		log::error("GdiAlphaBlend failed: ",srcrect,destrect);
+	}
+	bd.unselect();
+}
+
+void BitmapAlpha::drawTonT(Canvas & canvas, Point dest) {
+	alphaBlendTonT(canvas, Rect::closed(Point(0, 0), dims()), Rect::closed(dest, dims()));
+}
+
+void BitmapAlpha::alphaBlendTonT(Canvas & canvas, Rect srcrect, Rect destrect) {
+	log::info("drawing T at ",srcrect," on T ",destrect);
+	auto srcDims = srcrect.dims();
+	auto destDims = destrect.dims();
+
+	bd.select();
+	if( !AlphaBlendTonT(hdc(canvas), destrect.left, destrect.top, destDims.width, destDims.height,
+						bd.hdc, srcrect.left, srcrect.top, srcDims.width, srcDims.height) ) {
+		log::error("AlphaBlendTonT failed: ",srcrect,destrect);
 	}
 	bd.unselect();
 }
@@ -533,15 +486,92 @@ void BitmapPallete::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
 	bd.unselect();
 }
 
+// adapted from http://www.drdobbs.com/transparentblt-and-alphablend-for-window/184416353?pgno=11
+bool AlphaBlendTonT(HDC dcDest, int x, int y, int cx, int cy,
+					HDC dcSrc, int sx, int sy, int scx, int scy) {
+	BITMAPINFOHEADER BMI;
+	// Fill in the header info.
+	BMI.biSize = sizeof(BITMAPINFOHEADER);
+	BMI.biWidth = cx;
+	BMI.biHeight = cy;
+	BMI.biPlanes = 1;
+	BMI.biBitCount = 32;
+	BMI.biCompression = BI_RGB;   // No compression
+	BMI.biSizeImage = 0;
+	BMI.biXPelsPerMeter = 0;
+	BMI.biYPelsPerMeter = 0;
+	BMI.biClrUsed = 0;           // Always use the whole palette.
+	BMI.biClrImportant = 0;
+
+	BYTE * pSrcBits;
+	HBITMAP hbmSrc;
+	// Create DIB section in shared memory
+	hbmSrc = CreateDIBSection(dcSrc, (BITMAPINFO *) &BMI, DIB_RGB_COLORS, (void **) &pSrcBits, 0, 0l);
+
+	BYTE * pDestBits;
+	HBITMAP hbmDest;
+	// Create DIB section in shared memory
+	hbmDest = CreateDIBSection(dcDest, (BITMAPINFO *) &BMI, DIB_RGB_COLORS, (void **) &pDestBits, 0, 0l);
+
+	// Copy our source and destination bitmaps onto our DIBSections,
+	// so we can get access to their bits using the BYTE *'s we
+	// passed into CreateDIBSection
+	HDC dc = CreateCompatibleDC(NULL);
+	HBITMAP dcOld = (HBITMAP) SelectObject(dc, hbmSrc);
+	if( !StretchBlt(dc, 0, 0, cx, cy, dcSrc, sx, sy, scx, scy, SRCCOPY)) return false;
+	SelectObject(dc, hbmDest);
+	if( !StretchBlt(dc, 0, 0, cx, cy, dcDest, x, y, cx, cy, SRCCOPY)) return false;
+	SelectObject(dc, dcOld);
+	DeleteDC(dc);
+
+	auto blend = [](BYTE src, BYTE dst, BYTE a) -> BYTE {
+		if( a == 255 ) return src;
+		if( a == 0 ) return dst;
+		return (src * a + dst * (255-a)) / 255;
+	};
+
+	for( int j = 0; j < cy; ++j ) {
+		LPBYTE pbDestRGB = (LPBYTE) &((DWORD *) pDestBits)[j * cx];
+		LPBYTE pbSrcRGB = (LPBYTE) &((DWORD *) pSrcBits)[j * cx];
+		for( int i = 0; i < cx; ++i ) {
+			pbSrcRGB[0] = blend(pbSrcRGB[0],pbDestRGB[0],pbSrcRGB[3]);
+			pbSrcRGB[1] = blend(pbSrcRGB[1],pbDestRGB[1],pbSrcRGB[3]);
+			pbSrcRGB[2] = blend(pbSrcRGB[2],pbDestRGB[2],pbSrcRGB[3]);
+//				if( (pbSrcRGB[3] != 0 && pbSrcRGB[3] != 255) || (pbDestRGB[3] != 0 && pbDestRGB[3] != 255) ) {
+//					log::info(cx,',',cy," s=",pbSrcRGB[3]," t=",pbDestRGB[3]);
+//				}
+			// when src = transp and dst = untouched, keep the transparency
+			if( pbSrcRGB[3] == 0 && pbDestRGB[3] == 255 ) {
+				pbSrcRGB[3] = 255;  // will be 0 afterwards
+			} else {
+				// all other cases, make the pixel opaque - this can't be reverted
+				pbSrcRGB[3] = 0;    // will be 255 afterwards
+			}
+			// pbSrcRGB[3] = blend(pbSrcRGB[3],pbDestRGB[3],pbSrcRGB[3]);
+			pbSrcRGB += 4;
+			pbDestRGB += 4;
+		}
+	}
+
+	dc = CreateCompatibleDC(NULL);
+
+	SelectObject(dc, hbmSrc);
+	if( !BitBlt(dcDest, x, y, cx, cy, dc, 0, 0, SRCCOPY) ) return false;
+	DeleteDC(dc);
+
+	DeleteObject(hbmSrc);
+	DeleteObject(hbmDest);
+
+	return true;
+}
+
 std::string info(Ptr const & image) {
 	auto ss = std::ostringstream();
 	ss << "dims " << image->dims() << " bpp " << image->bpp() << " type " << typeid(*image).name();
 	return ss.str();
 }
 
-
 } // namespace image
-
 } // namespace tk
 
 std::ostream & operator<<(std::ostream & os, BITMAPINFOHEADER const & bh) {

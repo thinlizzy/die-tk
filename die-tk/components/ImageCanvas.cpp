@@ -58,4 +58,8 @@ WDims ImageCanvas::measureText(NativeString const & text) {
 	return imageCanvas().measureText(text);
 }
 
+void ImageCanvas::drawImage(tk::image::Ptr const & image, tk::Point pos) {
+	image->drawInto(imageCanvas(),pos);
+}
+
 }
