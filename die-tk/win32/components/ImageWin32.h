@@ -9,106 +9,104 @@
 #include <ostream>
 #include <windows.h>
 
-namespace tk {
-    
-namespace image {
+namespace tk::image {
 
 class ImageImpl: public Image {
 public:
-    virtual bool isBitmap() const = 0;
-    
-    virtual HBITMAP getOrCreateHbitmap() const = 0;
-    virtual void releaseIfCreated(HBITMAP hbmp) = 0;
-    
-    virtual HBITMAP cloneHbitmap() const = 0;
+	virtual bool isBitmap() const = 0;
+	
+	virtual HBITMAP getOrCreateHbitmap() const = 0;
+	virtual void releaseIfCreated(HBITMAP hbmp) = 0;
+	
+	virtual HBITMAP cloneHbitmap() const = 0;
 };
 
 // handles images with externally owned buffers
 class External: public ImageImpl {
 protected:
-    BITMAPINFO * info;
-    External(Byte const * buffer);
+	BITMAPINFO * info;
+	External(Byte const * buffer);
 private:
-    Byte const * buffer;
+	Byte const * buffer;
 public:
-    External(BITMAPINFO * info, Byte const * buffer);
-    
-    bool isBitmap() const override;
-    HBITMAP getOrCreateHbitmap() const override;
-    void releaseIfCreated(HBITMAP hbmp) override;
-    HBITMAP cloneHbitmap() const override;
+	External(BITMAPINFO * info, Byte const * buffer);
+	
+	bool isBitmap() const override;
+	HBITMAP getOrCreateHbitmap() const override;
+	void releaseIfCreated(HBITMAP hbmp) override;
+	HBITMAP cloneHbitmap() const override;
 
-    unsigned bpp() const override;
-    WDims dims() const override;
+	unsigned bpp() const override;
+	WDims dims() const override;
 
-    Canvas & beginDraw() override;
-    Canvas & canvas() override;
-    void endDraw() override;
-    
-    void drawInto(Canvas & canvas, Point dest) override;
-    void drawInto(Canvas & canvas, Rect destrect) override;
-    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+	Canvas & beginDraw() override;
+	Canvas & canvas() override;
+	void endDraw() override;
+	
+	void drawInto(Canvas & canvas, Point dest) override;
+	void drawInto(Canvas & canvas, Rect destrect) override;
+	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
 };
 
 class ExternalWithHeader: public External {
-    BITMAPINFO bitmapInfo;
+	BITMAPINFO bitmapInfo;
 public:
-    ExternalWithHeader(BITMAPINFO const & info, Byte const * buffer);
+	ExternalWithHeader(BITMAPINFO const & info, Byte const * buffer);
 };
 
 class Bitmap: public ImageImpl {
 protected:
-    tk::scoped::BitmapDC bd;
-    tk::CanvasImpl canvasImpl;
+	tk::scoped::BitmapDC bd;
+	tk::CanvasImpl canvasImpl;
 public:
-    Bitmap(BITMAPINFO * info, Byte const * buffer);
-    explicit Bitmap(HBITMAP hbmp);
+	Bitmap(BITMAPINFO * info, Byte const * buffer);
+	explicit Bitmap(HBITMAP hbmp);
 
-    bool isBitmap() const override;
-    HBITMAP getOrCreateHbitmap() const override;
-    void releaseIfCreated(HBITMAP hbmp) override;
-    HBITMAP cloneHbitmap() const override;
+	bool isBitmap() const override;
+	HBITMAP getOrCreateHbitmap() const override;
+	void releaseIfCreated(HBITMAP hbmp) override;
+	HBITMAP cloneHbitmap() const override;
 
-    unsigned bpp() const override;
-    WDims dims() const override;
+	unsigned bpp() const override;
+	WDims dims() const override;
 
-    Canvas & beginDraw() override;
-    Canvas & canvas() override;
-    void endDraw() override;
-    
-    void drawInto(Canvas & canvas, Point dest) override;
-    void drawInto(Canvas & canvas, Rect destrect) override;
-    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
-    
-    HBITMAP getHbitmap() const;
+	Canvas & beginDraw() override;
+	Canvas & canvas() override;
+	void endDraw() override;
+	
+	void drawInto(Canvas & canvas, Point dest) override;
+	void drawInto(Canvas & canvas, Rect destrect) override;
+	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+	
+	HBITMAP getHbitmap() const;
 	void replaceAllQuads(std::function<void(RGBQUAD &)> replacer);
 private:
-    BITMAP getBitmap() const;
+	BITMAP getBitmap() const;
 };
 
 class BitmapAlpha: public Bitmap {
-public:    
-    BitmapAlpha(BITMAPINFO * info, Byte const * buffer);
-    
-    void drawInto(Canvas & canvas, Point dest) override;
-    void drawInto(Canvas & canvas, Rect destrect) override;
-    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+public:	
+	BitmapAlpha(BITMAPINFO * info, Byte const * buffer);
+	
+	void drawInto(Canvas & canvas, Point dest) override;
+	void drawInto(Canvas & canvas, Rect destrect) override;
+	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
 
-    void drawTonT(Canvas & canvas, Point dest);
+	void drawTonT(Canvas & canvas, Point dest);
 private:
-    void alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect);
+	void alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect);
 	void alphaBlendTonT(Canvas & canvas, Rect srcrect, Rect destrect);
 };
 
 class BitmapPallete: public Bitmap {
-public:    
-    BitmapPallete(BITMAPINFO * info, Byte const * buffer, int transparentIndex);
-    
-    void drawInto(Canvas & canvas, Point dest) override;
-    void drawInto(Canvas & canvas, Rect destrect) override;
-    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+public:	
+	BitmapPallete(BITMAPINFO * info, Byte const * buffer, int transparentIndex);
+	
+	void drawInto(Canvas & canvas, Point dest) override;
+	void drawInto(Canvas & canvas, Rect destrect) override;
+	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
 private:
-    void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
+	void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
 };
 
 using BitmapPtr = std::shared_ptr<Bitmap>;
@@ -120,9 +118,7 @@ HBITMAP cloneBitmap(HDC dc, HBITMAP hbmp);
 
 std::string info(Ptr const & image);
 
-}
-
-}
+} // namespace tk::image
 
 std::ostream & operator<<(std::ostream & os, BITMAPINFOHEADER const & bh);
 

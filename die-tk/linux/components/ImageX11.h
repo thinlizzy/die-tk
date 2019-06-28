@@ -25,14 +25,14 @@ class ImageX11: public Image {
 	CanvasX11 drawingCanvas;
 public:
 	explicit ImageX11(XImage * imagePtr);
-    unsigned bpp() const override;
-    WDims dims() const override;
-    Canvas & beginDraw() override;
-    Canvas & canvas() override;
-    void endDraw() override;
-    void drawInto(Canvas & canvas, Point dest) override;
-    void drawInto(Canvas & canvas, Rect destrect) override;
-    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+	unsigned bpp() const override;
+	WDims dims() const override;
+	Canvas & beginDraw() override;
+	Canvas & canvas() override;
+	void endDraw() override;
+	void drawInto(Canvas & canvas, Point dest) override;
+	void drawInto(Canvas & canvas, Rect destrect) override;
+	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
 };
 
 class ImageX11Transparent: public ImageX11 {
@@ -41,9 +41,9 @@ public:
 	ImageX11Transparent(XImage * imagePtr);
 	ImageX11Transparent(XImage * imagePtr, std::vector<bool> const & transparentMask);
 
-    void drawInto(Canvas & canvas, Point dest) override;
-    void drawInto(Canvas & canvas, Rect destrect) override;
-    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+	void drawInto(Canvas & canvas, Point dest) override;
+	void drawInto(Canvas & canvas, Rect destrect) override;
+	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
 };
 
 // result image will own buffer

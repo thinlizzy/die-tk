@@ -7,8 +7,7 @@
 #include "../../log.h"
 #include "../../NullCanvas.h"
 
-namespace tk {
-namespace image {
+namespace tk::image {
 
 bool AlphaBlendTonT(HDC dcDest, int x, int y, int cx, int cy,
 					HDC dcSrc, int sx, int sy, int scx, int scy);
@@ -571,8 +570,7 @@ std::string info(Ptr const & image) {
 	return ss.str();
 }
 
-} // namespace image
-} // namespace tk
+} // namespace tk::image
 
 std::ostream & operator<<(std::ostream & os, BITMAPINFOHEADER const & bh) {
 	os 

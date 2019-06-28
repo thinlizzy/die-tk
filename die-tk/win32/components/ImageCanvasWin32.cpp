@@ -31,24 +31,28 @@ tk::Canvas & ImageCanvasWin::imageCanvas() {
 
 tk::image::Ptr ImageCanvasWin::finishAndCreateImage() {
 	imageBuffer->endDraw();
+
 	auto & bitmap = dynamic_cast<image::Bitmap &>(*imageBuffer);
 	if( typeid(bitmap) == typeid(image::BitmapAlpha) ) {
+		// if the buffer was transparent, then need to make all touched pixels opaque and the untouched pixels transparent
 		bitmap.replaceAllQuads([](RGBQUAD & quad) {
 			switch(quad.rgbReserved) {
 				case 0:
+					// pixel was touched. make it opaque
 					quad.rgbReserved = 255;
 					break;
 				case 255:
+					// pixel was never touched. make it transparent
 					quad.rgbReserved = 0;
 					break;
-				default:
-					std::cout << int(quad.rgbReserved) << ',';
-					// quad.rgbReserved = 0;
+//				default:
+//					std::cout << int(quad.rgbReserved) << ',';
 			}
 		});
 	} else {
 		// non transparent images need to clean up all left over alpha values from previous blending operations
 		bitmap.replaceAllQuads([](RGBQUAD & quad) {
+			// unline line 46, 0 is the correct alpha value for non transparent images
 			quad.rgbReserved = 0;
 		});
 	}

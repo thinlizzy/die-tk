@@ -15,8 +15,7 @@ namespace tk {
 
 namespace image {
 
-char * duplicateBuffer(Params const & params)
-{
+char * duplicateBuffer(Params const & params) {
 	auto totalBytesDest = params.dimensions_.area() * 4;
 	char * result = static_cast<char *>(malloc(totalBytesDest));
 	if( params.buffer_ ) {
@@ -68,14 +67,13 @@ char * duplicateBuffer(Params const & params)
 	return result;
 }
 
-int nnb(int d, int dLen, int sLen) // nearest neighbor
-{
+// nearest neighbor
+int nnb(int d, int dLen, int sLen) {
 	return d * sLen / dLen;
 }
 
 // TODO add option to change the resize algorithm (nnb, bilinear interpolation, etc.)
-char * imageResize(XImage const * imagePtr, WDims dims)
-{
+char * imageResize(XImage const * imagePtr, WDims dims) {
 	auto totalBytesDest = dims.area() * 4;
 	char * result = static_cast<char *>(malloc(totalBytesDest));
 
@@ -102,16 +100,16 @@ char * imageResize(XImage const * imagePtr, WDims dims)
 	return result;
 }
 
-Ptr create(Params const & params)
-{
+// image create()
+
+Ptr create(Params const & params) {
 	auto newBuf = duplicateBuffer(params);
 	return params.tryTransparent_ ?
 			createTransparentBGRA(params.dimensions_,newBuf) :
 			createNativeBGRA(params.dimensions_,newBuf);
 }
 
-XImage * doCreateNativeBGRA(WDims dims, char * buffer)
-{
+XImage * doCreateNativeBGRA(WDims dims, char * buffer) {
 	auto imagePtr = XCreateImage(
 		resourceManager->dpy,
 		DefaultVisual(resourceManager->dpy,0),
@@ -131,31 +129,26 @@ XImage * doCreateNativeBGRA(WDims dims, char * buffer)
 	return imagePtr;
 }
 
-Ptr createNativeBGRA(WDims dims, char * buffer)
-{
+Ptr createNativeBGRA(WDims dims, char * buffer) {
 	auto imagePtr = doCreateNativeBGRA(dims,buffer);
 	if( ! imagePtr ) return nullImage;
 
 	return std::make_shared<ImageX11>(imagePtr);
 }
 
-Ptr createTransparentBGRA(WDims dims, char * buffer)
-{
+Ptr createTransparentBGRA(WDims dims, char * buffer) {
 	auto imagePtr = doCreateNativeBGRA(dims,buffer);
 	if( ! imagePtr ) return nullImage;
 
 	return std::make_shared<ImageX11Transparent>(imagePtr);
 }
 
-Ptr createTransparentBGRA(WDims dims, std::vector<bool> const & transparentMask, char * buffer)
-{
+Ptr createTransparentBGRA(WDims dims, std::vector<bool> const & transparentMask, char * buffer) {
 	auto imagePtr = doCreateNativeBGRA(dims,buffer);
 	if( ! imagePtr ) return nullImage;
 
 	return std::make_shared<ImageX11Transparent>(imagePtr,transparentMask);
 }
-
-
 
 // *** ImageX11 *** //
 
@@ -164,18 +157,15 @@ ImageX11::ImageX11(XImage * imagePtr):
 {
 }
 
-unsigned ImageX11::bpp() const
-{
+unsigned ImageX11::bpp() const {
 	return xImage->bits_per_pixel;
 }
 
-WDims ImageX11::dims() const
-{
+WDims ImageX11::dims() const {
 	return WDims(xImage->width,xImage->height);
 }
 
-Canvas & ImageX11::beginDraw()
-{
+Canvas & ImageX11::beginDraw() {
 	if( ! drawingArea ) {
 		drawingArea.reset(XCreatePixmap(
 			resourceManager->dpy,
@@ -189,13 +179,11 @@ Canvas & ImageX11::beginDraw()
 	return drawingCanvas;
 }
 
-Canvas & ImageX11::canvas()
-{
+Canvas & ImageX11::canvas() {
 	return drawingCanvas;
 }
 
-void ImageX11::endDraw()
-{
+void ImageX11::endDraw() {
 	xImage.reset(XGetImage(
 		resourceManager->dpy,
 		drawingArea.get(),
@@ -206,8 +194,7 @@ void ImageX11::endDraw()
 	));
 }
 
-void drawImage(xImagePtr const & image, Canvas & canvas, Rect srcrect, Point dest)
-{
+void drawImage(xImagePtr const & image, Canvas & canvas, Rect srcrect, Point dest) {
 	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
 	XPutImage(
 		resourceManager->dpy,
@@ -219,8 +206,7 @@ void drawImage(xImagePtr const & image, Canvas & canvas, Rect srcrect, Point des
 		srcrect.dims().width, srcrect.dims().height);
 }
 
-void ImageX11::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
-{
+void ImageX11::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
 	if( &canvas == &nullCanvas ) return;
 
 	// fit srcrect (and dest) in image dims
@@ -242,14 +228,12 @@ void ImageX11::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
 	drawImage(xImage,canvas,srcrect,dest);
 }
 
-void ImageX11::drawInto(Canvas & canvas, Point dest)
-{
+void ImageX11::drawInto(Canvas & canvas, Point dest) {
 	if( &canvas == &nullCanvas ) return;
 	drawImage(xImage,canvas,Rect::closed(Point(0,0),dims()),dest);
 }
 
-void ImageX11::drawInto(Canvas & canvas, Rect destrect)
-{
+void ImageX11::drawInto(Canvas & canvas, Rect destrect) {
 	if( &canvas == &nullCanvas ) return;
 
 	auto imageBuffer = imageResize(xImage.get(), destrect.dims());
@@ -279,15 +263,13 @@ public:
 	ClipMaskGuard(ClipMaskGuard const &) = delete;
 };
 
-size_t bitmapLineSize(int width)
-{
+size_t bitmapLineSize(int width) {
 	auto lineSize = width / 8;
 	if( width % 8 != 0 ) ++lineSize;
 	return lineSize;
 }
 
-std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr)
-{
+std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr) {
 	auto lineSize = bitmapLineSize(imagePtr->width);
 	unsigned char * result = new unsigned char[imagePtr->height * lineSize];
 
@@ -321,8 +303,7 @@ std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr)
 	return std::unique_ptr<unsigned char[]>(result);
 }
 
-std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr, std::vector<bool> const & transparentMask)
-{
+std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr, std::vector<bool> const & transparentMask) {
 	auto lineSize = bitmapLineSize(imagePtr->width);
 	unsigned char * result = new unsigned char[imagePtr->height * lineSize];
 
@@ -375,22 +356,19 @@ ImageX11Transparent::ImageX11Transparent(XImage * imagePtr, std::vector<bool> co
 {
 }
 
-void ImageX11Transparent::drawInto(Canvas & canvas, Point dest)
-{
+void ImageX11Transparent::drawInto(Canvas & canvas, Point dest) {
 	ClipMaskGuard guard(canvas,transparentMask.get(),dest);
 	ImageX11::drawInto(canvas,dest);
 }
 
 // TODO I suspect the clipmask needs to be rescaled too - test and fix
-void ImageX11Transparent::drawInto(Canvas & canvas, Rect destrect)
-{
+void ImageX11Transparent::drawInto(Canvas & canvas, Rect destrect) {
 	ClipMaskGuard guard(canvas,transparentMask.get(),destrect.topLeft());
 	ImageX11::drawInto(canvas,destrect);
 }
 
 // TODO I suspect the destination point needs to be adjusted for the clipmask too - test and fix
-void ImageX11Transparent::copyRectInto(Canvas & canvas, Rect srcrect, Point dest)
-{
+void ImageX11Transparent::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
 	ClipMaskGuard guard(canvas,transparentMask.get(),dest);
 	ImageX11::copyRectInto(canvas,srcrect,dest);
 }
