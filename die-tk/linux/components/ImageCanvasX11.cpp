@@ -2,6 +2,8 @@
 
 namespace tk {
 
+// TODO implement drawing on a transparent canvas
+
 std::shared_ptr<ImageCanvas> ImageCanvas::create(tk::WDims dims, bool transparent) {
 	auto imageBuffer = tk::image::create(tk::image::Params(tk::image::Type::BGRA,dims).tryTransparent(transparent));
 	// preprocessing pixels?
