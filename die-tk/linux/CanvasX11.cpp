@@ -285,8 +285,7 @@ void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const
 	clearClipping();
 }
 
-WDims CanvasX11::measureText(const NativeString & text)
-{
+WDims CanvasX11::measureText(const NativeString & text) {
 	WDims result;
 	auto gid = XGContextFromGC(gc);
 
@@ -313,6 +312,10 @@ WDims CanvasX11::measureText(const NativeString & text)
 //	XQueryTextExtents(resourceManager->dpy, gid, text.str.data(),text.str.size(),&direction, &font_ascent, &font_descent, &overall);
 
 	return result;
+}
+
+void CanvasX11::drawImage(tk::image::Ptr const & image, tk::Point pos) {
+	image->drawInto(*this,pos);
 }
 
 }
