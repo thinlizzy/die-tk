@@ -20,7 +20,9 @@ struct DestroyXImage {
 using xImagePtr = std::unique_ptr<XImage,DestroyXImage>;
 
 class ImageX11: public Image {
+protected:
 	xImagePtr xImage;
+private:
 	scoped::Pixmap drawingArea;
 	CanvasX11 drawingCanvas;
 public:
