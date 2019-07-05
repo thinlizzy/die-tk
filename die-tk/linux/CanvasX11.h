@@ -43,6 +43,8 @@ public:
     WDims measureText(NativeString const & text) override;
 
 	void drawImage(tk::image::Ptr const & image, tk::Point pos) override;
+	void drawImage(tk::image::Ptr const & image, Rect destrect) override;
+	void copyRectImage(tk::image::Ptr const & image, Rect srcrect, Point dest) override;
 
     void setForegroundColor(RGBColor const & color);
     void setBackgroundColor(RGBColor const & color);

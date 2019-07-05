@@ -315,7 +315,15 @@ WDims CanvasX11::measureText(const NativeString & text) {
 }
 
 void CanvasX11::drawImage(tk::image::Ptr const & image, tk::Point pos) {
-	image->drawInto(*this,pos);
+	dynamic_cast<image::ImageX11 &>(*image).drawInto(*this,pos);
+}
+
+void CanvasX11::drawImage(image::Ptr const & image, Rect destrect) {
+	dynamic_cast<image::ImageX11 &>(*image).drawInto(*this,destrect);
+}
+
+void CanvasX11::copyRectImage(tk::image::Ptr const & image, Rect srcrect, Point dest) {
+	dynamic_cast<image::ImageX11 &>(*image).copyRectInto(*this,srcrect,dest);
 }
 
 }

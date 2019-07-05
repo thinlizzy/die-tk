@@ -12,7 +12,7 @@ std::shared_ptr<ImageCanvas> ImageCanvas::create(tk::WDims dims, bool transparen
 
 ImageCanvasX11::ImageCanvasX11(tk::image::Ptr imageBuffer):
 	imageBuffer(std::move(imageBuffer)),
-	canvas(this->imageBuffer->beginDraw())
+	canvas(dynamic_cast<image::ImageX11 &>(*this->imageBuffer).beginDraw())
 {
 }
 
@@ -24,6 +24,18 @@ tk::image::Ptr ImageCanvasX11::finishAndCreateImage() {
 	imageBuffer->endDraw();
 	// postprocessing pixels?
 	return imageBuffer;
+}
+
+void ImageCanvasX11::drawImage(tk::image::Ptr const & image, tk::Point pos) {
+	dynamic_cast<image::ImageX11 &>(*image).drawInto(canvas,pos);
+}
+
+void ImageCanvasX11::drawImage(tk::image::Ptr const & image, Rect destrect) {
+	dynamic_cast<image::ImageX11 &>(*image).drawInto(canvas,destrect);
+}
+
+void ImageCanvasX11::copyRectImage(tk::image::Ptr const & image, Rect srcrect, Point dest) {
+	dynamic_cast<image::ImageX11 &>(*image).copyRectInto(canvas,srcrect,dest);
 }
 
 }

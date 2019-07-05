@@ -1,7 +1,6 @@
 #include "ImageX11.h"
 #include <algorithm>
 #include "../ResourceManager.h"
-#include "../../NullCanvas.h"
 #include "../../components/NullImage.h"
 #include "../../log.h"
 
@@ -165,7 +164,7 @@ WDims ImageX11::dims() const {
 	return WDims(xImage->width,xImage->height);
 }
 
-Canvas & ImageX11::beginDraw() {
+CanvasX11 & ImageX11::beginDraw() {
 	if( ! drawingArea ) {
 		drawingArea.reset(XCreatePixmap(
 			resourceManager->dpy,
@@ -179,7 +178,7 @@ Canvas & ImageX11::beginDraw() {
 	return drawingCanvas;
 }
 
-Canvas & ImageX11::canvas() {
+CanvasX11 & ImageX11::canvas() {
 	return drawingCanvas;
 }
 
@@ -194,21 +193,18 @@ void ImageX11::endDraw() {
 	));
 }
 
-void drawImage(xImagePtr const & image, Canvas & canvas, Rect srcrect, Point dest) {
-	auto & canvasX11 = static_cast<CanvasX11 &>(canvas);
+void drawImage(xImagePtr const & image, CanvasX11 & canvas, Rect srcrect, Point dest) {
 	XPutImage(
 		resourceManager->dpy,
-		canvasX11.getDrawable(),
-		canvasX11.getGC(),
+		canvas.getDrawable(),
+		canvas.getGC(),
 		image.get(),
 		srcrect.left, srcrect.top,
 		dest.x, dest.y,
 		srcrect.dims().width, srcrect.dims().height);
 }
 
-void ImageX11::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
-	if( &canvas == &nullCanvas ) return;
-
+void ImageX11::copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) {
 	// fit srcrect (and dest) in image dims
 	if( srcrect.left < 0 ) {
 		dest.x += -srcrect.left;
@@ -228,14 +224,11 @@ void ImageX11::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
 	drawImage(xImage,canvas,srcrect,dest);
 }
 
-void ImageX11::drawInto(Canvas & canvas, Point dest) {
-	if( &canvas == &nullCanvas ) return;
+void ImageX11::drawInto(CanvasX11 & canvas, Point dest) {
 	drawImage(xImage,canvas,Rect::closed(Point(0,0),dims()),dest);
 }
 
-void ImageX11::drawInto(Canvas & canvas, Rect destrect) {
-	if( &canvas == &nullCanvas ) return;
-
+void ImageX11::drawInto(CanvasX11 & canvas, Rect destrect) {
 	auto imageBuffer = imageResize(xImage.get(), destrect.dims());
 	auto xImage = doCreateNativeBGRA(destrect.dims(), imageBuffer);
 	if( ! xImage ) return;
@@ -249,8 +242,8 @@ void ImageX11::drawInto(Canvas & canvas, Rect destrect) {
 class ClipMaskGuard {
 	GC gc;
 public:
-	ClipMaskGuard(Canvas & canvas, Pixmap transparentMask, Point dest):
-		gc(static_cast<CanvasX11 &>(canvas).getGC())
+	ClipMaskGuard(CanvasX11 & canvas, Pixmap transparentMask, Point dest):
+		gc(canvas.getGC())
 	{
 		XSetClipOrigin(resourceManager->dpy, gc, dest.x, dest.y);
 		XSetClipMask(resourceManager->dpy, gc, transparentMask);
@@ -356,19 +349,19 @@ ImageX11Transparent::ImageX11Transparent(XImage * imagePtr, std::vector<bool> co
 {
 }
 
-void ImageX11Transparent::drawInto(Canvas & canvas, Point dest) {
+void ImageX11Transparent::drawInto(CanvasX11 & canvas, Point dest) {
 	ClipMaskGuard guard(canvas,transparentMask.get(),dest);
 	ImageX11::drawInto(canvas,dest);
 }
 
 // TODO I suspect the clipmask needs to be rescaled too - test and fix
-void ImageX11Transparent::drawInto(Canvas & canvas, Rect destrect) {
+void ImageX11Transparent::drawInto(CanvasX11 & canvas, Rect destrect) {
 	ClipMaskGuard guard(canvas,transparentMask.get(),destrect.topLeft());
 	ImageX11::drawInto(canvas,destrect);
 }
 
 // TODO I suspect the destination point needs to be adjusted for the clipmask too - test and fix
-void ImageX11Transparent::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
+void ImageX11Transparent::copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) {
 	ClipMaskGuard guard(canvas,transparentMask.get(),dest);
 	ImageX11::copyRectInto(canvas,srcrect,dest);
 }
