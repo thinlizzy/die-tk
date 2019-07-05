@@ -7,8 +7,7 @@ Painting::Painting(tk::WDims dims):
 {
 }
 
-void Painting::setCrosshair(tk::Point point)
-{
+void Painting::setCrosshair(tk::Point point) {
 	if( drawing ) {
 		auto & canvas = imgCanvas->beginDraw();
 		canvas.drawLine(coordinates,point,pen);
@@ -17,19 +16,16 @@ void Painting::setCrosshair(tk::Point point)
 	coordinates = point;
 }
 
-void Painting::penDown()
-{
+void Painting::penDown() {
 	drawing = true;
 }
 
-void Painting::penUp()
-{
+void Painting::penUp() {
 	drawing = false;
 }
 
 // resize to a bigger dimension if able
-void Painting::resize(tk::WDims dims)
-{
+void Painting::resize(tk::WDims dims) {
 	auto prevDims = imgCanvas->dims();
 	if( dims.width < prevDims.width ) dims.width = prevDims.width;
 	if( dims.height < prevDims.height ) dims.height = prevDims.height;
@@ -38,7 +34,7 @@ void Painting::resize(tk::WDims dims)
 	auto newImg = tk::image::create(tk::image::Params().dimensions(dims));
 	// copy contents of previous image
 	auto & canvas = newImg->beginDraw();
-	imgCanvas->drawInto(canvas,tk::Point(0,0));
+	canvas.drawImage(imgCanvas,tk::Point(0,0));
 	newImg->endDraw();
 	// replace the image with the resized one
 	imgCanvas = newImg;

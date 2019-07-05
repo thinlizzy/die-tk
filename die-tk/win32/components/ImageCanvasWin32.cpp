@@ -16,7 +16,7 @@ std::shared_ptr<ImageCanvas> ImageCanvas::create(tk::WDims dims, bool transparen
 
 ImageCanvasWin::ImageCanvasWin(tk::image::Ptr imageBuffer):
 	imageBuffer(std::move(imageBuffer)),
-	canvas(this->imageBuffer->beginDraw())
+	canvasImpl(dynamic_cast<image::Bitmap &>(*this->imageBuffer).beginDraw())
 {
 }
 
@@ -26,7 +26,7 @@ ImageCanvasWin::~ImageCanvasWin() {
 }
 
 tk::Canvas & ImageCanvasWin::imageCanvas() {
-	return canvas;
+	return canvasImpl;
 }
 
 tk::image::Ptr ImageCanvasWin::finishAndCreateImage() {
@@ -62,10 +62,18 @@ tk::image::Ptr ImageCanvasWin::finishAndCreateImage() {
 void ImageCanvasWin::drawImage(tk::image::Ptr const & image, tk::Point pos) {
 	auto * srcBitmapAlpha = dynamic_cast<image::BitmapAlpha *>(&*image);
 	if( srcBitmapAlpha && typeid(*imageBuffer) == typeid(image::BitmapAlpha) ) {
-		srcBitmapAlpha->drawTonT(imageCanvas(),pos);
+		srcBitmapAlpha->drawTonT(canvasImpl,pos);
 	} else {
-		ImageCanvas::drawImage(image,pos);
+		dynamic_cast<image::ImageImpl &>(*image).drawInto(canvasImpl,pos);
 	}
+}
+
+void ImageCanvasWin::drawImage(tk::image::Ptr const & image, Rect destrect) {
+	dynamic_cast<image::ImageImpl &>(*image).drawInto(canvasImpl,destrect);
+}
+
+void ImageCanvasWin::copyRectImage(tk::image::Ptr const & image, Rect srcrect, Point dest) {
+	dynamic_cast<image::ImageImpl &>(*image).copyRectInto(canvasImpl,srcrect,dest);
 }
 
 }

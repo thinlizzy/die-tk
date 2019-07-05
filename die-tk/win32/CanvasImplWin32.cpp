@@ -1,6 +1,7 @@
 #include "CanvasImplWin32.h"
 #include "ConvertersWin32.h"
 #include "../log.h"
+#include "components/ImageWin32.h"
 
 namespace tk {
 
@@ -167,8 +168,16 @@ WDims CanvasImpl::measureText(NativeString const & text)
     return sizeToWDims(size);
 }
 
-void CanvasImpl::drawImage(tk::image::Ptr const & image, tk::Point pos) {
-	image->drawInto(*this,pos);
+void CanvasImpl::drawImage(image::Ptr const & image, tk::Point pos) {
+	dynamic_cast<image::ImageImpl &>(*image).drawInto(*this,pos);
+}
+
+void CanvasImpl::drawImage(image::Ptr const & image, Rect destrect) {
+	dynamic_cast<image::ImageImpl &>(*image).drawInto(*this,destrect);
+}
+
+void CanvasImpl::copyRectImage(tk::image::Ptr const & image, Rect srcrect, Point dest) {
+	dynamic_cast<image::ImageImpl &>(*image).copyRectInto(*this,srcrect,dest);
 }
 
 // CanvasImplWin

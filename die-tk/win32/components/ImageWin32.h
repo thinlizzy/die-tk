@@ -19,6 +19,10 @@ public:
 	virtual void releaseIfCreated(HBITMAP hbmp) = 0;
 	
 	virtual HBITMAP cloneHbitmap() const = 0;
+
+	virtual void drawInto(CanvasImpl & canvas, Point dest) = 0;
+	virtual void drawInto(CanvasImpl & canvas, Rect destrect) = 0;
+	virtual void copyRectInto(CanvasImpl & canvas, Rect srcrect, Point dest) = 0;
 };
 
 // handles images with externally owned buffers
@@ -43,9 +47,9 @@ public:
 	Canvas & canvas() override;
 	void endDraw() override;
 	
-	void drawInto(Canvas & canvas, Point dest) override;
-	void drawInto(Canvas & canvas, Rect destrect) override;
-	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+	void drawInto(CanvasImpl & canvas, Point dest) override;
+	void drawInto(CanvasImpl & canvas, Rect destrect) override;
+	void copyRectInto(CanvasImpl & canvas, Rect srcrect, Point dest) override;
 };
 
 class ExternalWithHeader: public External {
@@ -56,8 +60,8 @@ public:
 
 class Bitmap: public ImageImpl {
 protected:
-	tk::scoped::BitmapDC bd;
-	tk::CanvasImpl canvasImpl;
+	scoped::BitmapDC bd;
+	CanvasImpl canvasImpl;
 public:
 	Bitmap(BITMAPINFO * info, Byte const * buffer);
 	explicit Bitmap(HBITMAP hbmp);
@@ -70,13 +74,13 @@ public:
 	unsigned bpp() const override;
 	WDims dims() const override;
 
-	Canvas & beginDraw() override;
-	Canvas & canvas() override;
+	CanvasImpl & beginDraw() override;
+	CanvasImpl & canvas() override;
 	void endDraw() override;
-	
-	void drawInto(Canvas & canvas, Point dest) override;
-	void drawInto(Canvas & canvas, Rect destrect) override;
-	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+
+	void drawInto(CanvasImpl & canvas, Point dest) override;
+	void drawInto(CanvasImpl & canvas, Rect destrect) override;
+	void copyRectInto(CanvasImpl & canvas, Rect srcrect, Point dest) override;
 	
 	HBITMAP getHbitmap() const;
 	void replaceAllQuads(std::function<void(RGBQUAD &)> replacer);
@@ -87,26 +91,26 @@ private:
 class BitmapAlpha: public Bitmap {
 public:	
 	BitmapAlpha(BITMAPINFO * info, Byte const * buffer);
-	
-	void drawInto(Canvas & canvas, Point dest) override;
-	void drawInto(Canvas & canvas, Rect destrect) override;
-	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
 
-	void drawTonT(Canvas & canvas, Point dest);
+	void drawInto(CanvasImpl & canvas, Point dest) override;
+	void drawInto(CanvasImpl & canvas, Rect destrect) override;
+	void copyRectInto(CanvasImpl & canvas, Rect srcrect, Point dest) override;
+
+	void drawTonT(CanvasImpl & canvas, Point dest);
 private:
-	void alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect);
-	void alphaBlendTonT(Canvas & canvas, Rect srcrect, Rect destrect);
+	void alphaBlend(CanvasImpl & canvas, Rect srcrect, Rect destrect);
+	void alphaBlendTonT(CanvasImpl & canvas, Rect srcrect, Rect destrect);
 };
 
 class BitmapPallete: public Bitmap {
 public:	
 	BitmapPallete(BITMAPINFO * info, Byte const * buffer, int transparentIndex);
-	
-	void drawInto(Canvas & canvas, Point dest) override;
-	void drawInto(Canvas & canvas, Rect destrect) override;
-	void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) override;
+
+	void drawInto(CanvasImpl & canvas, Point dest) override;
+	void drawInto(CanvasImpl & canvas, Rect destrect) override;
+	void copyRectInto(CanvasImpl & canvas, Rect srcrect, Point dest) override;
 private:
-	void drawInto(Canvas & canvas, Rect srcrect, Rect destrect);
+	void drawInto(CanvasImpl & canvas, Rect srcrect, Rect destrect);
 };
 
 using BitmapPtr = std::shared_ptr<Bitmap>;

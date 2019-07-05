@@ -8,15 +8,13 @@ PaintingView::PaintingView(Painting & painting, tk::Window & window):
 
 // it may have some flickering. double buffering implementation is left as an exercise for the reader :)
 
-void PaintingView::drawCrosshair(tk::Point newPoint)
-{
+void PaintingView::drawCrosshair(tk::Point newPoint) {
 	auto & canvas = window.canvas();
 	canvas.drawLine(newPoint.addY(-crossHairRadius),newPoint.addY(+crossHairRadius),crossHairPen);
 	canvas.drawLine(newPoint.addX(-crossHairRadius),newPoint.addX(+crossHairRadius),crossHairPen);
 }
 
-void PaintingView::drawX(tk::Point pos)
-{
+void PaintingView::drawX(tk::Point pos) {
 	int off = 3;
 	auto & canvas = window.canvas();
 	canvas.drawLine(pos + tk::Point(-crossHairRadius,-crossHairRadius),pos + tk::Point(-off,-off),crossHairPen);
@@ -25,8 +23,7 @@ void PaintingView::drawX(tk::Point pos)
 	canvas.drawLine(pos + tk::Point(-crossHairRadius,+crossHairRadius),pos + tk::Point(-off,+off),crossHairPen);
 }
 
-void PaintingView::move(tk::Point oldPoint, tk::Point newPoint)
-{
+void PaintingView::move(tk::Point oldPoint, tk::Point newPoint) {
 	eraseCrosshair(oldPoint);
 	if( painting.isDrawing() ) {
 		auto & canvas = window.canvas();
@@ -37,8 +34,7 @@ void PaintingView::move(tk::Point oldPoint, tk::Point newPoint)
 	}
 }
 
-void PaintingView::updatePen()
-{
+void PaintingView::updatePen() {
 	auto pos = painting.posCrosshair();
 	eraseCrosshair(pos);
 	if( painting.isDrawing() ) {
@@ -48,15 +44,13 @@ void PaintingView::updatePen()
 	}
 }
 
-void PaintingView::eraseCrosshair(tk::Point oldPoint)
-{
+void PaintingView::eraseCrosshair(tk::Point oldPoint) {
 	auto pos = oldPoint - tk::Point(crossHairRadius,crossHairRadius);
 	auto rect = tk::Rect::open(pos,tk::WDims::squared(crossHairRadius*2));
-	painting.imageCanvas()->copyRectInto(window.canvas(),rect,pos);
+	window.canvas().copyRectImage(painting.imageCanvas(),rect,pos);
 }
 
-void PaintingView::redraw(tk::Canvas & canvas, tk::Rect rect)
-{
+void PaintingView::redraw(tk::Canvas & canvas, tk::Rect rect) {
 	// not redrawing the cursor. not sure if it is needed
-	painting.imageCanvas()->copyRectInto(canvas,rect,rect.topLeft());
+	canvas.copyRectImage(painting.imageCanvas(),rect,rect.topLeft());
 }

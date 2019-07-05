@@ -28,8 +28,6 @@ public:
 	void textRect(Rect const & openrect, NativeString const & text, TextParams const & params = TextParams()) override;
 	WDims measureText(NativeString const & text) override;
 
-	void drawImage(tk::image::Ptr const & image, tk::Point pos) override;
-
 	// should be the last method to be called. calling any other methods, including this one after that is UB
 	virtual tk::image::Ptr finishAndCreateImage() = 0;
 private:

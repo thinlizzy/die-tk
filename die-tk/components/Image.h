@@ -21,12 +21,6 @@ public:
     virtual Canvas & beginDraw() = 0;
     virtual Canvas & canvas() = 0;
     virtual void endDraw() = 0;
-    // TODO remove drawInto() from the Image interface in favor of ImageCanvas
-    virtual void drawInto(Canvas & canvas, Point dest) = 0;
-	// TODO move drawInto() from the Image interface to Canvas
-    virtual void drawInto(Canvas & canvas, Rect destrect) = 0;
-	// TODO move copyRectInto() from the Image interface to Canvas
-    virtual void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) = 0;
 };
 
 using Ptr = std::shared_ptr<Image>;

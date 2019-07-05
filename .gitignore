@@ -1,7 +1,13 @@
 Makefile
 Debug
 Release
+.idea
+.vs
 .cproject
 .project
 .settings
 /.metadata/
+bazel-*
+cmake-*
+*.sln
+die-tk/*.vcxproj*

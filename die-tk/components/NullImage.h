@@ -3,8 +3,7 @@
 
 #include "Image.h"
 
-namespace tk {
-namespace image {
+namespace tk::image {
 
 class NullImage: public Image {
 public:
@@ -13,14 +12,10 @@ public:
     Canvas & beginDraw() override { return canvas(); }
     Canvas & canvas() override;
     void endDraw() override {}
-    void drawInto(Canvas & canvas, Point dest) override {}
-    void drawInto(Canvas & canvas, Rect destrect) override {}
-    void copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {}
 };
 
 extern Ptr nullImage;
 
-}
 }
 
 #endif

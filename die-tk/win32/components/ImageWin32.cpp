@@ -119,13 +119,6 @@ std::vector<Byte> grayToBgr(WDims dims, Byte const * buffer) {
 	return alignBuf;
 }
 
-HDC hdc(Canvas & canvas) {
-	if( &canvas == &nullCanvas ) return 0;
-
-	auto & canvasWin = static_cast<CanvasImpl &>(canvas);
-	return canvasWin.getHDC();
-}
-
 // create //
 
 std::shared_ptr<Image> create(Params const & params) {
@@ -223,22 +216,22 @@ void External::endDraw()
 {
 }
 
-void External::drawInto(Canvas & canvas, Point dest) {
+void External::drawInto(CanvasImpl & canvas, Point dest) {
 	auto d = dims();
-	SetDIBitsToDevice(hdc(canvas),dest.x,dest.y,d.width,d.height,
+	SetDIBitsToDevice(canvas.getHDC(),dest.x,dest.y,d.width,d.height,
 		0,0,0,info->bmiHeader.biHeight,buffer,info,DIB_RGB_COLORS);
 }
 
-void External::drawInto(Canvas & canvas, Rect destrect) {
+void External::drawInto(CanvasImpl & canvas, Rect destrect) {
 	auto d = dims();
 	auto destDims = destrect.dims();
-	StretchDIBits(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
+	StretchDIBits(canvas.getHDC(),destrect.left,destrect.top,destDims.width,destDims.height,
 		0,0,d.width,d.height,buffer,info,DIB_RGB_COLORS,SRCCOPY);
 }
 
-void External::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
+void External::copyRectInto(CanvasImpl & canvas, Rect srcrect, Point dest) {
 	auto srcDims = srcrect.dims();
-	StretchDIBits(hdc(canvas),dest.x,dest.y,srcDims.width,srcDims.height,
+	StretchDIBits(canvas.getHDC(),dest.x,dest.y,srcDims.width,srcDims.height,
 		srcrect.left,srcrect.top,srcDims.width,srcDims.height,buffer,info,DIB_RGB_COLORS,SRCCOPY);
 }
 
@@ -298,12 +291,12 @@ WDims Bitmap::dims() const {
 	return WDims(bitmap.bmWidth,bitmap.bmHeight);
 }
 
-Canvas & Bitmap::beginDraw() {
+CanvasImpl & Bitmap::beginDraw() {
 	bd.select();
 	return canvas();
 }
 
-Canvas & Bitmap::canvas() {
+CanvasImpl & Bitmap::canvas() {
 	return canvasImpl;
 }
 
@@ -311,29 +304,29 @@ void Bitmap::endDraw() {
 	bd.unselect();
 }
 
-void Bitmap::drawInto(Canvas & canvas, Point dest) {
+void Bitmap::drawInto(CanvasImpl & canvas, Point dest) {
 	auto d = dims();
 	bd.select();
-	if( BitBlt(hdc(canvas),dest.x,dest.y,d.width,d.height,bd.hdc,0,0,SRCCOPY) == 0 ) {
+	if( BitBlt(canvas.getHDC(),dest.x,dest.y,d.width,d.height,bd.hdc,0,0,SRCCOPY) == 0 ) {
 		log::error("BitBlt failed: ",dest,d);
 	}
 	bd.unselect();
 }
 
-void Bitmap::drawInto(Canvas & canvas, Rect destrect) {
+void Bitmap::drawInto(CanvasImpl & canvas, Rect destrect) {
 	auto d = dims();
 	auto destDims = destrect.dims();
 	bd.select();
-	if( StretchBlt(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,bd.hdc,0,0,d.width,d.height,SRCCOPY) == 0 ) {
+	if( StretchBlt(canvas.getHDC(),destrect.left,destrect.top,destDims.width,destDims.height,bd.hdc,0,0,d.width,d.height,SRCCOPY) == 0 ) {
 		log::error("StretchBlt failed: ",destrect,d);
 	}
 	bd.unselect();
 }
 
-void Bitmap::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
+void Bitmap::copyRectInto(CanvasImpl & canvas, Rect srcrect, Point dest) {
 	auto srcDims = srcrect.dims();
 	bd.select();
-	StretchBlt(hdc(canvas),dest.x,dest.y,srcDims.width,srcDims.height,bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,SRCCOPY);
+	StretchBlt(canvas.getHDC(),dest.x,dest.y,srcDims.width,srcDims.height,bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,SRCCOPY);
 	bd.unselect();
 }
 
@@ -397,20 +390,20 @@ BitmapAlpha::BitmapAlpha(BITMAPINFO * info, Byte const * buffer):
 {
 }
 
-void BitmapAlpha::drawInto(Canvas & canvas, Point dest) {
+void BitmapAlpha::drawInto(CanvasImpl & canvas, Point dest) {
 	drawInto(canvas,Rect::closed(dest,dims()));
 }
 
-void BitmapAlpha::drawInto(Canvas & canvas, Rect destrect) {
+void BitmapAlpha::drawInto(CanvasImpl & canvas, Rect destrect) {
 	alphaBlend(canvas,Rect::closed(Point(0,0),dims()),destrect);
 }
 
-void BitmapAlpha::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
+void BitmapAlpha::copyRectInto(CanvasImpl & canvas, Rect srcrect, Point dest) {
 	srcrect = srcrect.fitInRect(Rect::closed(Point(),dims()));
 	alphaBlend(canvas,srcrect,srcrect.move(dest));
 }
 
-void BitmapAlpha::alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect) {
+void BitmapAlpha::alphaBlend(CanvasImpl & canvas, Rect srcrect, Rect destrect) {
 	auto srcDims = srcrect.dims();
 	auto destDims = destrect.dims();
 
@@ -420,7 +413,7 @@ void BitmapAlpha::alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect) {
 	blendFunction.BlendFlags = 0;
 	blendFunction.SourceConstantAlpha = 0xFF;
 	blendFunction.AlphaFormat = AC_SRC_ALPHA;
-	if( GdiAlphaBlend(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
+	if( GdiAlphaBlend(canvas.getHDC(),destrect.left,destrect.top,destDims.width,destDims.height,
 		bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,
 		blendFunction) == 0 ) {
 		log::error("GdiAlphaBlend failed: ",srcrect,destrect);
@@ -428,17 +421,17 @@ void BitmapAlpha::alphaBlend(Canvas & canvas, Rect srcrect, Rect destrect) {
 	bd.unselect();
 }
 
-void BitmapAlpha::drawTonT(Canvas & canvas, Point dest) {
+void BitmapAlpha::drawTonT(CanvasImpl & canvas, Point dest) {
 	alphaBlendTonT(canvas, Rect::closed(Point(0, 0), dims()), Rect::closed(dest, dims()));
 }
 
-void BitmapAlpha::alphaBlendTonT(Canvas & canvas, Rect srcrect, Rect destrect) {
+void BitmapAlpha::alphaBlendTonT(CanvasImpl & canvas, Rect srcrect, Rect destrect) {
 	log::info("drawing T at ",srcrect," on T ",destrect);
 	auto srcDims = srcrect.dims();
 	auto destDims = destrect.dims();
 
 	bd.select();
-	if( !AlphaBlendTonT(hdc(canvas), destrect.left, destrect.top, destDims.width, destDims.height,
+	if( !AlphaBlendTonT(canvas.getHDC(), destrect.left, destrect.top, destDims.width, destDims.height,
 						bd.hdc, srcrect.left, srcrect.top, srcDims.width, srcDims.height) ) {
 		log::error("AlphaBlendTonT failed: ",srcrect,destrect);
 	}
@@ -463,24 +456,24 @@ BitmapPallete::BitmapPallete(BITMAPINFO * info, Byte const * buffer, int transpa
 {
 }
 
-void BitmapPallete::drawInto(Canvas & canvas, Point dest) {
+void BitmapPallete::drawInto(CanvasImpl & canvas, Point dest) {
 	drawInto(canvas,Rect::closed(dest,dims()));
 }
 
-void BitmapPallete::drawInto(Canvas & canvas, Rect destrect) {
+void BitmapPallete::drawInto(CanvasImpl & canvas, Rect destrect) {
 	drawInto(canvas,Rect::closed(Point(0,0),dims()),destrect);
 }
 
-void BitmapPallete::copyRectInto(Canvas & canvas, Rect srcrect, Point dest) {
+void BitmapPallete::copyRectInto(CanvasImpl & canvas, Rect srcrect, Point dest) {
 	drawInto(canvas,srcrect,srcrect.move(dest));
 }
 
-void BitmapPallete::drawInto(Canvas & canvas, Rect srcrect, Rect destrect) {
+void BitmapPallete::drawInto(CanvasImpl & canvas, Rect srcrect, Rect destrect) {
 	auto srcDims = srcrect.dims();
 	auto destDims = destrect.dims();
 	
 	bd.select();
-	::GdiTransparentBlt(hdc(canvas),destrect.left,destrect.top,destDims.width,destDims.height,
+	::GdiTransparentBlt(canvas.getHDC(),destrect.left,destrect.top,destDims.width,destDims.height,
 		bd.hdc,srcrect.left,srcrect.top,srcDims.width,srcDims.height,transpColor);
 	bd.unselect();
 }

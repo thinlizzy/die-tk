@@ -23,7 +23,10 @@ class NullCanvas: public Canvas {
 	void drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor) override {}
 	void textRect(Rect const & openrect, NativeString const & text, TextParams const & params = TextParams()) override {}
     WDims measureText(NativeString const & text) override { return WDims(); }
+
 	void drawImage(tk::image::Ptr const & image, tk::Point pos) override {}
+	void drawImage(tk::image::Ptr const & image, Rect destrect) override {}
+	void copyRectImage(tk::image::Ptr const & image, Rect srcrect, Point dest) override {}
 };
 
 extern NullCanvas nullCanvas;

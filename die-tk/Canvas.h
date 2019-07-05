@@ -38,6 +38,8 @@ public:
     virtual WDims measureText(NativeString const & text) = 0;
 
     virtual void drawImage(tk::image::Ptr const & image, tk::Point pos) = 0;
+	virtual void drawImage(tk::image::Ptr const & image, Rect destrect) = 0;
+	virtual void copyRectImage(tk::image::Ptr const & image, Rect srcrect, Point dest) = 0;
 };
 
 }
