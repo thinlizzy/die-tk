@@ -30,9 +30,9 @@ public:
 	CanvasX11 & beginDraw() override;
 	CanvasX11 & canvas() override;
 	void endDraw() override;
-	void drawInto(CanvasX11 & canvas, Point dest) override;
-	void drawInto(CanvasX11 & canvas, Rect destrect) override;
-	void copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) override;
+	virtual void drawInto(CanvasX11 & canvas, Point dest);
+	virtual void drawInto(CanvasX11 & canvas, Rect destrect);
+	virtual void copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest);
 };
 
 class ImageX11Transparent: public ImageX11 {

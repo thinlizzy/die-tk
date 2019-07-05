@@ -9,6 +9,7 @@
 #include "ResourceManager.h"
 #include "ConvertersX11.h"
 #include "../log.h"
+#include "components/ImageX11.h"
 
 namespace {
 

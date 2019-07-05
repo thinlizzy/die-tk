@@ -1,4 +1,5 @@
 #include "ImageCanvasX11.h"
+#include "ImageX11.h"
 
 namespace tk {
 
