@@ -62,6 +62,9 @@ char * duplicateBuffer(Params const & params) {
 		default:
 			log::error("image type not supported: ",static_cast<int>(params.type_));
 		}
+	} else {
+		// image buffer default will have black transparent pixels
+		std::fill(result,result+totalBytesDest,0);
 	}
 	return result;
 }
