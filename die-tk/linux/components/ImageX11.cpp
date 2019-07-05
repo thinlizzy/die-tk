@@ -332,24 +332,37 @@ std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr, std::vect
 	return std::unique_ptr<unsigned char[]>(result);
 }
 
+::Pixmap createTransparentPixmap(XImage * imagePtr) {
+	auto tpMaskPtr = getTransparentMask(imagePtr);
+	return XCreateBitmapFromData(
+		resourceManager->dpy,
+		resourceManager->root(),
+		reinterpret_cast<char *>(tpMaskPtr.get()),
+		imagePtr->width, imagePtr->height);
+}
+
 // ImageX11Transparent //
 
 ImageX11Transparent::ImageX11Transparent(XImage * imagePtr):
 	ImageX11(imagePtr),
-	transparentMask(XCreateBitmapFromData(resourceManager->dpy,
-		resourceManager->root(),
-		reinterpret_cast<char *>(getTransparentMask(imagePtr).get()),
-		imagePtr->width, imagePtr->height))
+	transparentMask(createTransparentPixmap(imagePtr))
 {
 }
 
 ImageX11Transparent::ImageX11Transparent(XImage * imagePtr, std::vector<bool> const & transparentMask):
 	ImageX11(imagePtr),
-	transparentMask(XCreateBitmapFromData(resourceManager->dpy,
+	transparentMask(XCreateBitmapFromData(
+		resourceManager->dpy,
 		resourceManager->root(),
 		reinterpret_cast<char *>(getTransparentMask(imagePtr,transparentMask).get()),
 		imagePtr->width, imagePtr->height))
 {
+}
+
+void ImageX11Transparent::endDraw() {
+	ImageX11::endDraw();
+	// creates the transparent mask again, assuming all 'touched' pixels don't have alpha == 0
+	transparentMask.reset(createTransparentPixmap(xImage.get()));
 }
 
 void ImageX11Transparent::drawInto(CanvasX11 & canvas, Point dest) {

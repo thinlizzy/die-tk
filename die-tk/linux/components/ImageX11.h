@@ -41,6 +41,8 @@ public:
 	ImageX11Transparent(XImage * imagePtr);
 	ImageX11Transparent(XImage * imagePtr, std::vector<bool> const & transparentMask);
 
+	void endDraw() override;
+
 	void drawInto(CanvasX11 & canvas, Point dest) override;
 	void drawInto(CanvasX11 & canvas, Rect destrect) override;
 	void copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) override;
