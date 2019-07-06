@@ -49,11 +49,17 @@ int main() {
 	imageCanvasTonTfillW->drawImage(littleBox,{60,40});
 	auto imageTonTfillW = imageCanvasTonTfillW->finishAndCreateImage();
 
+	std::cerr << "creating almost empty transparent image" << std::endl;
+	auto imageCanvasEmptyT = ImageCanvas::create({10,10},true);
+	imageCanvasEmptyT->drawLine({0,0},{9,9},RGBColor(0,200,200));
+	auto imageEmptyT = imageCanvasEmptyT->finishAndCreateImage();
+
 	std::cerr << "done creating images" << std::endl;
 
 	window.onPaint([&](Canvas & canvas, Rect rect) {
 		canvas.fillRect(Rect::open({0,0},window.dims()),RGBColor(0,0,100));
 		canvas.fillRect(Rect::open({0,100},window.dims().setHeight(100)),RGBColor(0,0,0));
+
 		canvas.drawText({20,15},"little boxes",RGBColor(255,255,255));
 		canvas.drawImage(littleBox,Point(30,30));
 		canvas.drawImage(littleBox,Point(30,60));
@@ -73,6 +79,9 @@ int main() {
 		canvas.drawImage(imageTonTopaque,Point(210,150));
 		canvas.drawText({100,135},"imageTonTfillW",RGBColor(255,255,255));
 		canvas.drawImage(imageTonTfillW,Point(100,150));
+
+		canvas.drawImage(imageEmptyT,Point(10,200));
+
 		// manually reproduce imageTonT
 		canvas.drawText({300,15},"manual imageTonT",RGBColor(255,255,255));
 		canvas.roundRect(Rect::open({300,30},{90,100}),{20,30},RGBColor(200,0,0),RGBColor(200,0,0));

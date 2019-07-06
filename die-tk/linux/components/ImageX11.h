@@ -1,7 +1,9 @@
 #ifndef IMAGEX11_H_DIE_TK_2015_02_01
 #define IMAGEX11_H_DIE_TK_2015_02_01
 
+#include <functional>
 #include <memory>
+#include <ostream>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include "../ScopedX11.h"
@@ -19,6 +21,10 @@ struct DestroyXImage {
 };
 using xImagePtr = std::unique_ptr<XImage,DestroyXImage>;
 
+struct Bgra {
+	unsigned char b,g,r,a;
+};
+
 class ImageX11: public Image {
 protected:
 	xImagePtr xImage;
@@ -35,6 +41,8 @@ public:
 	virtual void drawInto(CanvasX11 & canvas, Point dest);
 	virtual void drawInto(CanvasX11 & canvas, Rect destrect);
 	virtual void copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest);
+
+	void forEach(std::function<void(Bgra &)> callback);
 };
 
 class ImageX11Transparent: public ImageX11 {
@@ -55,8 +63,11 @@ Ptr createNativeBGRA(WDims dims, char * buffer);
 Ptr createTransparentBGRA(WDims dims, char * buffer);
 Ptr createTransparentBGRA(WDims dims, std::vector<bool> const & transparentMask, char * buffer);
 
+std::ostream & operator<<(std::ostream & os, Bgra const & bgra);
+
 }
 
 }
+
 
 #endif

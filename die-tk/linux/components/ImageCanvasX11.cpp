@@ -3,11 +3,8 @@
 
 namespace tk {
 
-// TODO implement drawing on a transparent canvas
-
 std::shared_ptr<ImageCanvas> ImageCanvas::create(tk::WDims dims, bool transparent) {
 	auto imageBuffer = tk::image::create(tk::image::Params(tk::image::Type::BGRA,dims).tryTransparent(transparent));
-	// preprocessing pixels?
 	return std::make_shared<ImageCanvasX11>(imageBuffer);
 }
 
@@ -23,7 +20,6 @@ tk::Canvas & ImageCanvasX11::imageCanvas() {
 
 tk::image::Ptr ImageCanvasX11::finishAndCreateImage() {
 	imageBuffer->endDraw();
-	// postprocessing pixels?
 	return imageBuffer;
 }
 

@@ -152,6 +152,17 @@ Ptr createTransparentBGRA(WDims dims, std::vector<bool> const & transparentMask,
 	return std::make_shared<ImageX11Transparent>(imagePtr,transparentMask);
 }
 
+void drawImage(xImagePtr const & image, CanvasX11 & canvas, Rect srcrect, Point dest) {
+	XPutImage(
+		resourceManager->dpy,
+		canvas.getDrawable(),
+		canvas.getGC(),
+		image.get(),
+		srcrect.left, srcrect.top,
+		dest.x, dest.y,
+		srcrect.dims().width, srcrect.dims().height);
+}
+
 // *** ImageX11 *** //
 
 ImageX11::ImageX11(XImage * imagePtr):
@@ -177,7 +188,7 @@ CanvasX11 & ImageX11::beginDraw() {
 		));
 		drawingCanvas = CanvasX11(drawingArea.get());
 	}
-	drawInto(drawingCanvas,Point(0,0));
+	drawImage(xImage,drawingCanvas,Rect::closed(Point(0,0),dims()),Point(0,0));
 	return drawingCanvas;
 }
 
@@ -194,17 +205,6 @@ void ImageX11::endDraw() {
 		-1,
 		ZPixmap
 	));
-}
-
-void drawImage(xImagePtr const & image, CanvasX11 & canvas, Rect srcrect, Point dest) {
-	XPutImage(
-		resourceManager->dpy,
-		canvas.getDrawable(),
-		canvas.getGC(),
-		image.get(),
-		srcrect.left, srcrect.top,
-		dest.x, dest.y,
-		srcrect.dims().width, srcrect.dims().height);
 }
 
 void ImageX11::copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) {
@@ -238,6 +238,15 @@ void ImageX11::drawInto(CanvasX11 & canvas, Rect destrect) {
 	xImagePtr resizedImgPtr(xImage);
 
 	drawImage(resizedImgPtr,canvas,Rect::closed(Point(0,0),destrect.dims()),destrect.topLeft());
+}
+
+void ImageX11::forEach(std::function<void(Bgra &)> callback) {
+	auto p = xImage->data;
+	for( auto h = 0; h != xImage->height; ++h ) {
+		for( auto w = 0; w != xImage->width; ++w,p+=4 ) {
+			callback(*reinterpret_cast<Bgra *>(p));
+		}
+	}
 }
 
 // ImageX11Transparent helpers
@@ -380,6 +389,11 @@ void ImageX11Transparent::drawInto(CanvasX11 & canvas, Rect destrect) {
 void ImageX11Transparent::copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) {
 	ClipMaskGuard guard(canvas,transparentMask.get(),dest);
 	ImageX11::copyRectInto(canvas,srcrect,dest);
+}
+
+std::ostream & operator<<(std::ostream & os, Bgra const & bgra) {
+	os << '(' << int(bgra.b) << ',' << int(bgra.g) << ',' << int(bgra.r) << ',' << int(bgra.a) << ')';
+	return os;
 }
 
 }
