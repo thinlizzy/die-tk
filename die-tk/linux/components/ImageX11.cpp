@@ -197,14 +197,15 @@ CanvasX11 & ImageX11::canvas() {
 }
 
 void ImageX11::endDraw() {
-	xImage.reset(XGetImage(
+	XGetSubImage(
 		resourceManager->dpy,
 		drawingArea.get(),
 		0,0,
-		xImage->width, xImage->height,
+		xImage->width,xImage->height,
 		-1,
-		ZPixmap
-	));
+		ZPixmap,
+		xImage.get(),
+		0,0);
 }
 
 void ImageX11::copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) {
