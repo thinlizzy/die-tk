@@ -1,6 +1,6 @@
 #include "ImageCanvasWin32.h"
 #include "ImageWin32.h"
-#include "../../log.h"
+#include "../../components/NullImage.h"
 
 namespace tk {
 
@@ -60,6 +60,7 @@ tk::image::Ptr ImageCanvasWin::finishAndCreateImage() {
 }
 
 void ImageCanvasWin::drawImage(tk::image::Ptr const & image, tk::Point pos) {
+	if( image == image::nullImage ) return;
 	auto * srcBitmapAlpha = dynamic_cast<image::BitmapAlpha *>(&*image);
 	if( srcBitmapAlpha && typeid(*imageBuffer) == typeid(image::BitmapAlpha) ) {
 		srcBitmapAlpha->drawTonT(canvasImpl,pos);
@@ -69,10 +70,12 @@ void ImageCanvasWin::drawImage(tk::image::Ptr const & image, tk::Point pos) {
 }
 
 void ImageCanvasWin::drawImage(tk::image::Ptr const & image, Rect destrect) {
+	if( image == image::nullImage ) return;
 	dynamic_cast<image::ImageImpl &>(*image).drawInto(canvasImpl,destrect);
 }
 
 void ImageCanvasWin::copyRectImage(tk::image::Ptr const & image, Rect srcrect, Point dest) {
+	if( image == image::nullImage ) return;
 	dynamic_cast<image::ImageImpl &>(*image).copyRectInto(canvasImpl,srcrect,dest);
 }
 

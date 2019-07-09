@@ -10,6 +10,7 @@
 #include "ConvertersX11.h"
 #include "../log.h"
 #include "components/ImageX11.h"
+#include "../components/NullImage.h"
 
 namespace {
 
@@ -316,14 +317,17 @@ WDims CanvasX11::measureText(const NativeString & text) {
 }
 
 void CanvasX11::drawImage(tk::image::Ptr const & image, tk::Point pos) {
+	if( image == image::nullImage ) return;
 	dynamic_cast<image::ImageX11 &>(*image).drawInto(*this,pos);
 }
 
 void CanvasX11::drawImage(image::Ptr const & image, Rect destrect) {
+	if( image == image::nullImage ) return;
 	dynamic_cast<image::ImageX11 &>(*image).drawInto(*this,destrect);
 }
 
 void CanvasX11::copyRectImage(tk::image::Ptr const & image, Rect srcrect, Point dest) {
+	if( image == image::nullImage ) return;
 	dynamic_cast<image::ImageX11 &>(*image).copyRectInto(*this,srcrect,dest);
 }
 
