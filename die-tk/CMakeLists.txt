@@ -40,38 +40,3 @@ add_library(die-tk-base
         WindowObjects.h
         WindowParams.h
         )
-
-add_library(die-tk-win
-        win32/components/ImageCanvasWin32.cpp
-        win32/components/ImageCanvasWin32.h
-        win32/components/ImageWin32.cpp
-        win32/components/ImageWin32.h
-        win32/components/WindowComponent.h
-        win32/controls/ControlMacros.h
-        win32/controls/Image.cpp
-        win32/controls/ImageWin32.cpp
-        win32/controls/ImageWin32.h
-        win32/controls/PaintBox.cpp
-        win32/controls/PaintBoxWin32.cpp
-        win32/controls/PaintBoxWin32.h
-        win32/Application.cpp
-        win32/CanvasImplWin32.cpp
-        win32/CanvasImplWin32.h
-        win32/ControlWin32.cpp
-        win32/ConvertersWin32.cpp
-        win32/ConvertersWin32.h
-        win32/die-tk-win32.h
-        win32/log.cpp
-        win32/NativeControlWin32.cpp
-        win32/NativeControlWin32.h
-        win32/NativeString.cpp
-        win32/ResourceManager.cpp
-        win32/ResourceManager.h
-        win32/ScopedObjects.h
-        win32/SurfaceWin32.cpp
-        win32/Window.cpp
-        win32/WindowImplWin32.cpp
-        win32/WindowImplWin32.h
-        )
-
-target_link_libraries(die-tk-win die-tk-base ${GDI32_LIB} ${USER32_LIB})
