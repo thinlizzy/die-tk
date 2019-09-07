@@ -42,7 +42,9 @@ public:
 	template<typename U>
 	constexpr basic_point scalar(basic_point<U> const & p) const { return scalar(p.x,p.y); }
 
-    constexpr T distance() const { return std::sqrt(x*x+y*y); }
+    constexpr T distance() const { return std::sqrt(x*x + y*y); }
+
+	constexpr T distance(basic_point const & p) const { return (*this - p).distance(); }
 
 	friend std::ostream & operator<<(std::ostream & os, basic_point const & p) { os << '(' << p.x << ',' << p.y << ')'; return os; }
 };
@@ -60,6 +62,8 @@ constexpr basic_point<T> operator*(U f, basic_point<T> const & p) { return basic
 template<typename T>
 constexpr basic_point<T> operator/(basic_point<T> const & p, T f) { return basic_point<T>(p)/=f; }
 
+template<typename T>
+constexpr T distance(basic_point<T> const & p1, basic_point<T> const & p2) { return p1.distance(p2); }
 
 using Point = basic_point<int>;
 
