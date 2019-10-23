@@ -46,13 +46,15 @@ public:
     constexpr Rect addX(int x) const { return Rect(left+x,top,right+x,bottom); }
     constexpr Rect addY(int y) const { return Rect(left,top+y,right,bottom+y); }
     constexpr Rect add(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
-    
+	constexpr Rect addLeft(int x) const { return Rect(left+x,top,right,bottom); }
+	constexpr Rect addTop(int y) const { return Rect(left,top+y,right,bottom); }
+
 	constexpr Rect move(Point p) const { return Rect(p.x,p.y,p.x+right-left,p.y+bottom-top); }
 	constexpr Rect moveLeft(int x) const { return move(Point(x,this->top)); }
 	constexpr Rect moveTop(int y) const { return move(Point(this->left,y)); }
-	constexpr Rect shift(Point p) const { return move(topLeft()+p); }
 	constexpr Rect resize(WDims dims) const { return closed(topLeft(),dims); }
 	constexpr Rect resizeBottomRight(WDims dims) const { return Rect(right-dims.width+1,bottom-dims.height+1,right,bottom); }
+	constexpr Rect resizeFromCenter(WDims dims) const { return closed(topLeft()-Point(dims.width/2,dims.height/2),dims); }
 	constexpr Rect zoom(float s) const { return Rect::closed(topLeft()*s,dims()*s); }
 
     constexpr Point posDown(int margin) const { return topLeft().addY(height() + margin); }
