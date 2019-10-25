@@ -53,8 +53,12 @@ public:
 	constexpr Rect moveLeft(int x) const { return move(Point(x,this->top)); }
 	constexpr Rect moveTop(int y) const { return move(Point(this->left,y)); }
 	constexpr Rect resize(WDims dims) const { return closed(topLeft(),dims); }
-	constexpr Rect resizeBottomRight(WDims dims) const { return Rect(right-dims.width+1,bottom-dims.height+1,right,bottom); }
-	constexpr Rect resizeFromCenter(WDims dims) const { return closed(topLeft()-Point(dims.width/2,dims.height/2),dims); }
+	constexpr Rect resizeBottomRight(WDims dims) const {
+		return Rect(right-dims.width+1,bottom-dims.height+1,right,bottom);
+	}
+	constexpr Rect resizeFromCenter(WDims dims) const {
+		return closed(center()-Point(dims.width/2,dims.height/2),dims);
+	}
 	constexpr Rect zoom(float s) const { return Rect::closed(topLeft()*s,dims()*s); }
 
     constexpr Point posDown(int margin) const { return topLeft().addY(height() + margin); }
