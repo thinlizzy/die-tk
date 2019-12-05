@@ -1,4 +1,5 @@
-add_library(die-tk-base
+add_library(die-tk
+        ../die-tk.h
         components/Image.h
         components/ImageParams.h
         components/ImageCanvas.cpp
@@ -40,3 +41,5 @@ add_library(die-tk-base
         WindowObjects.h
         WindowParams.h
         )
+
+target_link_libraries(die-tk die-tk-impl)

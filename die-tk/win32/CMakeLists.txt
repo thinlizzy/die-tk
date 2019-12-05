@@ -34,4 +34,4 @@ add_library(die-tk-impl
         WindowImplWin32.h
         )
 
-target_link_libraries(die-tk-impl die-tk-base ${GDI32_LIB} ${USER32_LIB})
+target_link_libraries(die-tk-impl ${GDI32_LIB} ${USER32_LIB})

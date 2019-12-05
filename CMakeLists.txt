@@ -13,9 +13,6 @@ else()
 endif()
 add_subdirectory(die-tk-image)
 
-add_library(die-tk die-tk.h)
-target_link_libraries(die-tk die-tk-base die-tk-impl)
-
 # examples
 add_subdirectory(examples/events)
 add_subdirectory(examples/ImageCanvas)

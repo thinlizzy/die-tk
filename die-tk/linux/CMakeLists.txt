@@ -27,4 +27,4 @@ add_library(die-tk-impl
         WindowImplX11.h
         )
 
-target_link_libraries(die-tk-impl die-tk-base ${X11_LIB})
+target_link_libraries(die-tk-impl ${X11_LIB})
