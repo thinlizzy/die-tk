@@ -233,12 +233,16 @@ void ImageX11::drawInto(CanvasX11 & canvas, Point dest) {
 }
 
 void ImageX11::drawInto(CanvasX11 & canvas, Rect destrect) {
-	auto imageBuffer = imageResize(xImage.get(), destrect.dims());
-	auto xImage = doCreateNativeBGRA(destrect.dims(), imageBuffer);
-	if( ! xImage ) return;
-	xImagePtr resizedImgPtr(xImage);
+	if( xImage->width == destrect.width() && xImage->height == destrect.height() ) {
+		drawImage(xImage,canvas,Rect::closed(Point(0,0),destrect.dims()),destrect.topLeft());
+	} else {
+		auto imageBuffer = imageResize(xImage.get(), destrect.dims());
+		auto xResizedImage = doCreateNativeBGRA(destrect.dims(), imageBuffer);
+		if( ! xResizedImage ) return;
 
-	drawImage(resizedImgPtr,canvas,Rect::closed(Point(0,0),destrect.dims()),destrect.topLeft());
+		auto resizedImgPtr = xImagePtr(xResizedImage);
+		drawImage(resizedImgPtr,canvas,Rect::closed(Point(0,0),destrect.dims()),destrect.topLeft());
+	}
 }
 
 void ImageX11::forEach(std::function<void(Bgra &)> callback) {
