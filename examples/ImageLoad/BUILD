@@ -13,7 +13,10 @@ cc_library(
 		"//:die-tk-base",
 		"//die-tk-image:die-tk-image-base",
 	],
-	copts = ["-DBAZEL_FOR_WINDOWS"],
+	copts = select({
+		"@bazel_tools//src/conditions:windows": ["-DBAZEL_FOR_WINDOWS"],
+		"//conditions:default": [],
+	}),
 )
 
 cc_binary(
