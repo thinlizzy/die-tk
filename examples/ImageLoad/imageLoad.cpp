@@ -32,19 +32,19 @@ int main()
 	auto bugLeft = convertImage(img::Image(imageDir + "bugLeft.png"));
 	auto gameTitle = convertImage(img::Image(imageDir + "gameTitle.png"));
 	window.onPaint([&](Canvas & canvas, Rect) {
-		diego->drawInto(canvas,Point(0,0));
-		explosion->drawInto(canvas,Point(5,5));
-		explosion3->drawInto(canvas,Point(80,5));
-		boss->drawInto(canvas,Point(20,100));
-		bugLeft->drawInto(canvas,Point(300,15));
-		gameTitle->drawInto(canvas,Point(300,40));
+		canvas->drawImage(diego,Point(0,0));
+		canvas->drawImage(explosion,Point(5,5));
+		canvas->drawImage(explosion3,Point(80,5));
+		canvas->drawImage(boss,Point(20,100));
+		canvas->drawImage(bugLeft,Point(300,15));
+		canvas->drawImage(gameTitle,Point(300,40));
 	});
 
 	PaintBox p(window, ControlParams().start({5,40}).dims({40,40}));
 	p.onPaint([&](Canvas & canvas, Rect rect) {
 		std::cout << rect << std::endl;
 		canvas.fillRect(Rect::open(Point(2,2),WDims(6,6)),RGBColor(100,0,0));
-		explosion->drawInto(canvas,Point(0,0));
+		canvas->drawImage(explosion,Point(0,0));
 		// TODO X11 copy rect into fails with smaller rectangles
 		// TODO X11 PaintBox transparency fails
 		//explosion->copyRectInto(canvas,rect,rect.topLeft());
