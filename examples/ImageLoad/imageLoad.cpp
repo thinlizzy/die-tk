@@ -7,17 +7,18 @@ using namespace std::literals::string_literals;
 namespace {
 
 #ifdef BAZEL_FOR_WINDOWS
-std::string imageDir = "../../../../../../examples/imageLoad/"s;
+std::string baseDir = "../../../../../../"s;
 #else
-std::string imageDir = "";
+std::string baseDir = "";
 #endif
+
+std::string imageDir = baseDir + "examples/ImageLoad/";
 
 }
 
 using namespace tk;
 
-int main()
-{
+int main() {
 	Application app;
 
 	Window window(WindowParams("test image load and transparency!").dims({700,400}));
