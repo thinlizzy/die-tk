@@ -446,9 +446,8 @@ Pixmap ImageX11Transparent::resizedTransparentMask(WDims newDims) {
 		newDims.width, newDims.height);
 }
 
-// TODO I suspect the destination point needs to be adjusted for srcrect in the clipmask - test and fix
 void ImageX11Transparent::copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) {
-	ClipMaskGuard guard(canvas,transparentMask.get(),dest);
+	ClipMaskGuard guard(canvas,transparentMask.get(),dest-srcrect.topLeft());
 	ImageX11::copyRectInto(canvas,srcrect,dest);
 }
 
