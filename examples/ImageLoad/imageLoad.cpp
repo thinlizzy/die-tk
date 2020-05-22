@@ -7,13 +7,10 @@ using namespace std::literals::string_literals;
 namespace {
 
 #ifdef BAZEL_FOR_WINDOWS
-std::string baseDir = "../../../../../../"s;
+std::string imageDir = "../../../../../../examples/imageLoad/"s;
 #else
-std::string baseDir = "";
+std::string imageDir = "";
 #endif
-
-// from data dir dependency. see how to relocate it
-std::string imageDir = baseDir + "examples/imageLoad/"s;
 
 }
 
