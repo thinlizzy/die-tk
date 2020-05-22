@@ -108,7 +108,7 @@ char * imageResize(XImage const * imagePtr, WDims dims) {
 	return result;
 }
 
-// TODO melhorar esse algoritmo
+// NOT IN USE: this was a bad attempt to resize a bitmap
 unsigned char * bitmapResize(XImage const * imagePtr, WDims dims) {
 	auto lineSize = bitmapLineSize(imagePtr->width);
 	auto result = new unsigned char[dims.height * lineSize];
@@ -201,6 +201,11 @@ void drawImage(xImagePtr const & image, CanvasX11 & canvas, Rect srcrect, Point 
 		srcrect.dims().width, srcrect.dims().height);
 }
 
+xImagePtr resizeXImage(XImage const * imagePtr, WDims dims) {
+	auto imageBuffer = imageResize(imagePtr,dims);
+	return xImagePtr(doCreateNativeBGRA(dims,imageBuffer));
+}
+
 // *** ImageX11 *** //
 
 ImageX11::ImageX11(XImage * imagePtr):
@@ -274,11 +279,7 @@ void ImageX11::drawInto(CanvasX11 & canvas, Rect destrect) {
 	if( dims() == destrect.dims() ) {
 		drawImage(xImage,canvas,Rect::closed(Point(0,0),destrect.dims()),destrect.topLeft());
 	} else {
-		auto imageBuffer = imageResize(xImage.get(), destrect.dims());
-		auto xResizedImage = doCreateNativeBGRA(destrect.dims(), imageBuffer);
-		if( ! xResizedImage ) return;
-
-		auto resizedImgPtr = xImagePtr(xResizedImage);
+		auto resizedImgPtr = resizeXImage(xImage.get(),destrect.dims());
 		drawImage(resizedImgPtr,canvas,Rect::closed(Point(0,0),destrect.dims()),destrect.topLeft());
 	}
 }
@@ -426,12 +427,24 @@ void ImageX11Transparent::drawInto(CanvasX11 & canvas, Rect destrect) {
 		ClipMaskGuard guard(canvas,transparentMask.get(),destrect.topLeft());
 		ImageX11::drawInto(canvas,destrect);
 	} else {
-		auto resizedMask = scoped::Pixmap(resizedTransparentMask(destrect.dims()));
+		auto resizedImage = resizeXImage(xImage.get(),destrect.dims());
+		auto resizedMask = scoped::Pixmap(createTransparentPixmap(resizedImage.get()));
 		ClipMaskGuard guard(canvas,resizedMask.get(),destrect.topLeft());
-		ImageX11::drawInto(canvas,destrect);
+		drawImage(resizedImage,canvas,Rect::closed(Point(0,0),destrect.dims()),destrect.topLeft());
 	}
 }
 
+void ImageX11Transparent::copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) {
+	ClipMaskGuard guard(canvas,transparentMask.get(),dest-srcrect.topLeft());
+	ImageX11::copyRectInto(canvas,srcrect,dest);
+}
+
+std::ostream & operator<<(std::ostream & os, Bgra const & bgra) {
+	os << '(' << int(bgra.b) << ',' << int(bgra.g) << ',' << int(bgra.r) << ',' << int(bgra.a) << ')';
+	return os;
+}
+
+// NOT IN USE: this was a bad attempt to resize a bitmap
 Pixmap ImageX11Transparent::resizedTransparentMask(WDims newDims) {
 	auto capturedImage = xImagePtr(XGetImage(
 		resourceManager->dpy,
@@ -446,16 +459,6 @@ Pixmap ImageX11Transparent::resizedTransparentMask(WDims newDims) {
 		resourceManager->root(),
 		reinterpret_cast<char *>(resizedMask.get()),
 		newDims.width, newDims.height);
-}
-
-void ImageX11Transparent::copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) {
-	ClipMaskGuard guard(canvas,transparentMask.get(),dest-srcrect.topLeft());
-	ImageX11::copyRectInto(canvas,srcrect,dest);
-}
-
-std::ostream & operator<<(std::ostream & os, Bgra const & bgra) {
-	os << '(' << int(bgra.b) << ',' << int(bgra.g) << ',' << int(bgra.r) << ',' << int(bgra.a) << ')';
-	return os;
 }
 
 }

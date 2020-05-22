@@ -57,6 +57,7 @@ public:
 	void drawInto(CanvasX11 & canvas, Rect destrect) override;
 	void copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) override;
 private:
+	// NOT IN USE: this was a bad attempt to resize a bitmap
 	Pixmap resizedTransparentMask(WDims newDims);
 };
 
