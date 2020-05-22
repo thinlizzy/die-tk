@@ -111,8 +111,8 @@ char * imageResize(XImage const * imagePtr, WDims dims) {
 // TODO melhorar esse algoritmo
 char * bitmapResize(XImage const * imagePtr, WDims dims) {
 	auto lineSize = bitmapLineSize(imagePtr->width);
-	char * result = new char[imagePtr->height * lineSize];
-	std::fill_n(result,imagePtr->height * lineSize,0);
+	char * result = new char[dims.height * lineSize];
+	std::fill_n(result,dims.height * lineSize,0);
 
 	auto dst = result;
 	int dx = 0;
@@ -419,11 +419,11 @@ void ImageX11Transparent::drawInto(CanvasX11 & canvas, Point dest) {
 void ImageX11Transparent::drawInto(CanvasX11 & canvas, Rect destrect) {
 	if( dims() == destrect.dims() ) {
 		ClipMaskGuard guard(canvas,transparentMask.get(),destrect.topLeft());
-		ImageX11::drawInto(canvas, destrect);
+		ImageX11::drawInto(canvas,destrect);
 	} else {
 		auto resizedMask = scoped::Pixmap(resizedTransparentMask(destrect.dims()));
 		ClipMaskGuard guard(canvas,resizedMask.get(),destrect.topLeft());
-		ImageX11::drawInto(canvas, destrect);
+		ImageX11::drawInto(canvas,destrect);
 	}
 }
 
