@@ -16,5 +16,6 @@ add_subdirectory(die-tk-image)
 # examples
 add_subdirectory(examples/events)
 add_subdirectory(examples/ImageCanvas)
+add_subdirectory(examples/ImageScaling)
 add_subdirectory(examples/two-windows)
 #add other examples

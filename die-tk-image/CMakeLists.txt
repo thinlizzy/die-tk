@@ -7,3 +7,5 @@ else()
             convert.h
             linux/convertImage.cpp)
 endif()
+
+target_link_libraries(die-tk-image libimage)

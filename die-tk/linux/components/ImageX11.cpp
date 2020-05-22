@@ -384,13 +384,18 @@ void ImageX11Transparent::drawInto(CanvasX11 & canvas, Point dest) {
 	ImageX11::drawInto(canvas,dest);
 }
 
-// TODO I suspect the clipmask needs to be rescaled too - test and fix
 void ImageX11Transparent::drawInto(CanvasX11 & canvas, Rect destrect) {
-	ClipMaskGuard guard(canvas,transparentMask.get(),destrect.topLeft());
-	ImageX11::drawInto(canvas,destrect);
+	if( xImage->width == destrect.width() && xImage->height == destrect.height() ) {
+		ClipMaskGuard guard(canvas, transparentMask.get(), destrect.topLeft());
+		ImageX11::drawInto(canvas, destrect);
+	} else {
+		// TODO rescale clipmask -> transparentMask.get()
+		ClipMaskGuard guard(canvas, transparentMask.get(), destrect.topLeft());
+		ImageX11::drawInto(canvas, destrect);
+	}
 }
 
-// TODO I suspect the destination point needs to be adjusted for the clipmask too - test and fix
+// TODO I suspect the destination point needs to be adjusted for srcrect in the clipmask - test and fix
 void ImageX11Transparent::copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) {
 	ClipMaskGuard guard(canvas,transparentMask.get(),dest);
 	ImageX11::copyRectInto(canvas,srcrect,dest);
