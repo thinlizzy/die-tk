@@ -387,6 +387,15 @@ std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr, std::vect
 		imagePtr->width, imagePtr->height);
 }
 
+::Pixmap createTransparentPixmap(XImage * imagePtr, std::vector<bool> const & transparentMask) {
+	auto tpMaskPtr = getTransparentMask(imagePtr,transparentMask);
+	return XCreateBitmapFromData(
+		resourceManager->dpy,
+		resourceManager->root(),
+		reinterpret_cast<char *>(tpMaskPtr.get()),
+		imagePtr->width, imagePtr->height);
+}
+
 // ImageX11Transparent //
 
 ImageX11Transparent::ImageX11Transparent(XImage * imagePtr):
@@ -397,11 +406,7 @@ ImageX11Transparent::ImageX11Transparent(XImage * imagePtr):
 
 ImageX11Transparent::ImageX11Transparent(XImage * imagePtr, std::vector<bool> const & transparentMask):
 	ImageX11(imagePtr),
-	transparentMask(XCreateBitmapFromData(
-		resourceManager->dpy,
-		resourceManager->root(),
-		reinterpret_cast<char *>(getTransparentMask(imagePtr,transparentMask).get()),
-		imagePtr->width, imagePtr->height))
+	transparentMask(createTransparentPixmap(imagePtr,transparentMask))
 {
 }
 
