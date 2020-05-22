@@ -109,9 +109,9 @@ char * imageResize(XImage const * imagePtr, WDims dims) {
 }
 
 // TODO melhorar esse algoritmo
-char * bitmapResize(XImage const * imagePtr, WDims dims) {
+unsigned char * bitmapResize(XImage const * imagePtr, WDims dims) {
 	auto lineSize = bitmapLineSize(imagePtr->width);
-	auto result = new char[dims.height * lineSize];
+	auto result = new unsigned char[dims.height * lineSize];
 	std::fill_n(result,dims.height * lineSize,0);
 
 	auto dst = result;
@@ -433,21 +433,18 @@ void ImageX11Transparent::drawInto(CanvasX11 & canvas, Rect destrect) {
 }
 
 Pixmap ImageX11Transparent::resizedTransparentMask(WDims newDims) {
-	auto capturedImage = XGetImage(
+	auto capturedImage = xImagePtr(XGetImage(
 		resourceManager->dpy,
 		transparentMask.get(),
 		0,0,
 		xImage->width,xImage->height,
 		-1,
-		ZPixmap);
-	if( capturedImage == 0 ) {
-		log::error("failed to capture Pixmap");
-	}
-	auto resizedMask = std::unique_ptr<char[]>(bitmapResize(capturedImage,newDims));
+		ZPixmap));
+	auto resizedMask = std::unique_ptr<unsigned char[]>(bitmapResize(capturedImage.get(),newDims));
 	return XCreateBitmapFromData(
 		resourceManager->dpy,
 		resourceManager->root(),
-		resizedMask.get(),
+		reinterpret_cast<char *>(resizedMask.get()),
 		newDims.width, newDims.height);
 }
 
