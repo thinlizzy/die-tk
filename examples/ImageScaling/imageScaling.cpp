@@ -43,7 +43,7 @@ int main() {
 		canvas.drawImage(bug,Point(5,100));
 		canvas.copyRectImage(
 			bug,
-			Rect::closed(Point(5,5),WDims(8,8)),
+			Rect::closed(Point(5,5),WDims(20,12)),
 			Point(100,100));
 	});
 
