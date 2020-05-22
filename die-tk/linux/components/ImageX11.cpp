@@ -83,7 +83,7 @@ char * duplicateBuffer(Params const & params) {
 // TODO add option to change the resize algorithm (nnb, bilinear interpolation, etc.)
 char * imageResize(XImage const * imagePtr, WDims dims) {
 	auto totalBytesDest = dims.area() * 4;
-	char * result = static_cast<char *>(malloc(totalBytesDest));
+	auto result = static_cast<char *>(malloc(totalBytesDest));
 
 	auto dst = result;
 	int dx = 0;
@@ -111,7 +111,7 @@ char * imageResize(XImage const * imagePtr, WDims dims) {
 // TODO melhorar esse algoritmo
 char * bitmapResize(XImage const * imagePtr, WDims dims) {
 	auto lineSize = bitmapLineSize(imagePtr->width);
-	char * result = new char[dims.height * lineSize];
+	auto result = new char[dims.height * lineSize];
 	std::fill_n(result,dims.height * lineSize,0);
 
 	auto dst = result;
@@ -123,7 +123,7 @@ char * bitmapResize(XImage const * imagePtr, WDims dims) {
 		auto sourceByte = imagePtr->data + sy*imagePtr->bytes_per_line + sx/8;
 		auto hasSourceBit = bool(*sourceByte & (1 << (sx % 8)));
 		if( hasSourceBit ) {
-			*dst = *dst | (1 << (dx % 8));
+			*dst |= 1 << (dx % 8);
 		}
 
 		++dx;
