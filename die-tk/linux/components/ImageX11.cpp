@@ -102,6 +102,38 @@ char * imageResize(XImage const * imagePtr, WDims dims) {
 	return result;
 }
 
+// TODO melhorar esse algoritmo
+std::unique_ptr<char[]> bitmapResize(XImage const * imagePtr, WDims dims) {
+	auto lineSize = bitmapLineSize(imagePtr->width);
+	char * result = new char[imagePtr->height * lineSize];
+	std::fill_n(result,imagePtr->height * lineSize,0);
+
+	auto dst = result;
+	int dx = 0;
+	int dy = 0;
+	int sy = 0;
+	for( size_t p = 0; p < dims.area(); ++p ) {
+		int sx = nnb(dx, dims.width, imagePtr->width);
+		auto sourceByte = imagePtr->data + sy*imagePtr->bytes_per_line + sx/8;
+		auto hasSourceBit = bool(sourceByte & (1 << (sx % 8)));
+		if( hasSourceBit ) {
+			*dst = *dst | (1 << (dx % 8));
+		}
+
+		++dx;
+		if( dx == dims.width ) {
+			dx = 0;
+			++dy;
+			sy = nnb(dy, dims.height, imagePtr->height);
+		}
+		if( dx % 8 == 0 ) {
+			++dst;
+		}
+	}
+
+	return std::unique_ptr<char[]>(result);
+}
+
 // image create()
 
 Ptr create(Params const & params) {
@@ -233,7 +265,7 @@ void ImageX11::drawInto(CanvasX11 & canvas, Point dest) {
 }
 
 void ImageX11::drawInto(CanvasX11 & canvas, Rect destrect) {
-	if( xImage->width == destrect.width() && xImage->height == destrect.height() ) {
+	if( dims() == destrect.dims() ) {
 		drawImage(xImage,canvas,Rect::closed(Point(0,0),destrect.dims()),destrect.topLeft());
 	} else {
 		auto imageBuffer = imageResize(xImage.get(), destrect.dims());
@@ -385,14 +417,27 @@ void ImageX11Transparent::drawInto(CanvasX11 & canvas, Point dest) {
 }
 
 void ImageX11Transparent::drawInto(CanvasX11 & canvas, Rect destrect) {
-	if( xImage->width == destrect.width() && xImage->height == destrect.height() ) {
-		ClipMaskGuard guard(canvas, transparentMask.get(), destrect.topLeft());
-		ImageX11::drawInto(canvas, destrect);
-	} else {
-		// TODO rescale clipmask -> transparentMask.get()
-		ClipMaskGuard guard(canvas, transparentMask.get(), destrect.topLeft());
-		ImageX11::drawInto(canvas, destrect);
-	}
+	ClipMaskGuard guard(
+		canvas,
+		dims() == destrect.dims() ? transparentMask.get() : resizedTransparentMask(destrect.dims()),
+		destrect.topLeft());
+	ImageX11::drawInto(canvas, destrect);
+}
+
+Pixmap ImageX11Transparent::resizedTransparentMask(WDims newDims) {
+	auto maskImage = xImagePtr(XGetImage(
+		resourceManager->dpy,
+		transparentMask.get(),
+		0,0,
+		xImage->width,xImage->height,
+		-1,
+		ZPixmap));
+	auto resizedMask = bitmapResize(maskImage.get(),newDims);
+	return XCreateBitmapFromData(
+		resourceManager->dpy,
+		resourceManager->root(),
+		resizedMask.get(),
+		newDims.width, newDims.height));
 }
 
 // TODO I suspect the destination point needs to be adjusted for srcrect in the clipmask - test and fix

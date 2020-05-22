@@ -56,6 +56,8 @@ public:
 	void drawInto(CanvasX11 & canvas, Point dest) override;
 	void drawInto(CanvasX11 & canvas, Rect destrect) override;
 	void copyRectInto(CanvasX11 & canvas, Rect srcrect, Point dest) override;
+private:
+	Pixmap resizedTransparentMask(WDims newDims);
 };
 
 // result image will own buffer
