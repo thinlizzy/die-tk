@@ -8,6 +8,17 @@ namespace {
 
 tk::ResourceManagerSingleton resourceManager;
 
+size_t bitmapLineSize(int width) {
+	auto lineSize = width / 8;
+	if( width % 8 != 0 ) ++lineSize;
+	return lineSize;
+}
+
+// nearest neighbor
+int nnb(int d, int dLen, int sLen) {
+	return d * sLen / dLen;
+}
+
 }
 
 namespace tk {
@@ -69,11 +80,6 @@ char * duplicateBuffer(Params const & params) {
 	return result;
 }
 
-// nearest neighbor
-int nnb(int d, int dLen, int sLen) {
-	return d * sLen / dLen;
-}
-
 // TODO add option to change the resize algorithm (nnb, bilinear interpolation, etc.)
 char * imageResize(XImage const * imagePtr, WDims dims) {
 	auto totalBytesDest = dims.area() * 4;
@@ -103,7 +109,7 @@ char * imageResize(XImage const * imagePtr, WDims dims) {
 }
 
 // TODO melhorar esse algoritmo
-std::unique_ptr<char[]> bitmapResize(XImage const * imagePtr, WDims dims) {
+char * bitmapResize(XImage const * imagePtr, WDims dims) {
 	auto lineSize = bitmapLineSize(imagePtr->width);
 	char * result = new char[imagePtr->height * lineSize];
 	std::fill_n(result,imagePtr->height * lineSize,0);
@@ -115,7 +121,7 @@ std::unique_ptr<char[]> bitmapResize(XImage const * imagePtr, WDims dims) {
 	for( size_t p = 0; p < dims.area(); ++p ) {
 		int sx = nnb(dx, dims.width, imagePtr->width);
 		auto sourceByte = imagePtr->data + sy*imagePtr->bytes_per_line + sx/8;
-		auto hasSourceBit = bool(sourceByte & (1 << (sx % 8)));
+		auto hasSourceBit = bool(*sourceByte & (1 << (sx % 8)));
 		if( hasSourceBit ) {
 			*dst = *dst | (1 << (dx % 8));
 		}
@@ -131,7 +137,7 @@ std::unique_ptr<char[]> bitmapResize(XImage const * imagePtr, WDims dims) {
 		}
 	}
 
-	return std::unique_ptr<char[]>(result);
+	return result;
 }
 
 // image create()
@@ -305,12 +311,6 @@ public:
 	ClipMaskGuard(ClipMaskGuard const &) = delete;
 };
 
-size_t bitmapLineSize(int width) {
-	auto lineSize = width / 8;
-	if( width % 8 != 0 ) ++lineSize;
-	return lineSize;
-}
-
 std::unique_ptr<unsigned char[]> getTransparentMask(XImage * imagePtr) {
 	auto lineSize = bitmapLineSize(imagePtr->width);
 	unsigned char * result = new unsigned char[imagePtr->height * lineSize];
@@ -417,27 +417,33 @@ void ImageX11Transparent::drawInto(CanvasX11 & canvas, Point dest) {
 }
 
 void ImageX11Transparent::drawInto(CanvasX11 & canvas, Rect destrect) {
-	ClipMaskGuard guard(
-		canvas,
-		dims() == destrect.dims() ? transparentMask.get() : resizedTransparentMask(destrect.dims()),
-		destrect.topLeft());
-	ImageX11::drawInto(canvas, destrect);
+	if( dims() == destrect.dims() ) {
+		ClipMaskGuard guard(canvas,transparentMask.get(),destrect.topLeft());
+		ImageX11::drawInto(canvas, destrect);
+	} else {
+		auto resizedMask = scoped::Pixmap(resizedTransparentMask(destrect.dims()));
+		ClipMaskGuard guard(canvas,resizedMask.get(),destrect.topLeft());
+		ImageX11::drawInto(canvas, destrect);
+	}
 }
 
 Pixmap ImageX11Transparent::resizedTransparentMask(WDims newDims) {
-	auto maskImage = xImagePtr(XGetImage(
+	auto capturedImage = XGetImage(
 		resourceManager->dpy,
 		transparentMask.get(),
 		0,0,
 		xImage->width,xImage->height,
 		-1,
-		ZPixmap));
-	auto resizedMask = bitmapResize(maskImage.get(),newDims);
+		ZPixmap);
+	if( capturedImage == 0 ) {
+		log::error("failed to capture Pixmap");
+	}
+	auto resizedMask = std::unique_ptr<char[]>(bitmapResize(capturedImage,newDims));
 	return XCreateBitmapFromData(
 		resourceManager->dpy,
 		resourceManager->root(),
 		resizedMask.get(),
-		newDims.width, newDims.height));
+		newDims.width, newDims.height);
 }
 
 // TODO I suspect the destination point needs to be adjusted for srcrect in the clipmask - test and fix
