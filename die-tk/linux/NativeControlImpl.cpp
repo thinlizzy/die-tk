@@ -6,7 +6,6 @@
 #include "../log.h"
 
 namespace {
-
 	tk::ResourceManagerSingleton resourceManager;
 
 	Window createWindow(Window parentWindowId, tk::ControlParams const & params) {
@@ -16,7 +15,6 @@ namespace {
 		// TODO convert params.cursor_, params.scrollbar_
 		return windowId;
 	}
-
 }
 
 namespace tk {
