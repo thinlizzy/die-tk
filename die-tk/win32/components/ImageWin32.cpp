@@ -388,6 +388,7 @@ void Bitmap::replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {
 BitmapAlpha::BitmapAlpha(BITMAPINFO * info, Byte const * buffer):
 	Bitmap(info,buffer)
 {
+	// Premultiply the image pixels with the alpha channel. Thanks to mysoft64bits@gmail.com who pointed this out.
 	// NOTE: need to make sure this does not cause blending problems when drawing on top of other transparent canvases
 	replaceAllQuads([](RGBQUAD & quad) {
 		quad.rgbBlue = quad.rgbBlue * quad.rgbReserved / 255;
