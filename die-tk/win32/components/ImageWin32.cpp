@@ -388,6 +388,12 @@ void Bitmap::replaceAllQuads(std::function<void(RGBQUAD &)> replacer) {
 BitmapAlpha::BitmapAlpha(BITMAPINFO * info, Byte const * buffer):
 	Bitmap(info,buffer)
 {
+	// NOTE: need to make sure this does not cause blending problems when drawing on top of other transparent canvases
+	replaceAllQuads([](RGBQUAD & quad) {
+		quad.rgbBlue = quad.rgbBlue * quad.rgbReserved / 255;
+		quad.rgbGreen = quad.rgbGreen * quad.rgbReserved / 255;
+		quad.rgbRed = quad.rgbRed * quad.rgbReserved / 255;
+	});
 }
 
 void BitmapAlpha::drawInto(CanvasImpl & canvas, Point dest) {
@@ -426,7 +432,7 @@ void BitmapAlpha::drawTonT(CanvasImpl & canvas, Point dest) {
 }
 
 void BitmapAlpha::alphaBlendTonT(CanvasImpl & canvas, Rect srcrect, Rect destrect) {
-	log::info("drawing T at ",srcrect," on T ",destrect);
+//	log::info("drawing T at ",srcrect," on T ",destrect);
 	auto srcDims = srcrect.dims();
 	auto destDims = destrect.dims();
 

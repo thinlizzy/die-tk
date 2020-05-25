@@ -120,6 +120,20 @@ inline Dimension rDimension(unsigned h, unsigned w) { return Dimension(w,h); }
 
 typedef basic_dimension<int> WDims;
 
+namespace dims_literals {
+
+constexpr WDims operator""_w(unsigned long long w)
+{
+	return WDims{}.setWidth(w);
+}
+
+constexpr WDims operator""_h(unsigned long long h)
+{
+	return WDims{}.setHeight(h);
+}
+
+}
+
 }
 
 #endif

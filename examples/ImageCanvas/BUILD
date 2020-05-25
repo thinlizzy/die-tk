@@ -1,15 +1,7 @@
-cc_library(
-	name = "image-canvas-example-lib",
+cc_binary(
+	name = "ImageCanvas",
 	srcs = ["ImageCanvasExample.cpp"],
 	deps = [
-		"//:die-tk-base",
-	],
-)
-
-cc_binary(
-	name = "image-canvas-example",
-	deps = [
-		":image-canvas-example-lib",
 		"//:die-tk",
 	],
 )
