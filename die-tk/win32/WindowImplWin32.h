@@ -64,9 +64,7 @@ public:
 
 	HandleEvent onUserEvent(HandleEvent callback);
 private:
-    WDims windowPayload();
-    WDims componentsPayload();
-    WDims framePayload(DWORD style);
+    WDims getWindowDims(WDims dims);
 };
 
 }

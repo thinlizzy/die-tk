@@ -191,12 +191,6 @@ void MenuImpl::unregister()
     unregister(window);
 }
 
-WDims MenuImpl::payload()
-{
-    // TODO font may be an issue. use findWindow(hMenu) if that is the case
-    return WDims(0,19);
-}
-
 void MenuImpl::unregister(std::shared_ptr<WindowImpl> window)
 {
     if( window ) {

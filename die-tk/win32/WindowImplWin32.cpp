@@ -43,6 +43,17 @@ WindowClass WindowImpl::windowClass;
 
 
 
+WDims resizeDims(WDims dims, DWORD dwStyle, DWORD dwExStyle) {
+	RECT rect = {0,0,dims.width,dims.height};
+	AdjustWindowRectEx(
+		&rect,
+		dwStyle,
+		false,
+		dwExStyle
+	);
+	return WDims{rect.right-rect.left,rect.bottom-rect.top};
+}
+
 DWORD stateToWinStyle(unsigned state) {
 	// WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW
 	DWORD result = WS_OVERLAPPEDWINDOW;
@@ -69,6 +80,7 @@ WindowImpl::WindowImpl(WindowParams const & params):
 	// create window
 	int x,y;
 	WDims dims;
+	auto dwStyle = stateToWinStyle(params.initialState);
 	if( params.isDefaultPos() ) {
 		x = y = CW_USEDEFAULT;
 	} else {
@@ -78,10 +90,10 @@ WindowImpl::WindowImpl(WindowParams const & params):
 	if( params.isDefaultDims() ) {
 		dims.width = dims.height = CW_USEDEFAULT;
 	} else {
-		dims = params.dims_ + framePayload(DWORD(-1));  // TODO use a standard payload
+		dims = resizeDims(params.dims_,dwStyle,WS_EX_APPWINDOW);
 	}
 
-	hWnd = createWindow(Point(x,y),dims,params.text_.wstr.c_str(),windowClass.wc.lpszClassName,stateToWinStyle(params.initialState));
+	hWnd = createWindow(Point(x,y),dims,params.text_.wstr.c_str(),windowClass.wc.lpszClassName,dwStyle);
 
 	if( params.backgroundColor_ ) {
 		setBackground(*params.backgroundColor_);
@@ -104,8 +116,7 @@ HWND WindowImpl::createWindow(Point pos, WDims dims, wchar_t const windowname[],
     return hWnd;
 }
 
-WindowImpl::~WindowImpl()
-{
+WindowImpl::~WindowImpl() {
     removeFromCb(this,cbClose);
     removeFromCb(this,cbResize);
     removeFromCb(this,cbUserEvent);
@@ -116,57 +127,41 @@ WindowImpl::~WindowImpl()
     DestroyWindow(hWnd);
 }
 
-WindowImpl * WindowImpl::clone() const
-{
+WindowImpl * WindowImpl::clone() const {
     return new WindowImpl(WindowParams()
-            .start(rect().topLeft())
-            .dims(rect().dims())
-            .text(getText())
-            .states(state_)
+		.start(rect().topLeft())
+		.dims(rect().dims())
+		.text(getText())
+		.states(state_)
     );
 }
 
-WDims WindowImpl::componentsPayload()
-{
-    WDims result;
-    for( auto & component : components ) {
-        result += component->payload();
-    }
-    
-    return result;
-}
-
-WDims WindowImpl::framePayload(DWORD style)
-{
-    WDims result;
-    if( style & WS_CAPTION ) result.height += 19;      // TODO get title bar size
-    if( style & WS_BORDER ) result += WDims(4,4);      // TODO get border size
-    if( style & WS_THICKFRAME ) result += WDims(4,4);  // TODO get thick frame size
-    return result;
-}
-
-WDims WindowImpl::windowPayload()
-{
-    return framePayload(GetWindowLong(hWnd,GWL_STYLE)) + componentsPayload();
+WDims WindowImpl::getWindowDims(WDims dims) {
+	// TODO iterate components to find bMenu flag
+	// see WindowComponent and die-tk-controls
+	// see remarks in https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrectex
+	return resizeDims(dims,
+		GetWindowLong(hWnd,GWL_STYLE),
+		GetWindowLong(hWnd,GWL_EXSTYLE)
+	);
 }
 
 void WindowImpl::setRect(Rect rect)
 {
-    rect = rect.resize(rect.dims() + windowPayload());
+    rect = rect.resize(getWindowDims(rect.dims()));
     NativeControlImpl::setRect(rect);	
 }
 
 void WindowImpl::setDims(WDims dims)
 {
-	dims += windowPayload();
-    NativeControlImpl::setDims(dims);
+    NativeControlImpl::setDims(getWindowDims(dims));
 }
 
 int WindowImpl::state() const { return state_; }
 
 void WindowImpl::setBorders(bool value)
 {
-    auto dims = rect().dims();
+    // auto dims = rect().dims();
     DWORD style = GetWindowLong(hWnd,GWL_STYLE);
     if( value ) {
         style |= WS_BORDER | WS_CAPTION | WS_THICKFRAME;
@@ -174,10 +169,10 @@ void WindowImpl::setBorders(bool value)
         style &= ~(WS_BORDER | WS_CAPTION | WS_THICKFRAME);
     }
     SetWindowLong(hWnd,GWL_STYLE,style);
-//    SetWindowPos(hWnd,0,0,0,0,0,SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
-//    setDims(dims);
-    dims += componentsPayload() + framePayload(style);
-    SetWindowPos(hWnd,0,0,0,dims.width,dims.height,SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    // TODO take advantage of bMenu instead of using componentsPayload()
+    // dims = componentsPayload() + getWindowDims(dims,style);
+    // SetWindowPos(hWnd,0,0,0,dims.width,dims.height,SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+	SetWindowPos(hWnd,0,0,0,0,0,SWP_NOMOVE | SWP_NOZORDER | SWP_NOSIZE | SWP_FRAMECHANGED);
 }
 
 void WindowImpl::show()

@@ -21,7 +21,6 @@ public:
     
     void unregister() override;
     optional<LRESULT> processNotification(UINT message, UINT notification, UINT id, LPARAM lParam) override;
-    WDims payload() override;
 private:
     void unregister(std::shared_ptr<WindowImpl> window);
 };
