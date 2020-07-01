@@ -2,8 +2,9 @@
 #define SURFACE_H_DIE_TK_2014_09_22_22_08
 
 #include <memory>
-#include "WindowObjects.h"
 #include "Callbacks.h"
+#include "WindowObjects.h"
+#include "custom/CustomControlImpl.h"
 
 namespace tk {
 
@@ -87,6 +88,8 @@ public:
 	void clear(RGBColor const & color = RGBColor());
 
 	Point screenToClient(Point const & point) const;
+
+	void addCustomControlImpl(std::shared_ptr<CustomControlImpl> const & controlImpl);
 
 	HandleMouseButton onMouseDown(HandleMouseButton callback);
 

@@ -40,6 +40,6 @@ add_library(die-tk
         Window.h
         WindowObjects.h
         WindowParams.h
-        )
+        custom/CustomControl.cpp custom/CustomControl.h custom/Label.cpp custom/Label.h custom/CustomControlImpl.cpp custom/CustomControlImpl.h custom/LabelImpl.cpp custom/LabelImpl.h)
 
 target_link_libraries(die-tk die-tk-impl)

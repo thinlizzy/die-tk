@@ -146,19 +146,22 @@ void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & c
 	TextOutW(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
 }
 
-void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor)
-{
+void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & textColor, RGBColor const & backgroundColor) {
 	SetTextColor(dc,colorWin(textColor));
 	SetBkColor(dc,colorWin(backgroundColor));
 	SetBkMode(dc,OPAQUE);
 	TextOutW(dc,p.x,p.y,text.wstr.c_str(),text.wstr.size());
 }
 
-void CanvasImpl::textRect(Rect const & rect, NativeString const & text, TextParams const & params)
-{
+void CanvasImpl::textRect(Rect const & rect, NativeString const & text, TextParams const & params) {
 	RECT winRect = convertRect(rect);
 	SetTextColor(dc,colorWin(params.textColor));
-	SetBkColor(dc,colorWin(params.backgroundColor));
+	if( params.backgroundColor.has_value() ) {
+		SetBkMode(dc,OPAQUE);
+		SetBkColor(dc,colorWin(*params.backgroundColor));
+	} else {
+		SetBkMode(dc,TRANSPARENT);
+	}
 	DrawTextW(dc,text.wstr.c_str(),text.wstr.size(),&winRect,convertTextAlign(params.h_align,params.v_align));
 }
 

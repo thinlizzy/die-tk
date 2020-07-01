@@ -94,6 +94,10 @@ ClipboardType Surface::copyToClipboard() const {
 	return impl->copyToClipboard();
 }
 
+void Surface::addCustomControlImpl(std::shared_ptr<CustomControlImpl> const & controlImpl) {
+	impl->addCustomControlImpl(controlImpl);
+}
+
 HandleMouseButton Surface::onMouseDown(HandleMouseButton callback) {
 	return impl->onMouseDown(callback);
 }

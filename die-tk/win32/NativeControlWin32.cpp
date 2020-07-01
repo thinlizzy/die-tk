@@ -261,6 +261,9 @@ ControlParams NativeControlImpl::getControlData() const {
 	return result;
 }
 
+void NativeControlImpl::addCustomControlImpl(std::shared_ptr<CustomControlImpl> const & controlImpl) {
+	customControls.push_back(controlImpl);
+}
 
 // callbacks & messages
 
@@ -325,12 +328,22 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 			break;
 
 		case WM_PAINT: {
-			GETCB(cbPaint, on_paint);
+			auto on_paint = fetchCallback(this,cbPaint);
+			if( on_paint == nullptr && customControls.empty() ) return result;
+
 			scoped::PaintSection sps(hWnd);
 			CanvasImpl canvas(sps.ps.hdc);
 			auto rect = convertRect(sps.ps.rcPaint);
-			on_paint(canvas, rect);
-			return 0;
+			if( on_paint != nullptr ) {
+				result = 0;
+				on_paint(canvas,rect);
+			}
+			// draw all custom controls, if any
+			for( auto && customControl : customControls ) {
+				if( customControl->rect.intersect(rect) ) {
+					customControl->draw(canvas,rect);
+				}
+			}
 		}
 			break;
 

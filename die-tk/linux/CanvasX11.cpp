@@ -250,7 +250,9 @@ void CanvasX11::drawText(Point p, NativeString const & text, RGBColor const & te
 
 void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const TextParams & params)
 {
-	fillRect(openrect,params.backgroundColor);
+	if( params.backgroundColor.has_value() ) {
+		fillRect(openrect,*params.backgroundColor);
+	}
 
 	// TODO save current clipping rects. may require local caching of regions due to http://tronche.com/gui/x/xlib/GC/XGetGCValues.html
 	addClipRect(openrect);

@@ -4,12 +4,13 @@
 #include <X11/Xlib.h>
 #include "ScopedX11.h"
 #include "CanvasX11.h"
-#include "../objects/Rect.h"
-#include "../objects/Color.h"
 #include "../ControlParams.h"
 #include "../Canvas.h"
 #include "../Callbacks.h"
 #include "../CallbackUtils.h"
+#include "../custom/CustomControlImpl.h"
+#include "../objects/Rect.h"
+#include "../objects/Color.h"
 #include "../util/optional.h"
 
 namespace tk {
@@ -25,6 +26,7 @@ private:
 	bool windowEnabled = true;  // poorman state control.
 
 	Cursor cursor = Cursor::defaultCursor;
+	std::vector<std::shared_ptr<CustomControlImpl>> customControls;
 protected:
 	::Window parentWindowId;
 	optional<RGBColor> backgroundColor;
@@ -76,7 +78,9 @@ public:
 
     ControlParams getControlData() const;
 
-    HandleMouseButton onMouseDown(HandleMouseButton callback);
+	void addCustomControlImpl(std::shared_ptr<CustomControlImpl> const & controlImpl);
+
+	HandleMouseButton onMouseDown(HandleMouseButton callback);
     HandleMouseButton onMouseUp(HandleMouseButton callback);
     HandleMouseMove onMouseEnter(HandleMouseMove callback);
     HandleMouseMove onMouseOver(HandleMouseMove callback);

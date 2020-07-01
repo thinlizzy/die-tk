@@ -186,6 +186,10 @@ ControlParams NativeControlImpl::getControlData() const {
 	return result;
 }
 
+void NativeControlImpl::addCustomControlImpl(std::shared_ptr<CustomControlImpl> const & controlImpl) {
+	customControls.push_back(controlImpl);
+}
+
 // callbacks & messages
 
 HandleMouseButton NativeControlImpl::onMouseDown(HandleMouseButton callback) {
@@ -230,8 +234,15 @@ void NativeControlImpl::processMessage(XEvent & e) {
 	switch(e.type) {
 		case Expose: {
 			auto & data = e.xexpose;
+			auto rect = Rect::closed(Point(data.x, data.y);
 			executeCallback(this, cbPaint, canvas(),
-							Rect::closed(Point(data.x, data.y), WDims(data.width, data.height)));
+							rect, WDims(data.width, data.height)));
+			// draw all custom controls, if any
+			for( auto && customControl : customControls ) {
+				if( customControl->rect.intersect(rect) ) {
+					customControl->draw(canvas(),rect);
+				}
+			}
 			// TODO check windowEnabled and gray the window over
 		}
 			break;

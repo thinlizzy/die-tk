@@ -19,6 +19,7 @@ public:
     bool visible_ = true;
 	Scrollbar scrollbar_ = Scrollbar::none;
 	bool autosize_ = false;
+	RGBColor color_;
     optional<RGBColor> backgroundColor_;
     Cursor cursor_ = Cursor::defaultCursor;
 
@@ -28,7 +29,9 @@ public:
 	ControlParams & visible(bool value = true) { visible_ = value; return *this; }
 	ControlParams & scrollbar(Scrollbar value) { scrollbar_ = value; return *this; }
 	ControlParams & autosize(bool value = true) { autosize_ = value; return *this; }
+	ControlParams & color(RGBColor value) { color_ = value; return *this; }
 	ControlParams & backgroundColor(RGBColor value) { backgroundColor_ = value; return *this; }
+	ControlParams & backgroundColor(optional<RGBColor> value) { backgroundColor_ = value; return *this; }
 	ControlParams & cursor(Cursor value) { cursor_ = value; return *this; }
 };
 

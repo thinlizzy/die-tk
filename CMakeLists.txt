@@ -14,6 +14,7 @@ endif()
 add_subdirectory(die-tk-image)
 
 # examples
+add_subdirectory(examples/custom-controls)
 add_subdirectory(examples/events)
 add_subdirectory(examples/ImageCanvas)
 add_subdirectory(examples/ImageScaling)

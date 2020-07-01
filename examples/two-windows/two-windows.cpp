@@ -1,4 +1,3 @@
-#include <iostream>
 #include "die-tk.h"
 
 using namespace std;

@@ -9,6 +9,7 @@
 #include "../util/optional.h"
 #include "../CallbackUtils.h"
 #include "../NativeString.h"
+#include "../custom/CustomControlImpl.h"
 
 #include "ScopedObjects.h"
 #include "CanvasImplWin32.h"
@@ -23,6 +24,7 @@ private:
    	Cursor cursor;
    	RGBColor backgroundColor;
     bool trackingMouse;
+    std::vector<std::shared_ptr<CustomControlImpl>> customControls;
 protected:
 	CanvasImplWin canvasImpl;
     scoped::Brush backgroundBrush;
@@ -77,6 +79,8 @@ public:
     HWND getParentHandle() const;
     
     ControlParams getControlData() const;
+
+	void addCustomControlImpl(std::shared_ptr<CustomControlImpl> const & controlImpl);
 
     HandleMouseButton onMouseDown(HandleMouseButton callback);
     HandleMouseButton onMouseUp(HandleMouseButton callback);
