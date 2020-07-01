@@ -234,9 +234,8 @@ void NativeControlImpl::processMessage(XEvent & e) {
 	switch(e.type) {
 		case Expose: {
 			auto & data = e.xexpose;
-			auto rect = Rect::closed(Point(data.x, data.y));
-			executeCallback(this, cbPaint, canvas(),
-							rect, WDims(data.width, data.height)));
+			auto rect = Rect::closed(Point(data.x, data.y), WDims(data.width, data.height));
+			executeCallback(this, cbPaint, canvas(), rect));
 			// draw all custom controls, if any
 			for( auto && customControl : customControls ) {
 				if( customControl->rect.intersect(rect) ) {
