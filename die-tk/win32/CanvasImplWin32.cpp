@@ -154,7 +154,6 @@ void CanvasImpl::drawText(Point p, NativeString const & text, RGBColor const & t
 }
 
 void CanvasImpl::textRect(Rect const & rect, NativeString const & text, TextParams const & params) {
-	RECT winRect = convertRect(rect);
 	SetTextColor(dc,colorWin(params.textColor));
 	if( params.backgroundColor.has_value() ) {
 		SetBkMode(dc,OPAQUE);
@@ -162,11 +161,11 @@ void CanvasImpl::textRect(Rect const & rect, NativeString const & text, TextPara
 	} else {
 		SetBkMode(dc,TRANSPARENT);
 	}
+	RECT winRect = convertOpenRect(rect);
 	DrawTextW(dc,text.wstr.c_str(),text.wstr.size(),&winRect,convertTextAlign(params.h_align,params.v_align));
 }
 
-WDims CanvasImpl::measureText(NativeString const & text)
-{
+WDims CanvasImpl::measureText(NativeString const & text) {
     SIZE size;
     GetTextExtentPoint32W(dc,text.wstr.c_str(),text.wstr.size(),&size);
     return sizeToWDims(size);

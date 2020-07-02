@@ -48,6 +48,8 @@ public:
     constexpr Rect add(Point p) const { return Rect(left+p.x,top+p.y,right+p.x,bottom+p.y); }
 	constexpr Rect addLeft(int x) const { return Rect(left+x,top,right,bottom); }
 	constexpr Rect addTop(int y) const { return Rect(left,top+y,right,bottom); }
+	constexpr Rect addRight(int x) const { return Rect(left,top,right+x,bottom); }
+	constexpr Rect addBottom(int y) const { return Rect(left,top,right,bottom+y); }
 
 	constexpr Rect move(Point p) const { return Rect(p.x,p.y,p.x+right-left,p.y+bottom-top); }
 	constexpr Rect moveLeft(int x) const { return move(Point(x,this->top)); }

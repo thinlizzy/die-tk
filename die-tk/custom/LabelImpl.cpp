@@ -11,6 +11,7 @@ LabelImpl::LabelImpl(ControlParams const & controlParams):
 }
 
 void LabelImpl::draw(Canvas & canvas, Rect rect) const {
+
 	// TODO clamp text in (local) rect
 	canvas.textRect(this->rect,text,TextParams().color(color).background(backgroundColor));
 }

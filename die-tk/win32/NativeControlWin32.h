@@ -27,6 +27,7 @@ private:
     std::vector<std::shared_ptr<CustomControlImpl>> customControls;
 protected:
 	CanvasImplWin canvasImpl;
+	bool eraseBackground;
     scoped::Brush backgroundBrush;
 
 	NativeControlImpl();

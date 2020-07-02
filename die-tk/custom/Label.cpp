@@ -6,8 +6,8 @@ namespace tk {
 Label::Label(Surface & parent, ControlParams const & controlParams):
 	CustomControl(parent),
 	labelImpl(std::make_shared<LabelImpl>(controlParams)) {
-	addToParent(labelImpl);
 	redimAutosize();
+	addToParent(labelImpl);
 }
 
 LabelImpl & Label::controlImpl() {
@@ -20,8 +20,10 @@ LabelImpl const & Label::controlImpl() const {
 
 void Label::setText(NativeString const & text) {
 	labelImpl->text = text;
-	redimAutosize();
 	invalidateIfVisible();
+	if( redimAutosize() ) {
+		invalidateIfVisible();
+	}
 }
 
 NativeString Label::text() const {

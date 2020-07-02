@@ -76,6 +76,10 @@ NativeControlImpl::NativeControlImpl(
 
 	if( params.backgroundColor_ ) {
 		setBackground(*params.backgroundColor_);
+	} else {
+		// create a brush with the 'default' bg color, but won't process WM_ERASEBKGND
+		eraseBackground = false;
+		backgroundBrush.reset(CreateSolidBrush(colorWin(backgroundColor)));
 	}
 }
 
@@ -229,6 +233,7 @@ void NativeControlImpl::setCursor(Cursor cursor) {
 
 void NativeControlImpl::setBackground(RGBColor const & color) {
 	this->backgroundColor = color;
+	eraseBackground = true;
 	backgroundBrush.reset(CreateSolidBrush(colorWin(backgroundColor)));
 }
 
@@ -255,7 +260,7 @@ ControlParams NativeControlImpl::getControlData() const {
 		.visible(visible())
 		.scrollbar(getScrollbarStatus(hWnd))
 		.cursor(cursor);
-	if( backgroundBrush ) {
+	if( eraseBackground ) {
 		result.backgroundColor(backgroundColor);
 	}
 	return result;
@@ -318,7 +323,7 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 			}
 			break;
 		case WM_ERASEBKGND:
-			if( backgroundBrush ) {
+			if( eraseBackground ) {
 				result = 0;
 				HDC hdc = (HDC) wParam;
 				RECT rc;
@@ -334,13 +339,24 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 			scoped::PaintSection sps(hWnd);
 			CanvasImpl canvas(sps.ps.hdc);
 			auto rect = convertRect(sps.ps.rcPaint);
+			std::function<void()> eraseBg;
 			if( on_paint != nullptr ) {
-				result = 0;
+				result = 0; // mark the message as processed
 				on_paint(canvas,rect);
+				eraseBg = []() {};
+			} else {
+				// when on paint is not implemented, then the background must be erased before painting the controls
+				eraseBg = [this, &sps, &eraseBg]() {
+					if( sps.ps.fErase ) {
+						FillRect(sps.ps.hdc, &sps.ps.rcPaint, backgroundBrush.get());
+					}
+					eraseBg = []() {}; // erased only once
+				};
 			}
-			// draw all custom controls, if any
+			// draw custom controls that intersect
 			for( auto && customControl : customControls ) {
 				if( customControl->rect.intersect(rect) ) {
+					eraseBg();
 					customControl->draw(canvas,rect);
 				}
 			}
