@@ -74,6 +74,7 @@ CanvasX11::CanvasX11(Drawable drawable):
 CanvasX11::CanvasX11(CanvasX11 && other):
 	gc(other.gc),
     drawable(other.drawable),
+	height(other.height),
 	lineHeight(other.lineHeight)
 {
 	other.gc = nullptr;
@@ -85,6 +86,7 @@ CanvasX11 & CanvasX11::operator=(CanvasX11 && other)
 	if( this != &other ) {
 		gc = other.gc;
 	    drawable = other.drawable;
+	    height = other.height;
 	    lineHeight = other.lineHeight;
 		other.gc = nullptr;
 	}
@@ -207,17 +209,35 @@ void CanvasX11::drawPoly(const Points & polygon, const Pen & pen)
 	XDrawLines(resourceManager->dpy,drawable,gc,&points[0],polygon.size()+1,CoordModeOrigin);
 }
 
-void CanvasX11::rectangle(Rect const & rect, const Pen & pen) {
+Rect reflectY(Rect rect, int height) {
+	static int logg = 3;
+	if( logg > 0 ) {
+		--logg;
+		log::info("Reflecting rect ",rect," with height ",height);
+	}
+	auto top = height - rect.top - 1;
+	auto bottom = height - rect.bottom - 1;
+	rect.top = bottom;
+	rect.bottom = top;
+	return rect;
+}
+
+void CanvasX11::rectangle(Rect const & rrect, const Pen & pen) {
+	auto rect = reflectY(rrect,height);
 	setPen(pen);
 	XDrawRectangle(resourceManager->dpy,drawable,gc,rect.left,rect.top,rect.width(),rect.height());
 }
 
-void CanvasX11::fillRect(Rect const & openrect, const Brush & brush) {
+void CanvasX11::fillRect(Rect const & rect, const Brush & brush) {
+	// TODO make sure if it needs an openrect. or else remove these adds
+	auto openrect = reflectY(rect.addRight(1).addBottom(1),height);
 	setBrush(brush);
 	XFillRectangle(resourceManager->dpy,drawable,gc,openrect.left,openrect.top,openrect.width(),openrect.height());
 }
 
-void CanvasX11::roundRect(Rect const & openrect, WDims ellipseDims, Pen const & pen, Brush const & brush) {
+void CanvasX11::roundRect(Rect const & rect, WDims ellipseDims, Pen const & pen, Brush const & brush) {
+	// TODO make sure if it needs an openrect. or else remove these adds
+	auto openrect = reflectY(rect.addRight(1).addBottom(1),height);
 	setPen(pen);
 	setBrush(brush);
 	XArc arcs[] = {
