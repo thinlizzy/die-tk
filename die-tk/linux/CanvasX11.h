@@ -56,6 +56,7 @@ public:
 private:
     void setPen(Pen const & pen);
     void setBrush(Brush const & brush);
+    WDims getTextOffset(NativeString const & text) const;
 };
 
 }

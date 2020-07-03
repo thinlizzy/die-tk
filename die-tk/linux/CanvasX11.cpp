@@ -111,11 +111,10 @@ void CanvasX11::clearTranslate()
 	translate(Point(0,0));
 }
 
-void CanvasX11::addClipRect(const Rect & openrect)
-{
+void CanvasX11::addClipRect(const Rect & openrect) {
 	// TODO need to make it to add a new rectangle, instead of setting only one rectangle
 
-	auto points = rectToPoints(openrect);
+	auto points = rectToPoints(openrect.addBottom(1).addRight(1));
 	auto region = XPolygonRegion(points.data(),4,EvenOddRule);
 	auto regionPtr = std::unique_ptr<std::remove_reference<decltype(*region)>::type,int (*)(Region)>(
 		region,&XDestroyRegion);
@@ -222,22 +221,22 @@ Rect reflectY(Rect rect, int height) {
 	return rect;
 }
 
-void CanvasX11::rectangle(Rect const & rrect, const Pen & pen) {
-	auto rect = reflectY(rrect,height);
+void CanvasX11::rectangle(Rect const & rect, const Pen & pen) {
+	// auto rect = reflectY(rrect,height);
 	setPen(pen);
 	XDrawRectangle(resourceManager->dpy,drawable,gc,rect.left,rect.top,rect.width(),rect.height());
 }
 
-void CanvasX11::fillRect(Rect const & rect, const Brush & brush) {
+void CanvasX11::fillRect(Rect const & openrect, const Brush & brush) {
 	// TODO make sure if it needs an openrect. or else remove these adds
-	auto openrect = reflectY(rect.addRight(1).addBottom(1),height);
+	// auto openrect = reflectY(rect.addRight(1).addBottom(1),height);
 	setBrush(brush);
 	XFillRectangle(resourceManager->dpy,drawable,gc,openrect.left,openrect.top,openrect.width(),openrect.height());
 }
 
-void CanvasX11::roundRect(Rect const & rect, WDims ellipseDims, Pen const & pen, Brush const & brush) {
+void CanvasX11::roundRect(Rect const & openrect, WDims ellipseDims, Pen const & pen, Brush const & brush) {
 	// TODO make sure if it needs an openrect. or else remove these adds
-	auto openrect = reflectY(rect.addRight(1).addBottom(1),height);
+	// auto openrect = reflectY(rect.addRight(1).addBottom(1),height);
 	setPen(pen);
 	setBrush(brush);
 	XArc arcs[] = {
@@ -268,8 +267,8 @@ void CanvasX11::drawText(Point p, NativeString const & text, RGBColor const & te
 	XDrawImageString(resourceManager->dpy,drawable,gc,p.x,p.y+lineHeight,text.str.data(),text.str.size());
 }
 
-void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const TextParams & params)
-{
+void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const TextParams & params) {
+	log::info("openrect=",openrect);
 	if( params.backgroundColor.has_value() ) {
 		fillRect(openrect,*params.backgroundColor);
 	}
@@ -278,7 +277,7 @@ void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const
 	addClipRect(openrect);
 
 	int x,y;
-	auto textDims = measureText(text);
+	auto textDims = getTextOffset(text);
 	switch( params.h_align ) {
 	case HTextAlign::left:
 		x = openrect.left;
@@ -309,15 +308,14 @@ void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const
 	clearClipping();
 }
 
-WDims CanvasX11::measureText(const NativeString & text) {
-	WDims result;
+WDims CanvasX11::getTextOffset(NativeString const & text) const {
 	auto gid = XGContextFromGC(gc);
 
 	// TODO cache the font on gc creation
 	auto fontStruct = XQueryFont(resourceManager->dpy,gid);
 	if( fontStruct == NULL ) {
 		log::error("measureText ","can't get font info for gc ",gc);
-		return result;
+		return {};
 	}
 	auto fontStructGuard = std::unique_ptr<std::remove_reference<decltype(*fontStruct)>::type,
 			void (*)(XFontStruct *)>(fontStruct,[](XFontStruct * ptr) {
@@ -329,9 +327,35 @@ WDims CanvasX11::measureText(const NativeString & text) {
 	XTextExtents(fontStruct,text.str.data(),text.str.size(),
 			&direction, &font_ascent, &font_descent, &overall);
 
+	return {overall.width,overall.ascent};
+}
+
+WDims CanvasX11::measureText(const NativeString & text) {
+	auto gid = XGContextFromGC(gc);
+
+	// TODO cache the font on gc creation
+	auto fontStruct = XQueryFont(resourceManager->dpy,gid);
+	if( fontStruct == NULL ) {
+		log::error("measureText ","can't get font info for gc ",gc);
+		return {};
+	}
+	auto fontStructGuard = std::unique_ptr<std::remove_reference<decltype(*fontStruct)>::type,
+			void (*)(XFontStruct *)>(fontStruct,[](XFontStruct * ptr) {
+		XFreeFontInfo(NULL,ptr,1);
+	});
+
+	int direction, font_ascent, font_descent;
+	XCharStruct overall;
+	XTextExtents(fontStruct,text.str.data(),text.str.size(),
+			&direction, &font_ascent, &font_descent, &overall);
+
+	WDims result;
 	result.width = overall.width;
-	result.height = overall.ascent; // or font_ascent - font_descent ?
-//	result.height = font_ascent;
+	// TODO test this more
+	// result.height = font_ascent + font_descent;
+	result.height = font_ascent + 1;
+	// result.height = overall.ascent;
+	// result.height = font_ascent - font_descent;
 
 //	XQueryTextExtents(resourceManager->dpy, gid, text.str.data(),text.str.size(),&direction, &font_ascent, &font_descent, &overall);
 
