@@ -13,7 +13,6 @@ ImageCanvasX11::ImageCanvasX11(tk::image::Ptr imageBuffer):
 	imageBuffer(std::move(imageBuffer)),
 	canvas(dynamic_cast<image::ImageX11 &>(*this->imageBuffer).beginDraw())
 {
-	canvas.setHeight(this->imageBuffer->dims().height);
 }
 
 tk::Canvas & ImageCanvasX11::imageCanvas() {

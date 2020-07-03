@@ -121,7 +121,7 @@ ClipboardType NativeControlImpl::copyToClipboard() const {
 }
 
 Canvas & NativeControlImpl::canvas() {
-	return windowCanvas.setHeight(rect().dims().height);
+	return windowCanvas;
 }
 
 void NativeControlImpl::repaint() {

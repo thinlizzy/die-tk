@@ -14,7 +14,6 @@ namespace tk {
 class CanvasX11: public Canvas {
 	GC gc;
 	Drawable drawable;
-	int height = 12345; // to reflect Y in line and rect ops
 	// used to normalize text drawing from bottom to top.
 	int lineHeight; // TODO set font needs to update it or use a Font object instead
 public:
@@ -52,7 +51,6 @@ public:
 
 	GC getGC() const { return gc; }
 	Drawable getDrawable() const { return drawable; }
-	CanvasX11 & setHeight(int height) { this->height = height; return *this; }
 private:
     void setPen(Pen const & pen);
     void setBrush(Brush const & brush);

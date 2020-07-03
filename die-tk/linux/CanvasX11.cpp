@@ -74,7 +74,6 @@ CanvasX11::CanvasX11(Drawable drawable):
 CanvasX11::CanvasX11(CanvasX11 && other):
 	gc(other.gc),
     drawable(other.drawable),
-	height(other.height),
 	lineHeight(other.lineHeight)
 {
 	other.gc = nullptr;
@@ -86,7 +85,6 @@ CanvasX11 & CanvasX11::operator=(CanvasX11 && other)
 	if( this != &other ) {
 		gc = other.gc;
 	    drawable = other.drawable;
-	    height = other.height;
 	    lineHeight = other.lineHeight;
 		other.gc = nullptr;
 	}
@@ -268,7 +266,6 @@ void CanvasX11::drawText(Point p, NativeString const & text, RGBColor const & te
 }
 
 void CanvasX11::textRect(const Rect & openrect, const NativeString & text, const TextParams & params) {
-	log::info("openrect=",openrect);
 	if( params.backgroundColor.has_value() ) {
 		fillRect(openrect,*params.backgroundColor);
 	}

@@ -230,7 +230,6 @@ CanvasX11 & ImageX11::beginDraw() {
 			xImage->depth
 		));
 		drawingCanvas = CanvasX11(drawingArea.get());
-		drawingCanvas.setHeight(xImage->height);
 	}
 	drawImage(xImage,drawingCanvas,Rect::closed(Point(0,0),dims()),Point(0,0));
 	return drawingCanvas;
