@@ -62,6 +62,11 @@ struct basic_dimension {
         return basic_dimension<T>(std::min(this->width,dims.width), std::min(this->height,dims.height));
     }
 
+	constexpr basic_dimension expandTo(basic_dimension dims) const
+	{
+		return basic_dimension<T>(std::max(this->width,dims.width), std::max(this->height,dims.height));
+	}
+
 	basic_dimension & operator+=(basic_dimension const & d);
 
 	basic_dimension & operator-=(basic_dimension const & d);
