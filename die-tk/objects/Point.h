@@ -35,7 +35,8 @@ public:
 	constexpr basic_point & operator-=(basic_point const & p) { x -= p.x;  y -= p.y; return *this; }
 	template<typename U>
 	constexpr basic_point & operator*=(U f) { x *= f;  y *= f; return *this; }
-	constexpr basic_point & operator/=(T f) { x /= f;  y /= f; return *this; }
+	template<typename U>
+	constexpr basic_point & operator/=(U f) { x /= f;  y /= f; return *this; }
 
 	template<typename U>
 	constexpr basic_point scalar(U sx, U sy) const { return basic_point(x*sx,y*sy); }
