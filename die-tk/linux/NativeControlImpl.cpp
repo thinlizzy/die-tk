@@ -24,6 +24,7 @@ ControlCallbackMap<HandleMouseButton> cbMouseDown, cbMouseUp;
 ControlCallbackMap<HandleMouseMove> cbMouseEnter, cbMouseOver, cbMouseLeave;
 ControlCallbackMap<ProcessKeyEvent> cbKeyDown, cbKeyUp;
 ControlCallbackMap<ProcessKeypress> cbKeypress;
+ControlCallbackMap<HandleOperation> cbFocus, cbLostFocus;
 
 NativeControlImpl::NativeControlImpl(::Window parentWindowId, ::Window windowId):
 	parentWindowId(parentWindowId),
@@ -45,6 +46,17 @@ NativeControlImpl::NativeControlImpl(::Window parentWindowId, ControlParams cons
 }
 
 NativeControlImpl::~NativeControlImpl() {
+	removeFromCb(this,cbPaint);
+	removeFromCb(this,cbMouseDown);
+	removeFromCb(this,cbMouseUp);
+	removeFromCb(this,cbMouseEnter);
+	removeFromCb(this,cbMouseOver);
+	removeFromCb(this,cbMouseLeave);
+	removeFromCb(this,cbKeyDown);
+	removeFromCb(this,cbKeyUp);
+	removeFromCb(this,cbKeypress);
+	removeFromCb(this,cbFocus);
+	removeFromCb(this,cbLostFocus);
 }
 
 void NativeControlImpl::setPos(Point pos) {
@@ -228,6 +240,13 @@ ProcessKeypress NativeControlImpl::onKeypress(ProcessKeypress callback) {
 	return setCallback(this, cbKeypress, callback);
 }
 
+HandleOperation NativeControlImpl::onFocus(HandleOperation callback) {
+	return setCallback(this, cbFocus, callback);
+}
+
+HandleOperation NativeControlImpl::onLostFocus(HandleOperation callback) {
+	return setCallback(this, cbLostFocus, callback);
+}
 void NativeControlImpl::processMessage(XEvent & e) {
 	//log::info("window ",e.xany.window," got event ",xEventToStr(e.type));
 
@@ -278,6 +297,12 @@ void NativeControlImpl::processMessage(XEvent & e) {
 			auto & data = e.xmotion;
 			executeCallback(this, cbMouseOver, Point(data.x, data.y));
 		}
+			break;
+		case FocusIn:
+			executeCallback(this, cbFocus);
+			break;
+		case FocusOut:
+			executeCallback(this, cbLostFocus);
 			break;
 	}
 }

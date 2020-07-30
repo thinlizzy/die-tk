@@ -110,6 +110,8 @@ protected:
 	ProcessKeypress onKeypress(ProcessKeypress callback); // window, edit, memo
 	// seldom used callbacks
 	HandlePaint onPaint(HandlePaint callback); // window, paintbox and custom controls
+	HandleOperation onFocus(HandleOperation callback); // window and controls that make sense to have focus
+	HandleOperation onLostFocus(HandleOperation callback); // window and controls that make sense to have focus
 };
 
 }

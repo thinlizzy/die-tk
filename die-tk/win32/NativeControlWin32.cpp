@@ -16,6 +16,7 @@ ControlCallbackMap<HandleMouseButton> cbMouseDown, cbMouseUp;
 ControlCallbackMap<HandleMouseMove> cbMouseEnter, cbMouseOver, cbMouseLeave;
 ControlCallbackMap<ProcessKeyEvent> cbKeyDown, cbKeyUp;
 ControlCallbackMap<ProcessKeypress> cbKeypress;
+ControlCallbackMap<HandleOperation> cbFocus, cbLostFocus;
 
 DWORD scrollbarToWinStyle(Scrollbar sb) {
 	switch(sb) {
@@ -93,6 +94,8 @@ NativeControlImpl::~NativeControlImpl() {
 	removeFromCb(this,cbKeyDown);
 	removeFromCb(this,cbKeyUp);
 	removeFromCb(this,cbKeypress);
+	removeFromCb(this,cbFocus);
+	removeFromCb(this,cbLostFocus);
 }
 
 Canvas & NativeControlImpl::canvas() {
@@ -308,6 +311,14 @@ HandlePaint NativeControlImpl::onPaint(HandlePaint callback) {
 	return setCallback(this, cbPaint, callback);
 }
 
+HandleOperation NativeControlImpl::onFocus(HandleOperation callback) {
+	return setCallback(this, cbFocus, callback);
+}
+
+HandleOperation NativeControlImpl::onLostFocus(HandleOperation callback) {
+	return setCallback(this, cbLostFocus, callback);
+}
+
 #define GETCB(mapname, varname) \
 auto varname = fetchCallback(this,mapname); \
 if( varname == nullptr ) return optional<LRESULT>();
@@ -418,6 +429,24 @@ optional<LRESULT> NativeControlImpl::processMessage(UINT message, WPARAM & wPara
 		case WM_MOUSELEAVE:
 			trackingMouse = false;
 			return doMouseMove(cbMouseLeave, lParam);
+
+		case WM_ACTIVATE:
+			switch(wParam) {
+				case WA_ACTIVE:
+				case WA_CLICKACTIVE: {
+					GETCB(cbFocus, on_focus);
+					on_focus();
+					result = 0;
+				}
+					break;
+				case WA_INACTIVE: {
+					GETCB(cbLostFocus, on_lost_focus);
+					on_lost_focus();
+					result = 0;
+				}
+					break;
+			}
+			break;
 	}
 	return result;
 }

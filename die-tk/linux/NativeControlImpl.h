@@ -91,6 +91,8 @@ public:
 	ProcessKeypress onKeypress(ProcessKeypress callback);
 
 	HandlePaint onPaint(HandlePaint callback);
+	HandleOperation onFocus(HandleOperation callback);
+	HandleOperation onLostFocus(HandleOperation callback);
 
 	virtual void processMessage(XEvent & e);
 private:

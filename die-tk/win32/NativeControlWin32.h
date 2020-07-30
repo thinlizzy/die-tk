@@ -94,6 +94,8 @@ public:
 	ProcessKeypress onKeypress(ProcessKeypress callback);
 
 	HandlePaint onPaint(HandlePaint callback);
+	HandleOperation onFocus(HandleOperation callback);
+	HandleOperation onLostFocus(HandleOperation callback);
 private:
     optional<LRESULT> doMouseButton(ControlCallbackMap<HandleMouseButton> & callbacks, UINT message, WPARAM wParam, LPARAM lParam);
     optional<LRESULT> doMouseMove(ControlCallbackMap<HandleMouseMove> & callbacks, LPARAM lParam);

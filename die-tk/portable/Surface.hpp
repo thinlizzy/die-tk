@@ -134,4 +134,12 @@ HandlePaint Surface::onPaint(HandlePaint callback) {
 	return impl->onPaint(callback);
 }
 
+HandleOperation Surface::onFocus(HandleOperation callback) {
+	return impl->onFocus(callback);
+}
+
+HandleOperation Surface::onLostFocus(HandleOperation callback) {
+	return impl->onLostFocus(callback);
+}
+
 }

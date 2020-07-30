@@ -51,5 +51,4 @@ void Surface::clear(RGBColor const & color)
 	canvas1.fillRect(Rect::closed(Point(0,0),dims()),color);
 }
 
-
 }

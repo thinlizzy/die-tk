@@ -34,6 +34,8 @@ public:
     using Surface::onKeyDown;
     using Surface::onKeyUp;
     using Surface::onKeypress;
+    using Surface::onFocus;
+    using Surface::onLostFocus;
 	AllowOperation onClose(AllowOperation callback);
 	ProcessResize onResize(ProcessResize callback);
 	HandleResize afterResize(HandleResize callback);

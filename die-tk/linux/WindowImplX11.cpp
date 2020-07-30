@@ -80,7 +80,8 @@ WindowImpl::WindowImpl(WindowParams const & params):
 	XSelectInput(resourceManager->dpy, windowId,
 			KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask |
 			EnterWindowMask | LeaveWindowMask | PointerMotionMask |
-			ExposureMask | StructureNotifyMask | PropertyChangeMask
+			ExposureMask | StructureNotifyMask | PropertyChangeMask |
+			FocusChangeMask
 			);
 	// TODO set do-not-propagate-mask for KeyPress and KeyRelease events
 
