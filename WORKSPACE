@@ -28,6 +28,14 @@ cc_library(
 	],
 	visibility = ["//visibility:public"],
 )
+
+cc_library(
+	name = "comdlg32",
+	srcs = [
+		"ComDlg32.lib",
+	],
+	visibility = ["//visibility:public"],
+)
 """,
 )
 

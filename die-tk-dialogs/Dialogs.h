@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "SelectFileParams.h"
-#include "../../../src/die-tk.h"
+#include "die-tk.h"
 
 namespace tk {
     

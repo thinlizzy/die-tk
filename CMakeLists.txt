@@ -7,11 +7,14 @@ include_directories(.)
 
 add_subdirectory(die-tk)
 if (WIN32)
+    set(WINDOWS_HINTS "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.18362.0/um/x64")
     add_subdirectory(die-tk/win32)
 else()
     add_subdirectory(die-tk/linux)
 endif()
+
 add_subdirectory(die-tk-image)
+add_subdirectory(die-tk-dialogs)
 
 # examples
 add_subdirectory(examples/custom-controls)

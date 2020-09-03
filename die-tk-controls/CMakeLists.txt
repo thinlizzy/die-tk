@@ -47,7 +47,6 @@ IF(WIN32 AND NOT UNIX)
         win32/controls/TreeView.cpp
         win32/controls/TreeViewWin32.cpp
         win32/controls/TreeViewWin32.h
-        win32/dialogs/Dialogs.cpp
         win32/CommonControlInitializer.cpp
         win32/CommonControlInitializer.h)
 ELSE(WIN32 AND NOT UNIX)
@@ -73,8 +72,6 @@ set(SOURCE_FILES
     src/controls/PaintBox.h
     src/controls/TableView.h
     src/controls/TreeView.h
-    src/dialogs/Dialogs.h
-    src/dialogs/SelectFileParams.h
     src/die-tk-controls.h)
 
 add_library(die_tk_controls ${SOURCE_FILES})
