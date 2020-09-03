@@ -3,10 +3,12 @@
 #include <cstring>
 #include <algorithm>
 #include "libsofd.h"
+#include "messagebox.h"
 #include "die-tk/linux/ResourceManager.h"
 #include "die-tk/linux/WindowImplX11.h"
 
 // this implementation uses a fork of https://github.com/x42/sofd
+// and it uses https://github.com/Eleobert/MessageBox-X11 as well
 
 namespace tk {
 namespace dialog {
@@ -56,7 +58,7 @@ NativeString selectFile(Window & owner, SelectFileParams const & params, char co
 	char * filename = nullptr;
 	for(;;) {
 		XEvent event;
-		while (XPending(dpy) > 0) {
+		while( XPending(dpy) > 0 ) {
 			XNextEvent(dpy,&event);
 			if( x_fib_handle_events(dpy, &event) ) {
 				if( x_fib_status() > 0 ) {
@@ -101,7 +103,15 @@ std::vector<NativeString> selectFiles(Window & owner, SelectFileParams const & p
 }
 
 void showMessage(Window & owner, NativeString const & message) {
-	// TODO use https://github.com/Eleobert/MessageBox-X11
+	// TODO see how to use owner.getImpl() as the transient window, like sofd does
+	auto ok = L"OK";
+	Button button;
+	button.label = const_cast<wchar_t *>(ok);
+	button.result = 1;
+	// TODO test the conversion to wchar_t (might want to refactor Messagebox out of wchar_t)
+	wchar_t * text = new wchar_t[message.str.size() + 1];
+	std::copy(message.str.begin(),message.str.end(),text);
+	Messagebox("Alert",text,&button,1);
 }
 
 }

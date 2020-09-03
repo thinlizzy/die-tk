@@ -12,6 +12,8 @@ else()
             Dialogs.h
             SelectFileParams.h
             linux/Dialogs.cpp
+            linux/libsofd.c
             linux/libsofd.h
-            linux/libsofd.c)
+            linux/messagebox.c
+            linux/messagebox.h)
 endif()

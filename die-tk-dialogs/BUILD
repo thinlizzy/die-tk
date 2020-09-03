@@ -29,6 +29,8 @@ cc_library(
 		"linux/Dialogs.cpp",
 		"linux/libsofd.c",
 		"linux/libsofd.h",
+		"linux/messagebox.c",
+		"linux/messagebox.h",
 	],
 	deps = [
 		":die-tk-dialogs-base",

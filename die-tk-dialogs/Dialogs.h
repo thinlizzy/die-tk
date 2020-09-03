@@ -16,6 +16,8 @@ std::vector<NativeString> selectFiles(Window & owner, SelectFileParams const & p
 NativeString selectFileForSave(Window & owner, SelectFileParams const & params = SelectFileParams());
 void showMessage(Window & owner, NativeString const & message);
 
+// TODO add messageBox routines (confirmation, warning, etc.) with return code
+
 }
 }
 
