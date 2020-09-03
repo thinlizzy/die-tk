@@ -24,7 +24,6 @@
 #ifndef LIBSOFD_H
 #define LIBSOFD_H 1
 
-#ifdef HAVE_X11
 #include <X11/Xlib.h>
 
 #ifdef __cplusplus
@@ -41,7 +40,7 @@ extern "C" {
  * @param y if >0 set explict initial height of the window
  * @return 0 on success
  */
-int x_fib_show (Display *dpy, Window parent, int x, int y);
+int x_fib_show (Display *dpy, Window parent, char const * buttonLabel, int x, int y);
 
 /** force close the dialog.
  * This is normally not needed, the dialog closes itself
@@ -118,8 +117,6 @@ int x_fib_cfg_filter_callback (int (*cb)(const char*));
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* END X11 specific functions */
 
 #ifdef __cplusplus
 extern "C" {
