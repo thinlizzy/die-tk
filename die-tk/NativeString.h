@@ -3,8 +3,11 @@
 
 #include <string>
 #include <ostream>
+#include <filesystem>
 
 namespace tk {
+
+// TODO design an iterator that returns NativeChar
 
 class NativeString {
 public:
@@ -40,10 +43,17 @@ public:
     static NativeString toString(double value);
     
     bool empty() const;
+    size_t size() const;
     NativeString & operator+=(NativeString const & other);
     bool operator==(NativeString const & other) const;
     bool operator!=(NativeString const & other) const;
-    
+
+    size_t find(NativeString const & other) const;
+	size_t rfind(NativeString const & other) const;
+	NativeString substr(size_t pos, size_t count) const;
+
+	std::filesystem::path asPath() const;
+
     static Encoding const nativeEncoding;
 };
 
@@ -56,6 +66,5 @@ inline std::wostream & operator<<(std::wostream & os, NativeString const & str) 
 }
 
 inline tk::NativeString operator"" _ns(char const * str, size_t size) { return tk::NativeString(str,size); }
-
 
 #endif

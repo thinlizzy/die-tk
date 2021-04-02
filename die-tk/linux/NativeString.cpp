@@ -164,6 +164,10 @@ bool NativeString::empty() const
     return str.empty();
 }
 
+size_t NativeString::size() const {
+	return str.size();
+}
+
 NativeString & NativeString::operator+=(NativeString const & other)
 {
     str += other.str;
@@ -180,10 +184,25 @@ bool NativeString::operator!=(NativeString const & other) const
     return str != other.str;
 }
 
+size_t NativeString::find(NativeString const & other) const {
+	return str.find(other.str);
+}
+
+size_t NativeString::rfind(NativeString const & other) const {
+	return str.rfind(other.str);
+}
+
+NativeString NativeString::substr(size_t pos, size_t count) const {
+	return NativeString(str.substr(pos,count));
+}
+
+std::filesystem::path NativeString::asPath() const {
+	return std::filesystem::path(str);
+}
+
 bool operator<(NativeString const & a, NativeString const & b)
 {
     return a.str < b.str;
 }
 
 }
-

@@ -174,24 +174,40 @@ bool NativeString::empty() const
     return wstr.empty();
 }
 
-NativeString & NativeString::operator+=(NativeString const & other)
-{
+size_t NativeString::size() const {
+	return wstr.size();
+}
+
+NativeString & NativeString::operator+=(NativeString const & other) {
     wstr += other.wstr;
     return *this;
 }
 
-bool NativeString::operator==(NativeString const & other) const
-{
+bool NativeString::operator==(NativeString const & other) const {
     return wstr == other.wstr;
 }
 
-bool NativeString::operator!=(NativeString const & other) const
-{
+bool NativeString::operator!=(NativeString const & other) const {
     return wstr != other.wstr;
 }
 
-bool operator<(NativeString const & a, NativeString const & b)
-{
+size_t NativeString::find(NativeString const & other) const {
+	return wstr.find(other.wstr);
+}
+
+size_t NativeString::rfind(NativeString const & other) const {
+	return wstr.rfind(other.wstr);
+}
+
+NativeString NativeString::substr(size_t pos, size_t count) const {
+	return NativeString(wstr.substr(pos,count));
+}
+
+std::filesystem::path NativeString::asPath() const {
+	return std::filesystem::path(wstr);
+}
+
+bool operator<(NativeString const & a, NativeString const & b) {
     return a.wstr < b.wstr;
 }
 
