@@ -1,6 +1,7 @@
 #ifndef POINT_H_DIE_TK_2014_03_22_11_14
 #define	POINT_H_DIE_TK_2014_03_22_11_14
 
+#include <istream>
 #include <ostream>
 #include <cmath>
 
@@ -48,6 +49,15 @@ public:
 	constexpr T distance(basic_point const & p) const { return (*this - p).distance(); }
 
 	friend std::ostream & operator<<(std::ostream & os, basic_point const & p) { os << '(' << p.x << ',' << p.y << ')'; return os; }
+
+	friend std::istream & operator>>(std::istream & is, basic_point & p) {
+		is.ignore(std::numeric_limits<std::streamsize>::max(),'(');
+		is >> p.x;
+		is.ignore(std::numeric_limits<std::streamsize>::max(),',');
+		is >> p.y; 
+		is.ignore(std::numeric_limits<std::streamsize>::max(),')');
+		return is;
+	}
 };
 
 template<typename T>

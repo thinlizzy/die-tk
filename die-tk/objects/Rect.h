@@ -3,6 +3,7 @@
 
 #include "Point.h"
 #include "Dimension.h"
+#include <istream>
 #include <ostream>
 #include <algorithm>
 
@@ -107,6 +108,21 @@ public:
 	    os << '(' << rect.left << ',' << rect.top << ")-(" << rect.right << ',' << rect.bottom << ')';
 	    return os;
     }
+
+	friend std::istream & operator>>(std::istream & is, Rect & rect) {
+		is.ignore(std::numeric_limits<std::streamsize>::max(),'(');
+		is >> rect.left;
+		is.ignore(std::numeric_limits<std::streamsize>::max(),',');
+		is >> rect.top; 
+		is.ignore(std::numeric_limits<std::streamsize>::max(),')');
+		is.ignore(std::numeric_limits<std::streamsize>::max(),'-');
+		is.ignore(std::numeric_limits<std::streamsize>::max(),'(');
+		is >> rect.right;
+		is.ignore(std::numeric_limits<std::streamsize>::max(),',');
+		is >> rect.bottom; 
+		is.ignore(std::numeric_limits<std::streamsize>::max(),')');
+		return is;
+	}
 };
 
 // Intersection returns the result of two overlapping rect objects
